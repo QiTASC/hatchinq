@@ -1,6 +1,13 @@
-module Hatchinq.DataTable exposing (Config, DataTableType(..), Message(..), State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update, view)
+module Hatchinq.DataTable exposing (Config, Message, State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update)
 
--- TYPES
+{-|
+
+
+# Exposed
+
+@docs Config, Message, State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update
+
+-}
 
 import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarX, scrollbarY, width)
 import Element.Background as Background
@@ -11,6 +18,10 @@ import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, t
 import Hatchinq.Checkbox as Checkbox
 import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon)
 import Html.Attributes
+
+
+
+-- TYPES
 
 
 type DataTableType
@@ -25,6 +36,7 @@ type alias InternalConfig item msg =
     }
 
 
+{-| -}
 type alias Config item msg =
     { theme : Theme
     , lift : Message item msg -> msg
@@ -37,12 +49,14 @@ type Sort item
     | Decreasing Int (List item -> List item)
 
 
+{-| -}
 type alias State item =
     { hoveredHeader : Maybe Int
     , sort : Sort item
     }
 
 
+{-| -}
 init =
     { hoveredHeader = Nothing
     , sort = NoSort
@@ -61,6 +75,7 @@ type alias InnerColumn item msg =
     }
 
 
+{-| -}
 column : Element msg -> Element.Length -> (Int -> item -> Element msg) -> Column item msg
 column header width toElement =
     Column
@@ -71,6 +86,7 @@ column header width toElement =
         }
 
 
+{-| -}
 sortableColumn : Element msg -> Element.Length -> (Int -> item -> Element msg) -> (List item -> List item) -> Column item msg
 sortableColumn header width toElement sorter =
     Column
@@ -85,6 +101,7 @@ sortableColumn header width toElement sorter =
 -- MESSAGES
 
 
+{-| -}
 type Message item msg
     = Sort Int (List item -> List item)
     | Select item msg
@@ -95,6 +112,7 @@ type Message item msg
 -- UPDATE
 
 
+{-| -}
 update : Message item msg -> State item -> ( State item, Cmd msg )
 update msg model =
     case msg of
@@ -125,6 +143,7 @@ update msg model =
 -- VIEW
 
 
+{-| -}
 type alias View item msg =
     { columns : List (Column item msg)
     , items : List item
@@ -132,26 +151,31 @@ type alias View item msg =
     }
 
 
+{-| -}
 configure : Config item msg -> (List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg)
 configure config =
     view config
 
 
+{-| -}
 plain : Attribute (InternalConfig item msg)
 plain =
     custom (\v -> { v | dataTableType = Plain })
 
 
+{-| -}
 infinite : Attribute (InternalConfig item msg)
 infinite =
     custom (\v -> { v | dataTableType = Infinite })
 
 
+{-| -}
 selection : (item -> Bool) -> (item -> Bool -> msg) -> (Bool -> msg) -> Attribute (InternalConfig item msg)
 selection selectable select selectAll =
     custom (\v -> { v | selection = Just ( selectable, select, selectAll ) })
 
 
+{-| -}
 expansion : (item -> Bool) -> (item -> Bool -> msg) -> (item -> Element msg) -> Attribute (InternalConfig item msg)
 expansion expandable expand expandedContent =
     custom (\v -> { v | expansion = Just ( expandable, expand, expandedContent ) })

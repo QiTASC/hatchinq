@@ -1,4 +1,16 @@
-module Hatchinq.SidePanel exposing (Config, SidePanelOrientation(..), State, View, configure, init, minWidth, subscriptions)
+module Hatchinq.SidePanel exposing
+    ( Config, State, View, configure, init, minWidth, subscriptions
+    , SidePanelOrientation(..)
+    )
+
+{-|
+
+
+# Exposed
+
+@docs Config, SidePanelOrientation(..), State, View, configure, init, minWidth, subscriptions
+
+-}
 
 import Array
 import Browser.Dom as Dom
@@ -19,6 +31,7 @@ import Json.Decode as Decode
 import Task
 
 
+{-| -}
 type alias Config msg =
     { theme : Theme
     , lift : State -> msg
@@ -27,6 +40,7 @@ type alias Config msg =
     }
 
 
+{-| -}
 type SidePanelOrientation
     = LeftHand
     | RightHand
@@ -38,6 +52,7 @@ type alias WindowSize =
     }
 
 
+{-| -}
 type alias State =
     { openedContainerId : Int
     , containerWidth : Int
@@ -47,6 +62,7 @@ type alias State =
     }
 
 
+{-| -}
 type alias View msg =
     { buttons : List (SidePanelButton msg)
     , state : State
@@ -60,6 +76,7 @@ type alias InternalConfig =
     }
 
 
+{-| -}
 minWidth : Int -> Attribute InternalConfig
 minWidth m =
     custom (\v -> { v | minWidth = Just m })
@@ -86,6 +103,7 @@ dragHandleWidth =
     8
 
 
+{-| -}
 subscriptions : Config msg -> State -> Sub msg
 subscriptions config state =
     if state.beingDragged then
@@ -132,6 +150,7 @@ stateFromDrag config state pos =
     }
 
 
+{-| -}
 init : (State -> msg) -> ( State, Cmd msg )
 init lift =
     let
@@ -145,6 +164,7 @@ init lift =
     )
 
 
+{-| -}
 configure : Config msg -> (List (Attribute InternalConfig) -> View msg -> Element msg)
 configure config =
     view config

@@ -1,4 +1,13 @@
-module Hatchinq.DropDown exposing (Config, Message(..), Query(..), State, UiState(..), configure, dropDownCount, filled, init, label, outlined, searchable, update)
+module Hatchinq.DropDown exposing (Config, Message, State, configure, dropDownCount, filled, init, label, outlined, searchable, update)
+
+{-|
+
+
+# Exposed
+
+@docs Config, Message, Query, State, configure, dropDownCount, filled, init, label, outlined, searchable, update
+
+-}
 
 import Element exposing (Element, Length, alignRight, below, centerY, column, el, fill, focused, height, htmlAttribute, inFront, mouseOver, padding, paddingEach, paddingXY, pointer, px, scale, scrollbarY, shrink, width)
 import Element.Background as Background
@@ -29,6 +38,7 @@ type alias InternalConfig =
     }
 
 
+{-| -}
 type alias Config item msg =
     { theme : Theme
     , lift : Message item msg -> msg
@@ -44,11 +54,13 @@ type UiState
     | Open Query
 
 
+{-| -}
 type alias State =
     { uiState : UiState
     }
 
 
+{-| -}
 init =
     State Closed
 
@@ -57,6 +69,7 @@ init =
 -- MESSAGES
 
 
+{-| -}
 type Message item msg
     = OpenSelect
     | CloseSelect
@@ -69,6 +82,7 @@ type Message item msg
 -- UPDATE
 
 
+{-| -}
 update : Message item msg -> State -> ( State, Cmd msg )
 update msg model =
     case msg of
@@ -99,6 +113,7 @@ update msg model =
 -- VIEW
 
 
+{-| -}
 type alias View item msg =
     { items : List item
     , itemToString : item -> String
@@ -108,31 +123,37 @@ type alias View item msg =
     }
 
 
+{-| -}
 configure : Config item msg -> (List (Attribute InternalConfig) -> View item msg -> Element msg)
 configure config =
     view config
 
 
+{-| -}
 outlined : Attribute InternalConfig
 outlined =
     custom (\v -> { v | dropDownType = Outlined })
 
 
+{-| -}
 filled : Attribute InternalConfig
 filled =
     custom (\v -> { v | dropDownType = Filled })
 
 
+{-| -}
 searchable : Attribute InternalConfig
 searchable =
     custom (\v -> { v | searchable = True })
 
 
+{-| -}
 dropDownCount : Int -> Attribute InternalConfig
 dropDownCount count =
     custom (\v -> { v | dropDownCount = count })
 
 
+{-| -}
 label : String -> Attribute InternalConfig
 label labelString =
     custom (\v -> { v | label = Just labelString })

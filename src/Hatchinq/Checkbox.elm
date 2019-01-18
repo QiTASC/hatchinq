@@ -1,4 +1,13 @@
-module Hatchinq.Checkbox exposing (Config, configure, stopPropagation, view)
+module Hatchinq.Checkbox exposing (Config, configure, stopPropagation)
+
+{-|
+
+
+# Exposed
+
+@docs Config, configure, stopPropagation
+
+-}
 
 import Element exposing (Element, behindContent, centerX, centerY, el, focused, height, html, htmlAttribute, mouseOver, pointer, px, width)
 import Element.Background as Background
@@ -15,6 +24,7 @@ import Json.Decode
 -- TYPES
 
 
+{-| -}
 type alias Config =
     { theme : Theme
     }
@@ -25,6 +35,7 @@ type alias InternalConfig =
     }
 
 
+{-| -}
 stopPropagation : Attribute InternalConfig
 stopPropagation =
     custom (\v -> { v | stopPropagation = True })
@@ -40,6 +51,7 @@ type alias View msg =
     }
 
 
+{-| -}
 configure : Config -> (List (Attribute InternalConfig) -> View msg -> Element msg)
 configure config =
     view config

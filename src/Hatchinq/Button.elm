@@ -1,5 +1,14 @@
 module Hatchinq.Button exposing (Config, View, configure, contained, outlined, text)
 
+{-|
+
+
+# Exposed
+
+@docs Config, View, configure, contained, outlined, text
+
+-}
+
 import Element exposing (Element, focused, height, minimum, mouseDown, mouseOver, paddingXY, px, shrink, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -10,11 +19,13 @@ import Hatchinq.Theme exposing (Theme)
 import Html.Attributes
 
 
+{-| -}
 type alias Config =
     { theme : Theme
     }
 
 
+{-| -}
 type alias View msg =
     { label : String
     , onPress : Maybe msg
@@ -34,21 +45,25 @@ type ButtonType
     | Contained
 
 
+{-| -}
 configure : Config -> (List (Attribute (InternalView msg)) -> View msg -> Element msg)
 configure config =
     view config
 
 
+{-| -}
 contained : Attribute (InternalView msg)
 contained =
     custom (\v -> { v | buttonType = Contained })
 
 
+{-| -}
 outlined : Attribute (InternalView msg)
 outlined =
     custom (\v -> { v | buttonType = Outlined })
 
 
+{-| -}
 text : Attribute (InternalView msg)
 text =
     custom (\v -> { v | buttonType = Text })

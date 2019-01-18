@@ -1,4 +1,13 @@
-module Hatchinq.Paginator exposing (Config, View, view)
+module Hatchinq.Paginator exposing (Config, View, configure)
+
+{-|
+
+
+# Exposed
+
+@docs Config, View, configure
+
+-}
 
 import Element exposing (..)
 import Element.Events exposing (..)
@@ -10,15 +19,23 @@ import Hatchinq.Theme exposing (Theme, icon)
 -- CONFIG
 
 
+{-| -}
 type alias Config =
     { theme : Theme
     }
+
+
+{-| -}
+configure : Config -> View msg -> Element msg
+configure config =
+    view config
 
 
 
 -- VIEW
 
 
+{-| -}
 type alias View msg =
     { rowsPerPage : Int
     , offset : Int

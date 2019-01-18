@@ -114,7 +114,7 @@ button =
 
 
 iconButton =
-    IconButton.view { theme = theme }
+    IconButton.configure { theme = theme }
 
 
 textButton =

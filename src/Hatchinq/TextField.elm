@@ -1,5 +1,14 @@
 module Hatchinq.TextField exposing (Config, Message, State, View, configure, init, update)
 
+{-|
+
+
+# Exposed
+
+@docs Config, Message, State, View, configure, init, update
+
+-}
+
 import Element exposing (Element, fill, focused, height, htmlAttribute, inFront, mouseOver, paddingEach, paddingXY, px, shrink, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -11,22 +20,26 @@ import Hatchinq.Theme as Theme exposing (Theme)
 import Html.Attributes as Attr
 
 
+{-| -}
 type alias Config id msg =
     { theme : Theme
     , lift : Message id -> msg
     }
 
 
+{-| -}
 type Message id
     = Focus id
     | Blur id
     | Impossible String
 
 
+{-| -}
 type State id
     = InternalState (Maybe id)
 
 
+{-| -}
 type alias View id msg =
     { id : id
     , label : String
@@ -41,16 +54,19 @@ type TextFieldType
     | Filled
 
 
+{-| -}
 configure : Config id msg -> (List (Attribute v) -> View id msg -> Element msg)
 configure config =
     view config
 
 
+{-| -}
 init : State id
 init =
     InternalState Nothing
 
 
+{-| -}
 update : Message id -> State id -> State id
 update message (InternalState state) =
     InternalState

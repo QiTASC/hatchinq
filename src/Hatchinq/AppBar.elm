@@ -1,5 +1,14 @@
 module Hatchinq.AppBar exposing (Action, Config, Message, State, View, appBarHeight, configure, elevate, init, navigate, placeholder, update)
 
+{-|
+
+
+# Exposed
+
+@docs Action, Config, Message, State, View, appBarHeight, configure, elevate, init, navigate, placeholder, update
+
+-}
+
 import Element exposing (Element, centerX, centerY, fill, height, mouseOver, padding, paddingXY, pointer, px, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -10,19 +19,23 @@ import Hatchinq.Theme as Theme exposing (Theme, icon)
 import Html.Attributes
 
 
+{-| -}
 appBarHeight =
     56
 
 
+{-| -}
 type alias Config =
     { theme : Theme
     }
 
 
+{-| -}
 type Message
     = NoMessage
 
 
+{-| -}
 type State
     = State InternalState
 
@@ -31,12 +44,14 @@ type alias InternalState =
     {}
 
 
+{-| -}
 type alias View msg =
     { title : Element msg
     , actions : List (Action msg)
     }
 
 
+{-| -}
 type alias Action msg =
     { icon : String
     , message : msg
@@ -49,31 +64,37 @@ type alias InternalView msg =
     }
 
 
+{-| -}
 elevate : Bool -> Attribute (InternalView msg)
 elevate q =
     custom (\v -> { v | elevate = q })
 
 
+{-| -}
 navigate : msg -> Attribute (InternalView msg)
 navigate message =
     custom (\v -> { v | navigation = Just message })
 
 
+{-| -}
 configure : Config -> (List (Attribute (InternalView msg)) -> View msg -> Element msg)
 configure config =
     view config
 
 
+{-| -}
 init : State
 init =
     State {}
 
 
+{-| -}
 update : Message -> State -> State
 update message state =
     state
 
 
+{-| -}
 placeholder : List (Attribute (InternalView msg)) -> Element msg
 placeholder source =
     Element.el

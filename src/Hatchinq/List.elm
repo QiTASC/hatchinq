@@ -1,4 +1,13 @@
-module Hatchinq.List exposing (Config, Message(..), State, View, borderWidthEach, configure, imageSrc, init, secondaryText, update, view)
+module Hatchinq.List exposing (Config, Message, State, View, borderWidthEach, configure, imageSrc, init, secondaryText, update)
+
+{-|
+
+
+# Exposed
+
+@docs Config, Message, State, View, borderWidthEach, configure, imageSrc, init, secondaryText, update
+
+-}
 
 import Element exposing (Element, centerY, fill, height, html, htmlAttribute, inFront, mouseOver, paddingEach, paddingXY, px, scrollbarY, width)
 import Element.Background as Background
@@ -16,12 +25,14 @@ import Task
 -- TYPES
 
 
+{-| -}
 type alias State item =
     { id : Maybe String
     , selected : Maybe item
     }
 
 
+{-| -}
 init =
     State Nothing Nothing
 
@@ -30,6 +41,7 @@ init =
 -- MESSAGES
 
 
+{-| -}
 type Message item msg
     = Select (Maybe item) (Maybe msg)
 
@@ -38,6 +50,7 @@ type Message item msg
 -- UPDATE
 
 
+{-| -}
 update : Message item msg -> State item -> ( State item, Cmd msg )
 update message state =
     case message of
@@ -56,12 +69,14 @@ update message state =
 -- CONFIG
 
 
+{-| -}
 type alias Config item msg =
     { theme : Theme
     , lift : Message item msg -> msg
     }
 
 
+{-| -}
 configure : Config item msg -> (List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg)
 configure config =
     view config
@@ -74,16 +89,19 @@ type alias InternalConfig item msg =
     }
 
 
+{-| -}
 secondaryText : (item -> String) -> Attribute (InternalConfig item msg)
 secondaryText toSecondaryText =
     custom (\v -> { v | toSecondaryText = Just toSecondaryText })
 
 
+{-| -}
 imageSrc : (item -> String) -> Attribute (InternalConfig item msg)
 imageSrc toImageSrc =
     custom (\v -> { v | toImageSrc = Just toImageSrc })
 
 
+{-| -}
 borderWidthEach :
     { bottom : Int
     , left : Int
@@ -99,6 +117,7 @@ borderWidthEach borders =
 -- VIEW
 
 
+{-| -}
 type alias View item msg =
     { items : List item
     , toPrimaryText : item -> String

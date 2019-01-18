@@ -1,4 +1,13 @@
-module Hatchinq.IconButton exposing (Config, View, view)
+module Hatchinq.IconButton exposing (Config, View, configure)
+
+{-|
+
+
+# Exposed
+
+@docs Config, View, configure
+
+-}
 
 import Element exposing (Element, centerX, centerY, focused, height, mouseOver, padding, px, width)
 import Element.Background as Background
@@ -14,15 +23,23 @@ import Html.Attributes
 -- CONFIG
 
 
+{-| -}
 type alias Config =
     { theme : Theme
     }
+
+
+{-| -}
+configure : Config -> (List (Attribute v) -> View msg -> Element msg)
+configure config =
+    view config
 
 
 
 -- VIEW
 
 
+{-| -}
 type alias View msg =
     { icon : String
     , onPress : Maybe msg

@@ -1,5 +1,14 @@
 module Hatchinq.Theme exposing (ColorTheme, ColorType, FontTheme, Theme, arrowTransition, black, default, font, icon, lightGray, stylesheet, textWithEllipsis, transition, transparent, white, withColors)
 
+{-|
+
+
+# Exposed
+
+@docs ColorTheme, ColorType, FontTheme, Theme, arrowTransition, black, default, font, icon, lightGray, stylesheet, textWithEllipsis, transition, transparent, white, withColors
+
+-}
+
 import Element exposing (Attribute, Color, Element, Length, el, fill, height, html, htmlAttribute, paddingXY, px, width)
 import Element.Font exposing (Font)
 import Hatchinq.Color as QColor exposing (alpha, blue, green, isBrighter, red, rgba, toElement, withAlpha)
@@ -7,6 +16,7 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 
 
+{-| -}
 type alias FontTheme =
     { main : Font
     , defaultSize : Int
@@ -16,6 +26,7 @@ type alias FontTheme =
     }
 
 
+{-| -}
 type alias ColorType =
     { original : QColor.Color
     , color : Color
@@ -28,6 +39,7 @@ type alias ColorType =
     }
 
 
+{-| -}
 type alias ColorTheme =
     { primary : ColorType
     , secondary : ColorType
@@ -48,6 +60,7 @@ type alias Sizes =
     }
 
 
+{-| -}
 type alias Theme =
     { font : FontTheme
     , colors : ColorTheme
@@ -67,10 +80,12 @@ mqBlack =
     rgba 0 0 0 1
 
 
+{-| -}
 white =
     toElement mqWhite
 
 
+{-| -}
 black =
     toElement mqBlack
 
@@ -87,6 +102,7 @@ gray =
     toElement <| mqGray
 
 
+{-| -}
 lightGray =
     toElement <| rgba 0 0 0 0.12
 
@@ -99,6 +115,7 @@ lightestGray =
     toElement <| rgba 0 0 0 0.04
 
 
+{-| -}
 transparent =
     toElement <| rgba 0 0 0 0
 
@@ -107,6 +124,7 @@ transparent =
 -- FONTS
 
 
+{-| -}
 font =
     Element.Font.typeface "Avenir"
 
@@ -172,11 +190,13 @@ colors primaryColor secondaryColor =
     }
 
 
+{-| -}
 withColors : QColor.Color -> QColor.Color -> Theme -> Theme
 withColors primaryColor secondaryColor theme =
     { theme | colors = colors primaryColor secondaryColor }
 
 
+{-| -}
 default : Theme
 default =
     let
@@ -209,6 +229,7 @@ default =
 -- STYLESHEET
 
 
+{-| -}
 stylesheet : Theme -> Element msg
 stylesheet theme =
     Element.html <|
@@ -330,18 +351,22 @@ stylesheet theme =
 -- UTILITY
 
 
+{-| -}
 icon name =
     Html.i [ Attr.class "material-icons", Attr.style "user-select" "none" ] [ Html.text name ] |> html
 
 
+{-| -}
 transition =
     Attr.style "transition" "all .25s"
 
 
+{-| -}
 arrowTransition =
     Attr.style "transition" "all .15s, transform .15s cubic-bezier(0.4, 0, 0.2, 1) 0s, -webkit-transform .15s cubic-bezier(0.4, 0, 0.2, 1) 0s"
 
 
+{-| -}
 textWithEllipsis : String -> Element msg
 textWithEllipsis text =
     el

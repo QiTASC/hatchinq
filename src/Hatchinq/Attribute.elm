@@ -1,18 +1,18 @@
-module Hatchinq.Attribute exposing
-    ( Attribute
-    , custom
-    , height
-    , none
-    , toElement
-    , toInternalView
-    , toWidth
-    , width
-    , withAttributes
-    )
+module Hatchinq.Attribute exposing (Attribute, custom, height, none, toElement, toInternalView, toWidth, width, withAttributes)
+
+{-|
+
+
+# Exposed
+
+@docs Attribute, custom, height, none, toElement, toInternalView, toWidth, width, withAttributes
+
+-}
 
 import Element exposing (Element, Length)
 
 
+{-| -}
 type Attribute v
     = None
     | Width Length
@@ -20,26 +20,31 @@ type Attribute v
     | Custom (v -> v)
 
 
+{-| -}
 none : Attribute v
 none =
     None
 
 
+{-| -}
 custom : (v -> v) -> Attribute v
 custom f =
     Custom f
 
 
+{-| -}
 width : Length -> Attribute v
 width =
     Width
 
 
+{-| -}
 height : Length -> Attribute v
 height =
     Height
 
 
+{-| -}
 toInternalView : List (Attribute v) -> v -> v
 toInternalView source default =
     source
@@ -55,6 +60,7 @@ toInternalView source default =
             default
 
 
+{-| -}
 toElement : List (Attribute v) -> List (Element.Attribute msg)
 toElement source =
     source
@@ -72,6 +78,7 @@ toElement source =
             )
 
 
+{-| -}
 toWidth : List (Attribute v) -> Maybe Length
 toWidth source =
     List.head
@@ -90,6 +97,7 @@ toWidth source =
         )
 
 
+{-| -}
 withAttributes : List (Attribute internal) -> (List (Attribute internal) -> view -> Element msg) -> (List (Attribute internal) -> view -> Element msg)
 withAttributes defaultAttributes orig =
     \attr v ->
