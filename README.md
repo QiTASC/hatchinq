@@ -1,4 +1,4 @@
-An experimental library of material design components, not for production use.
+An experimental library for easier UI elements creation. Not for production use.
 
 Currently it is work in progress.
 
