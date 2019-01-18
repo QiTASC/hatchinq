@@ -1,5 +1,11 @@
 module Examples exposing (main)
 
+{-| Exposed
+
+@docs main
+
+-}
+
 import Browser
 import Browser.Dom
 import Browser.Events
@@ -21,6 +27,8 @@ import Set exposing (Set)
 import Task
 
 
+{-| -}
+main : Program {} Model Msg
 main =
     Browser.element
         { init = init
