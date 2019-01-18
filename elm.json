@@ -3,7 +3,7 @@
     "name": "QiTASC/hatchinq",
     "summary": "An experimental library of material design components, not for production use.",
     "license": "Apache-2.0",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "source-directories": [
         "src"
     ],
