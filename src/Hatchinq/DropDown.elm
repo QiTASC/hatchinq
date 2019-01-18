@@ -5,7 +5,7 @@ module Hatchinq.DropDown exposing (Config, Message, State, configure, dropDownCo
 
 # Exposed
 
-@docs Config, Message, Query, State, configure, dropDownCount, filled, init, label, outlined, searchable, update
+@docs Config, Message, State, configure, dropDownCount, filled, init, label, outlined, searchable, update
 
 -}
 
@@ -61,6 +61,7 @@ type alias State =
 
 
 {-| -}
+init : State
 init =
     State Closed
 

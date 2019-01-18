@@ -33,6 +33,7 @@ type alias State item =
 
 
 {-| -}
+init : State item
 init =
     State Nothing Nothing
 

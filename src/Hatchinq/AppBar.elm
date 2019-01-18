@@ -20,6 +20,7 @@ import Html.Attributes
 
 
 {-| -}
+appBarHeight : Int
 appBarHeight =
     56
 

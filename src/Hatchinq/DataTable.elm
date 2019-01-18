@@ -57,6 +57,7 @@ type alias State item =
 
 
 {-| -}
+init : State item
 init =
     { hoveredHeader = Nothing
     , sort = NoSort

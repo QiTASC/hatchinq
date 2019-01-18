@@ -1,14 +1,11 @@
-module Hatchinq.SidePanel exposing
-    ( Config, State, View, configure, init, minWidth, subscriptions
-    , SidePanelOrientation(..)
-    )
+module Hatchinq.SidePanel exposing (Config, SidePanelOrientation(..), State, View, configure, init, minWidth, subscriptions)
 
 {-|
 
 
 # Exposed
 
-@docs Config, SidePanelOrientation(..), State, View, configure, init, minWidth, subscriptions
+@docs Config, SidePanelOrientation, State, View, configure, init, minWidth, subscriptions
 
 -}
 
