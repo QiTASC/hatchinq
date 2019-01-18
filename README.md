@@ -2,9 +2,9 @@ An experimental library of material design components, not for production use.
 
 Currently it is work in progress.
 
-Implementation is based on [mdgriffith/elm-ui](https://package.elm-lang.org/packages/mdgriffith/elm-ui/latest/) with inspiration of [Material Design](https://material.io)
+Implementation is based on [mdgriffith/elm-ui](https://package.elm-lang.org/packages/mdgriffith/elm-ui/latest/).
 
-Next components are available so far:
+Next UI elements are available so far:
  - AppBar
  - Button
  - Checkbox
