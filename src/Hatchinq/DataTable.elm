@@ -7,10 +7,10 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Html.Attributes
 import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalView)
 import Hatchinq.Checkbox as Checkbox
 import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon)
+import Html.Attributes
 
 
 type DataTableType

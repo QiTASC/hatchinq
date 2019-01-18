@@ -5,10 +5,10 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Html
-import Html.Attributes
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
 import Hatchinq.Theme exposing (Theme, textWithEllipsis)
+import Html
+import Html.Attributes
 import Task
 
 

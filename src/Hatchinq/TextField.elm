@@ -6,9 +6,9 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
-import Html.Attributes as Attr
 import Hatchinq.Attribute exposing (Attribute, toElement)
 import Hatchinq.Theme as Theme exposing (Theme)
+import Html.Attributes as Attr
 
 
 type alias Config id msg =

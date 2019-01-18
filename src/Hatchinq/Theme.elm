@@ -2,9 +2,9 @@ module Hatchinq.Theme exposing (ColorTheme, ColorType, FontTheme, Theme, arrowTr
 
 import Element exposing (Attribute, Color, Element, Length, el, fill, height, html, htmlAttribute, paddingXY, px, width)
 import Element.Font exposing (Font)
+import Hatchinq.Color as QColor exposing (alpha, blue, green, isBrighter, red, rgba, toElement, withAlpha)
 import Html exposing (Html)
 import Html.Attributes as Attr
-import Hatchinq.Color as QColor exposing (alpha, blue, green, isBrighter, red, rgba, toElement, withAlpha)
 
 
 type alias FontTheme =

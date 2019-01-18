@@ -9,13 +9,13 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.MouseDecoder exposing (MousePosition, positionDecoder)
+import Hatchinq.Theme as Theme exposing (Theme)
 import Html exposing (i)
 import Html.Attributes exposing (class, style)
 import Html.Events
 import Json.Decode as Decode
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
-import Hatchinq.MouseDecoder exposing (MousePosition, positionDecoder)
-import Hatchinq.Theme as Theme exposing (Theme)
 import Task
 
 

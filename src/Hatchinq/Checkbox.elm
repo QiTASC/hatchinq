@@ -3,12 +3,12 @@ module Hatchinq.Checkbox exposing (Config, configure, stopPropagation, view)
 import Element exposing (Element, behindContent, centerX, centerY, el, focused, height, html, htmlAttribute, mouseOver, pointer, px, width)
 import Element.Background as Background
 import Element.Font as Font
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.Theme as Theme exposing (Theme)
 import Html
 import Html.Attributes
 import Html.Events
 import Json.Decode
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
-import Hatchinq.Theme as Theme exposing (Theme)
 
 
 

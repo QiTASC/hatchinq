@@ -5,9 +5,9 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Html.Attributes
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
 import Hatchinq.Theme as Theme exposing (Theme, icon)
+import Html.Attributes
 
 
 appBarHeight =

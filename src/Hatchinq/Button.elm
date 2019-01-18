@@ -5,9 +5,9 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Html.Attributes
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
 import Hatchinq.Theme exposing (Theme)
+import Html.Attributes
 
 
 type alias Config =

@@ -6,9 +6,9 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
-import Html.Attributes
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView, toWidth)
 import Hatchinq.Theme as Theme exposing (Theme, arrowTransition, icon, textWithEllipsis, transition)
+import Html.Attributes
 import Task
 
 

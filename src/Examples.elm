@@ -4,18 +4,19 @@ import Browser
 import Browser.Dom
 import Browser.Events
 import Element exposing (Element, alignTop, fill, inFront, padding, px, spacing)
-import Html exposing (Html)
-import List
 import Hatchinq.AppBar as AppBar
 import Hatchinq.Attribute exposing (Attribute, height, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
 import Hatchinq.Checkbox as Checkbox exposing (..)
 import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
+import Hatchinq.IconButton as IconButton
 import Hatchinq.List as MaterialList exposing (..)
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
+import Html exposing (Html)
+import List
 import Set exposing (Set)
 import Task
 
@@ -110,6 +111,10 @@ checkbox =
 
 button =
     Button.configure { theme = theme }
+
+
+iconButton =
+    IconButton.view { theme = theme }
 
 
 textButton =
@@ -493,6 +498,12 @@ buttonsContent model _ =
                 { label = "DISABLED"
                 , onPress = Nothing
                 }
+            ]
+        , Element.row [ spacing 16 ]
+            [ iconButton [] { icon = "exposure_neg_1", onPress = Just PressMinus }
+            , Element.text <| String.fromInt model.counter
+            , iconButton [] { icon = "exposure_plus_1", onPress = Just PressPlus }
+            , iconButton [] { icon = "sync_disabled", onPress = Nothing }
             ]
         ]
 
