@@ -1,11 +1,11 @@
-module Hatchinq.Theme exposing (ColorTheme, ColorType, FontTheme, Theme, arrowTransition, black, default, font, icon, lightGray, stylesheet, textWithEllipsis, transition, transparent, white, withColors)
+module Hatchinq.Theme exposing (ColorTheme, ColorType, FontTheme, Theme, arrowTransition, black, default, font, icon, stylesheet, textWithEllipsis, transition, transparent, white, withColors)
 
 {-|
 
 
 # Exposed
 
-@docs ColorTheme, ColorType, FontTheme, Theme, arrowTransition, black, default, font, icon, lightGray, stylesheet, textWithEllipsis, transition, transparent, white, withColors
+@docs ColorTheme, ColorType, FontTheme, Theme, arrowTransition, black, default, font, icon, stylesheet, textWithEllipsis, transition, transparent, white, withColors
 
 -}
 
@@ -81,11 +81,13 @@ mqBlack =
 
 
 {-| -}
+white : Color
 white =
     toElement mqWhite
 
 
 {-| -}
+black : Color
 black =
     toElement mqBlack
 
@@ -102,7 +104,6 @@ gray =
     toElement <| mqGray
 
 
-{-| -}
 lightGray =
     toElement <| rgba 0 0 0 0.12
 
@@ -116,6 +117,7 @@ lightestGray =
 
 
 {-| -}
+transparent : Color
 transparent =
     toElement <| rgba 0 0 0 0
 
@@ -125,6 +127,7 @@ transparent =
 
 
 {-| -}
+font : Font
 font =
     Element.Font.typeface "Avenir"
 
@@ -352,16 +355,19 @@ stylesheet theme =
 
 
 {-| -}
+icon : String -> Element msg
 icon name =
     Html.i [ Attr.class "material-icons", Attr.style "user-select" "none" ] [ Html.text name ] |> html
 
 
 {-| -}
+transition : Html.Attribute msg
 transition =
     Attr.style "transition" "all .25s"
 
 
 {-| -}
+arrowTransition : Html.Attribute msg
 arrowTransition =
     Attr.style "transition" "all .15s, transform .15s cubic-bezier(0.4, 0, 0.2, 1) 0s, -webkit-transform .15s cubic-bezier(0.4, 0, 0.2, 1) 0s"
 
