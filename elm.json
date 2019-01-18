@@ -2,7 +2,7 @@
     "type": "package",
     "name": "QiTASC/hatchinq",
     "summary": "An experimental library of material design components, not for production use.",
-    "license": "BSD-3-Clause",
+    "license": "Apache-2.0",
     "version": "0.0.1",
     "source-directories": [
         "src"
