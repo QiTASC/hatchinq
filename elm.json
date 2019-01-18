@@ -3,10 +3,7 @@
     "name": "QiTASC/hatchinq",
     "summary": "An experimental library of material design components, not for production use.",
     "license": "Apache-2.0",
-    "version": "1.0.0",
-    "source-directories": [
-        "src"
-    ],
+    "version": "1.0.1",
     "exposed-modules": [
         "Examples",
         "Hatchinq.AppBar",
@@ -34,6 +31,5 @@
         "mdgriffith/elm-ui": "1.1.0 <= v < 2.0.0",
         "rtfeldman/elm-css": "16.0.0 <= v < 17.0.0"
     },
-    "test-dependencies": {
-    }
+    "test-dependencies": {}
 }
