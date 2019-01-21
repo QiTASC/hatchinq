@@ -513,6 +513,12 @@ buttonsContent model _ =
             , iconButton [] { icon = "exposure_plus_1", onPress = Just PressPlus }
             , iconButton [] { icon = "sync_disabled", onPress = Nothing }
             ]
+        , Element.row [ spacing 16 ]
+            [ iconButton [ IconButton.filled ] { icon = "exposure_neg_1", onPress = Just PressMinus }
+            , Element.text <| String.fromInt model.counter
+            , iconButton [ IconButton.filled ] { icon = "exposure_plus_1", onPress = Just PressPlus }
+            , iconButton [ IconButton.filled ] { icon = "sync_disabled", onPress = Nothing }
+            ]
         ]
 
 

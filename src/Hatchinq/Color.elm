@@ -1,11 +1,11 @@
-module Hatchinq.Color exposing (Color, alpha, blue, green, isBrighter, isDarker, red, rgba, toElement, withAlpha)
+module Hatchinq.Color exposing (Color, alpha, blue, green, isBrighter, isDarker, red, rgba, toElement, withAlpha, textColor)
 
 {-|
 
 
 # Exposed
 
-@docs Color, alpha, blue, green, isBrighter, isDarker, red, rgba, toElement, withAlpha
+@docs Color, alpha, blue, green, isBrighter, isDarker, red, rgba, toElement, withAlpha, textColor
 
 -}
 
@@ -75,3 +75,17 @@ isBrighter (CC lr lg lb la) (CC rr rg rb ra) =
 isDarker : Color -> Color -> Bool
 isDarker lhs rhs =
     not <| isBrighter lhs rhs
+
+
+{-| -}
+textColor : Color -> Color
+textColor background =
+    let
+        isBright =
+            isBrighter background (rgba 255 255 255 0.5)
+    in
+    if isBright then
+        rgba 0 0 0 1
+
+    else
+        rgba 255 255 255 1
