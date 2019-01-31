@@ -1,9 +1,9 @@
 {
     "type": "package",
     "name": "QiTASC/hatchinq",
-    "summary": "An experimental library of material design components, not for production use.",
+    "summary": "An experimental library for UI elements. Not for production use.",
     "license": "Apache-2.0",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "exposed-modules": [
         "Examples",
         "Hatchinq.AppBar",
