@@ -159,6 +159,13 @@ view { theme } source data =
                             "button focusSecondaryRipple"
                         )
                     )
+                :: Element.htmlAttribute
+                    (if disabled then
+                        Html.Attributes.style "cursor" "default"
+
+                     else
+                        Html.Attributes.style "" ""
+                    )
                 :: focused
                     (if disabled then
                         []

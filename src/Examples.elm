@@ -662,6 +662,7 @@ mainContent model =
                 (list WithImagesAndSecondaryTextAndSelectable
                     [ imageSrc (\person -> person.imageSrc)
                     , secondaryText (\person -> Maybe.withDefault "" person.additionalInfo)
+                    , itemsCount 2
                     ]
                     { items = persons
                     , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName

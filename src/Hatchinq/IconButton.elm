@@ -75,10 +75,11 @@ view { theme } source data =
         disabled =
             data.onPress == Nothing
 
-        colorAttributes =
+        dynamicAttributes =
             if disabled then
                 Font.color theme.colors.gray.color
                     :: focused []
+                    :: Element.htmlAttribute (Html.Attributes.style "cursor" "default")
                     :: (case internalConfig.iconButtonType of
                             Default ->
                                 []
@@ -119,7 +120,7 @@ view { theme } source data =
              , Font.center
              , padding 12
              ]
-                ++ colorAttributes
+                ++ dynamicAttributes
                 ++ attributes
             )
             { onPress = data.onPress, label = Element.el [ centerX, centerY ] (icon data.icon) }

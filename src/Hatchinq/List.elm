@@ -1,11 +1,11 @@
-module Hatchinq.List exposing (Config, Message, State, View, borderWidthEach, configure, imageSrc, init, secondaryText, update)
+module Hatchinq.List exposing (Config, Message, State, View, borderWidthEach, configure, imageSrc, init, itemsCount, secondaryText, update)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, State, View, borderWidthEach, configure, imageSrc, init, secondaryText, update
+@docs Config, Message, State, View, borderWidthEach, configure, imageSrc, init, itemsCount, secondaryText, update
 
 -}
 
@@ -86,6 +86,7 @@ configure config =
 type alias InternalConfig item msg =
     { toSecondaryText : Maybe (item -> String)
     , toImageSrc : Maybe (item -> String)
+    , itemsCount : Maybe Int
     , extraExternalAttributes : List (Element.Attribute msg)
     }
 
@@ -100,6 +101,12 @@ secondaryText toSecondaryText =
 imageSrc : (item -> String) -> Attribute (InternalConfig item msg)
 imageSrc toImageSrc =
     custom (\v -> { v | toImageSrc = Just toImageSrc })
+
+
+{-| -}
+itemsCount : Int -> Attribute (InternalConfig item msg)
+itemsCount n =
+    custom (\v -> { v | itemsCount = Just n })
 
 
 {-| -}
@@ -137,6 +144,7 @@ view config attributes data =
         defaultInternalConfig =
             { toSecondaryText = Nothing
             , toImageSrc = Nothing
+            , itemsCount = Nothing
             , extraExternalAttributes = []
             }
 
@@ -162,36 +170,47 @@ view config attributes data =
 
                 _ ->
                     []
+
+        itemHeightPx =
+            case internalConfig.toImageSrc of
+                Just toImageSrc ->
+                    case internalConfig.toSecondaryText of
+                        Just _ ->
+                            72
+
+                        Nothing ->
+                            56
+
+                Nothing ->
+                    case internalConfig.toSecondaryText of
+                        Just _ ->
+                            64
+
+                        Nothing ->
+                            48
+
+        bodyHeightAttribute =
+            Maybe.withDefault [] (Maybe.map (\count -> [ height (px (count * itemHeightPx + 16)) ]) internalConfig.itemsCount)
     in
-    Element.el ([ scrollbarY ] ++ bodyAttributes ++ extraAttributes ++ externalAttributes ++ internalConfig.extraExternalAttributes)
-        (Element.column [ width fill, height fill ] (List.map (\item -> listItem config internalConfig data item) data.items))
+    Element.el ([ scrollbarY ] ++ bodyAttributes ++ extraAttributes ++ externalAttributes ++ internalConfig.extraExternalAttributes ++ bodyHeightAttribute)
+        (Element.column [ width fill, height fill ] (List.map (\item -> listItem config internalConfig data item itemHeightPx) data.items))
 
 
-listItem : Config item msg -> InternalConfig item msg -> View item msg -> item -> Element msg
-listItem { theme, lift } internalConfig data item =
+listItem : Config item msg -> InternalConfig item msg -> View item msg -> item -> Int -> Element msg
+listItem { theme, lift } internalConfig data item itemHeightPx =
     let
         ( leftPadding, additionalItemAttributes ) =
             case internalConfig.toImageSrc of
                 Just toImageSrc ->
                     ( 72
-                    , [ case internalConfig.toSecondaryText of
-                            Just _ ->
-                                height (px 72)
-
-                            Nothing ->
-                                height (px 56)
+                    , [ height (px itemHeightPx)
                       , inFront (roundImage (toImageSrc item))
                       ]
                     )
 
                 Nothing ->
                     ( 16
-                    , case internalConfig.toSecondaryText of
-                        Just _ ->
-                            [ height (px 64) ]
-
-                        Nothing ->
-                            [ height (px 48) ]
+                    , [ height (px itemHeightPx) ]
                     )
 
         colorAttributes =
