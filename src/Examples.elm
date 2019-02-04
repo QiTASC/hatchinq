@@ -9,8 +9,9 @@ module Examples exposing (main)
 import Browser
 import Browser.Dom
 import Browser.Events
-import Element exposing (Element, alignTop, fill, inFront, padding, px, shrink, spacing)
+import Element exposing (Element, alignTop, fill, inFront, padding, paddingEach, px, shrink, spacing)
 import Element.Border
+import Element.Events
 import Hatchinq.AppBar as AppBar
 import Hatchinq.Attribute exposing (Attribute, height, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
@@ -19,6 +20,7 @@ import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.List as MaterialList exposing (..)
+import Hatchinq.RadioButton as RadioButton
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
@@ -104,6 +106,7 @@ type Msg
     | RightPanelMessage SidePanel.State
     | CheckboxValueChange Bool
     | WindowSizeChanged Int Int
+    | SelectPerson (Maybe Person)
     | Noop
 
 
@@ -117,6 +120,10 @@ appBar =
 
 checkbox =
     Checkbox.configure { theme = theme }
+
+
+radioButton =
+    RadioButton.configure { theme = theme }
 
 
 button =
@@ -215,6 +222,7 @@ type alias Model =
     , selectedPersons : Set Int
     , expandedPersons : Set Int
     , checkboxValue : Maybe Bool
+    , selectedPerson : Maybe Person
     , windowSize : ( Int, Int )
     }
 
@@ -251,6 +259,7 @@ init _ =
       , selectedPersons = Set.singleton 1
       , expandedPersons = Set.singleton 2
       , checkboxValue = Nothing
+      , selectedPerson = Nothing
       , windowSize = ( 0, 0 )
       }
     , Cmd.batch
@@ -433,6 +442,9 @@ update msg model =
         CheckboxValueChange value ->
             ( { model | checkboxValue = Just value }, Cmd.none )
 
+        SelectPerson person ->
+            ( { model | selectedPerson = person }, Cmd.none )
+
         WindowSizeChanged width height ->
             ( { model | windowSize = ( width, height ) }, Cmd.none )
 
@@ -538,6 +550,38 @@ buttonsContent model _ =
             , Element.text <| String.fromInt model.counter
             , iconButton [ IconButton.filled ] { icon = "exposure_plus_1", onPress = Just PressPlus }
             , iconButton [ IconButton.filled ] { icon = "sync_disabled", onPress = Nothing }
+            ]
+        , Element.row [ spacing 16 ]
+            [ Element.column []
+                (List.map
+                    (\person ->
+                        Element.row []
+                            [ radioButton []
+                                { value = model.selectedPerson == Just person
+                                , onChange =
+                                    Just
+                                        (\check ->
+                                            if check then
+                                                SelectPerson (Just person)
+
+                                            else
+                                                SelectPerson Nothing
+                                        )
+                                }
+                            , Element.el
+                                [ Element.Events.onClick
+                                    (if model.selectedPerson /= Just person then
+                                        SelectPerson (Just person)
+
+                                     else
+                                        SelectPerson Nothing
+                                    )
+                                ]
+                                (Element.text (person.firstName ++ " " ++ person.lastName))
+                            ]
+                    )
+                    persons
+                )
             ]
         ]
 
