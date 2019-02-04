@@ -640,8 +640,8 @@ mainContent model =
                     ]
                     { columns =
                         [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
-                        , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (DataTable.Lambda (List.sortBy (\p -> p.lastName)))
-                        , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (DataTable.Lambda (List.sortBy (\p -> p.age)))
+                        , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (List.sortBy (\p -> p.lastName))
+                        , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
                         ]
                     , items =
                         persons
@@ -656,8 +656,8 @@ mainContent model =
                         ]
                         { columns =
                             [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
-                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (DataTable.Lambda (List.sortBy (\p -> p.lastName)))
-                            , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (DataTable.Lambda (List.sortBy (\p -> p.age)))
+                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (List.sortBy (\p -> p.lastName))
+                            , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
                             ]
                         , items =
                             persons
@@ -671,7 +671,7 @@ mainContent model =
                     { columns =
                         [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
                         , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> Element.text person.lastName)
-                        , DataTable.sortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) (DataTable.Update DataTableSortChange)
+                        , DataTable.externalSortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) DataTableSortChange
                         ]
                     , items =
                         model.persons

@@ -1,11 +1,15 @@
-module Hatchinq.DataTable exposing (Config, Message, SortMethod(..), State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update)
+module Hatchinq.DataTable exposing
+    ( Config, Message, State, View
+    , column, configure, expansion, infinite, init, plain, selection, sortableColumn, externalSortableColumn, update
+    )
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, SortMethod, State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update
+@docs Config, Message, State, View
+@docs column, configure, expansion, infinite, init, plain, selection, sortableColumn, externalSortableColumn, update
 
 -}
 
@@ -94,13 +98,24 @@ column header width toElement =
 
 
 {-| -}
-sortableColumn : Element msg -> Element.Length -> (Int -> item -> Element msg) -> SortMethod item msg -> Column item msg
+sortableColumn : Element msg -> Element.Length -> (Int -> item -> Element msg) -> (List item -> List item) -> Column item msg
 sortableColumn header width toElement sorter =
     Column
         { header = header
         , width = width
         , viewFunc = toElement
-        , sorter = Just sorter
+        , sorter = Just (Lambda sorter)
+        }
+
+
+{-| -}
+externalSortableColumn : Element msg -> Element.Length -> (Int -> item -> Element msg) -> (Int -> Maybe Bool -> msg) -> Column item msg
+externalSortableColumn header width toElement sorter =
+    Column
+        { header = header
+        , width = width
+        , viewFunc = toElement
+        , sorter = Just (Update sorter)
         }
 
 
