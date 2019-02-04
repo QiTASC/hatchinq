@@ -17,7 +17,7 @@ import Hatchinq.Button as Button exposing (..)
 import Hatchinq.Checkbox as Checkbox exposing (..)
 import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
-import Hatchinq.IconButton as IconButton
+import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.List as MaterialList exposing (..)
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
@@ -699,7 +699,7 @@ mainContent model =
                 (Element.el [ Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
                     (list WithImagesAndSelectable
                         [ imageSrc (\person -> person.imageSrc)
-                        , control (\person -> iconButton [] { icon = "delete", onPress = Just PressMinus })
+                        , control (\person -> iconButton [ withTextColor (theme.colors.gray.withAlpha 0.46) ] { icon = "delete", onPress = Just PressMinus })
                         ]
                         { items = persons
                         , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
