@@ -49,21 +49,21 @@ type SortMethod item msg
     | Update (Int -> Maybe Bool -> msg)
 
 
-type Sort item msg
+type Sort item
     = NoSort
-    | Increasing Int (SortMethod item msg)
-    | Decreasing Int (SortMethod item msg)
+    | Increasing Int (Maybe (List item -> List item))
+    | Decreasing Int (Maybe (List item -> List item))
 
 
 {-| -}
-type alias State item msg =
+type alias State item =
     { hoveredHeader : Maybe Int
-    , sort : Sort item msg
+    , sort : Sort item
     }
 
 
 {-| -}
-init : State item msg
+init : State item
 init =
     { hoveredHeader = Nothing
     , sort = NoSort
@@ -120,37 +120,39 @@ type Message item msg
 
 
 {-| -}
-update : Message item msg -> State item msg -> ( State item msg, Cmd msg )
+update : Message item msg -> State item -> ( State item, Cmd msg )
 update msg model =
     case msg of
         Sort columnIndex sorter ->
             let
-                command =
-                    \sortOrder ->
-                        case sorter of
-                            Lambda _ ->
-                                Cmd.none
+                ( sorterFunc, command ) =
+                    case sorter of
+                        Lambda func ->
+                            ( Just func, \_ -> Cmd.none )
 
-                            Update updateMsg ->
+                        Update updateMsg ->
+                            ( Nothing
+                            , \sortOrder ->
                                 Task.perform identity <| Task.succeed (updateMsg columnIndex sortOrder)
+                            )
             in
             case model.sort of
                 NoSort ->
-                    ( { model | sort = Increasing columnIndex sorter }, command (Just True) )
+                    ( { model | sort = Increasing columnIndex sorterFunc }, command (Just True) )
 
                 Increasing index _ ->
                     if index == columnIndex then
-                        ( { model | sort = Decreasing columnIndex sorter }, command (Just False) )
+                        ( { model | sort = Decreasing columnIndex sorterFunc }, command (Just False) )
 
                     else
-                        ( { model | sort = Increasing columnIndex sorter }, command (Just True) )
+                        ( { model | sort = Increasing columnIndex sorterFunc }, command (Just True) )
 
                 Decreasing index _ ->
                     if index == columnIndex then
                         ( { model | sort = NoSort }, command Nothing )
 
                     else
-                        ( { model | sort = Increasing columnIndex sorter }, command (Just True) )
+                        ( { model | sort = Increasing columnIndex sorterFunc }, command (Just True) )
 
         _ ->
             ( model, Cmd.none )
@@ -164,7 +166,7 @@ update msg model =
 type alias View item msg =
     { columns : List (Column item msg)
     , items : List item
-    , state : State item msg
+    , state : State item
     }
 
 
@@ -272,20 +274,10 @@ view { theme, lift } attributes data =
                     identity
 
                 Increasing _ sorter ->
-                    case sorter of
-                        Lambda func ->
-                            func
-
-                        Update _ ->
-                            identity
+                    Maybe.withDefault identity sorter
 
                 Decreasing _ sorter ->
-                    case sorter of
-                        Lambda func ->
-                            func >> List.reverse
-
-                        Update _ ->
-                            identity
+                    Maybe.withDefault identity sorter
 
         items =
             sorterFunc data.items

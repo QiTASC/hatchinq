@@ -204,7 +204,7 @@ type alias Model =
     , fullWidthDropdown : DropDown.State
     , leftSidePanelState : SidePanel.State
     , rightSidePanelState : SidePanel.State
-    , dataTable : DataTable.State Person Msg
+    , dataTable : DataTable.State Person
     , persons : List Person
     , list1State : MaterialList.State Person
     , list2State : MaterialList.State Person
