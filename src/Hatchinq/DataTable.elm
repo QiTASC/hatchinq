@@ -1,15 +1,15 @@
-module Hatchinq.DataTable exposing (Config, Message, State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update)
+module Hatchinq.DataTable exposing (Config, Message, SortMethod(..), State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update
+@docs Config, Message, SortMethod, State, View, column, configure, expansion, infinite, init, plain, selection, sortableColumn, update
 
 -}
 
-import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarX, scrollbarY, shrink, width)
+import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarY, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
@@ -18,6 +18,7 @@ import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, t
 import Hatchinq.Checkbox as Checkbox
 import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon)
 import Html.Attributes
+import Task
 
 
 
@@ -43,21 +44,26 @@ type alias Config item msg =
     }
 
 
-type Sort item
+type SortMethod item msg
+    = Lambda (List item -> List item)
+    | Update (Int -> Maybe Bool -> msg)
+
+
+type Sort item msg
     = NoSort
-    | Increasing Int (List item -> List item)
-    | Decreasing Int (List item -> List item)
+    | Increasing Int (SortMethod item msg)
+    | Decreasing Int (SortMethod item msg)
 
 
 {-| -}
-type alias State item =
+type alias State item msg =
     { hoveredHeader : Maybe Int
-    , sort : Sort item
+    , sort : Sort item msg
     }
 
 
 {-| -}
-init : State item
+init : State item msg
 init =
     { hoveredHeader = Nothing
     , sort = NoSort
@@ -72,7 +78,7 @@ type alias InnerColumn item msg =
     { header : Element msg
     , width : Element.Length
     , viewFunc : Int -> item -> Element msg
-    , sorter : Maybe (List item -> List item)
+    , sorter : Maybe (SortMethod item msg)
     }
 
 
@@ -88,7 +94,7 @@ column header width toElement =
 
 
 {-| -}
-sortableColumn : Element msg -> Element.Length -> (Int -> item -> Element msg) -> (List item -> List item) -> Column item msg
+sortableColumn : Element msg -> Element.Length -> (Int -> item -> Element msg) -> SortMethod item msg -> Column item msg
 sortableColumn header width toElement sorter =
     Column
         { header = header
@@ -104,7 +110,7 @@ sortableColumn header width toElement sorter =
 
 {-| -}
 type Message item msg
-    = Sort Int (List item -> List item)
+    = Sort Int (SortMethod item msg)
     | Select item msg
     | Noop
 
@@ -114,27 +120,37 @@ type Message item msg
 
 
 {-| -}
-update : Message item msg -> State item -> ( State item, Cmd msg )
+update : Message item msg -> State item msg -> ( State item msg, Cmd msg )
 update msg model =
     case msg of
         Sort columnIndex sorter ->
+            let
+                command =
+                    \sortOrder ->
+                        case sorter of
+                            Lambda _ ->
+                                Cmd.none
+
+                            Update updateMsg ->
+                                Task.perform identity <| Task.succeed (updateMsg columnIndex sortOrder)
+            in
             case model.sort of
                 NoSort ->
-                    ( { model | sort = Increasing columnIndex sorter }, Cmd.none )
+                    ( { model | sort = Increasing columnIndex sorter }, command (Just True) )
 
                 Increasing index _ ->
                     if index == columnIndex then
-                        ( { model | sort = Decreasing columnIndex sorter }, Cmd.none )
+                        ( { model | sort = Decreasing columnIndex sorter }, command (Just False) )
 
                     else
-                        ( { model | sort = Increasing columnIndex sorter }, Cmd.none )
+                        ( { model | sort = Increasing columnIndex sorter }, command (Just True) )
 
                 Decreasing index _ ->
                     if index == columnIndex then
-                        ( { model | sort = NoSort }, Cmd.none )
+                        ( { model | sort = NoSort }, command Nothing )
 
                     else
-                        ( { model | sort = Increasing columnIndex sorter }, Cmd.none )
+                        ( { model | sort = Increasing columnIndex sorter }, command (Just True) )
 
         _ ->
             ( model, Cmd.none )
@@ -148,7 +164,7 @@ update msg model =
 type alias View item msg =
     { columns : List (Column item msg)
     , items : List item
-    , state : State item
+    , state : State item msg
     }
 
 
@@ -256,10 +272,20 @@ view { theme, lift } attributes data =
                     identity
 
                 Increasing _ sorter ->
-                    sorter
+                    case sorter of
+                        Lambda func ->
+                            func
+
+                        Update _ ->
+                            identity
 
                 Decreasing _ sorter ->
-                    sorter >> List.reverse
+                    case sorter of
+                        Lambda func ->
+                            func >> List.reverse
+
+                        Update _ ->
+                            identity
 
         items =
             sorterFunc data.items
