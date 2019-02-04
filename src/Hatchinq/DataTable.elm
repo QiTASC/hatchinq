@@ -9,7 +9,7 @@ module Hatchinq.DataTable exposing (Config, Message, State, View, column, config
 
 -}
 
-import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarX, scrollbarY, width)
+import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarX, scrollbarY, shrink, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
@@ -200,7 +200,6 @@ view { theme, lift } attributes data =
         tableAttributes =
             [ Font.family [ theme.font.main ]
             , Font.size 14
-            , scrollbarX
             ]
 
         createHeader : Column item msg -> Int -> Element msg
@@ -331,7 +330,7 @@ view { theme, lift } attributes data =
                     [ Element.el cellAttributes (checkbox { value = Just (selected it), onChange = Just (onSelected it) }) ]
 
         rowAttributes =
-            [ height theme.sizes.table.rowHeight, paddingEach theme.sizes.table.rowPadding ]
+            [ height theme.sizes.table.rowHeight, paddingEach theme.sizes.table.rowPadding, Element.width fill ]
 
         rowHeaderAttributes =
             rowAttributes
@@ -406,7 +405,7 @@ view { theme, lift } attributes data =
 
                 Just ( expanded, onExpansion, expansionContent ) ->
                     if expanded it then
-                        Element.column []
+                        Element.column [ width fill ]
                             [ rowDisplay rowIndex it
                             , Element.row [ paddingEach theme.sizes.table.expansionPadding ]
                                 [ Element.el [ width expansionWidth ] none
@@ -415,7 +414,7 @@ view { theme, lift } attributes data =
                             ]
 
                     else
-                        Element.column []
+                        Element.column [ width fill ]
                             [ rowDisplay rowIndex it ]
     in
     Element.column
@@ -425,8 +424,8 @@ view { theme, lift } attributes data =
                 ++ selectionHeader
                 ++ List.indexedMap (\columnIndex headerColumn -> createHeader headerColumn columnIndex) data.columns
             )
-        , Element.el [ scrollbarY, height fill ]
-            (Element.column [ height fill ]
+        , Element.el [ scrollbarY, height fill, width fill ]
+            (Element.column [ height fill, width fill ]
                 (List.indexedMap
                     itemDisplay
                     items

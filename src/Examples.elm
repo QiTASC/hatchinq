@@ -9,7 +9,8 @@ module Examples exposing (main)
 import Browser
 import Browser.Dom
 import Browser.Events
-import Element exposing (Element, alignTop, fill, inFront, padding, px, spacing)
+import Element exposing (Element, alignTop, fill, inFront, padding, px, shrink, spacing)
+import Element.Border
 import Hatchinq.AppBar as AppBar
 import Hatchinq.Attribute exposing (Attribute, height, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
@@ -629,27 +630,29 @@ mainContent model =
                     }
                 )
             , Element.el [ Element.height fill ]
-                (dataTable
-                    [ DataTable.selection (\p -> Set.member p.id model.selectedPersons) (\p checked -> DataTableSelectionChange (Just p) checked) (\allSelected -> DataTableSelectionChange Nothing allSelected)
-                    , width (px 300)
-                    ]
-                    { columns =
-                        [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
-                        , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (List.sortBy (\p -> p.lastName))
-                        , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
+                (Element.el [ Element.height shrink, Element.width (px 250), Element.scrollbarX ]
+                    (dataTable
+                        [ DataTable.selection (\p -> Set.member p.id model.selectedPersons) (\p checked -> DataTableSelectionChange (Just p) checked) (\allSelected -> DataTableSelectionChange Nothing allSelected)
+                        , width shrink
                         ]
-                    , items =
-                        persons
-                    , state = model.dataTable
-                    }
+                        { columns =
+                            [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
+                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (List.sortBy (\p -> p.lastName))
+                            , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
+                            ]
+                        , items =
+                            persons
+                        , state = model.dataTable
+                        }
+                    )
                 )
-            , Element.el [ Element.height fill ]
+            , Element.el [ Element.height fill, Element.width fill ]
                 (dataTable
-                    [ height (px 200) ]
+                    [ height (px 200), width fill ]
                     { columns =
-                        [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
-                        , DataTable.column (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName)
-                        , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
+                        [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
+                        , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> Element.text person.lastName)
+                        , DataTable.sortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
                         ]
                     , items =
                         persons
@@ -659,50 +662,60 @@ mainContent model =
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ Element.el [ Element.height fill ]
-                (list WithImagesAndSecondaryTextAndSelectable
-                    [ imageSrc (\person -> person.imageSrc)
-                    , secondaryText (\person -> Maybe.withDefault "" person.additionalInfo)
-                    , itemsCount 2
-                    ]
-                    { items = persons
-                    , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
-                    , onSelect = Just (\person -> ListValueChange WithImagesAndSecondaryTextAndSelectable person)
-                    , activated = model.list4Value
-                    , state = model.list4State
-                    }
+                (Element.el [ Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+                    (list WithImagesAndSecondaryTextAndSelectable
+                        [ imageSrc (\person -> person.imageSrc)
+                        , secondaryText (\person -> Maybe.withDefault "" person.additionalInfo)
+                        , itemsCount 2
+                        ]
+                        { items = persons
+                        , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
+                        , onSelect = Just (\person -> ListValueChange WithImagesAndSecondaryTextAndSelectable person)
+                        , activated = model.list4Value
+                        , state = model.list4State
+                        }
+                    )
                 )
             , Element.el [ Element.height fill ]
-                (list WithImagesAndSelectable
-                    [ imageSrc (\person -> person.imageSrc) ]
-                    { items = persons
-                    , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
-                    , onSelect = Just (\person -> ListValueChange WithImagesAndSelectable person)
-                    , activated = model.list3Value
-                    , state = model.list3State
-                    }
+                (Element.el [ Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+                    (list WithImagesAndSelectable
+                        [ imageSrc (\person -> person.imageSrc) ]
+                        { items = persons
+                        , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
+                        , onSelect = Just (\person -> ListValueChange WithImagesAndSelectable person)
+                        , activated = model.list3Value
+                        , state = model.list3State
+                        }
+                    )
                 )
             , Element.el [ Element.height fill ]
-                (list WithSecondaryText
-                    [ secondaryText (\person -> Maybe.withDefault "" person.additionalInfo)
-                    , width (px 200)
-                    , height (px 150)
-                    ]
-                    { items = persons
-                    , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
-                    , onSelect = Nothing
-                    , activated = Nothing
-                    , state = model.list2State
-                    }
+                (Element.el [ Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+                    (list WithSecondaryText
+                        [ secondaryText (\person -> Maybe.withDefault "" person.additionalInfo)
+                        , width (px 200)
+                        , height (px 150)
+                        ]
+                        { items = persons
+                        , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
+                        , onSelect = Nothing
+                        , activated = Nothing
+                        , state = model.list2State
+                        }
+                    )
                 )
             , Element.el [ Element.height fill ]
-                (list Simple
-                    [ width (px 150) ]
-                    { items = persons
-                    , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
-                    , onSelect = Nothing
-                    , activated = Nothing
-                    , state = model.list1State
-                    }
+                (Element.el [ Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+                    (list Simple
+                        [ width (px 150)
+                        , itemsCount 5
+                        ]
+                        { items = persons
+                        , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
+                        , onSelect = Nothing
+                        , activated = Nothing
+                        , state = model.list1State
+                        }
+                    )
                 )
             ]
         ]

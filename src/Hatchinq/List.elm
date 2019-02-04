@@ -1,11 +1,11 @@
-module Hatchinq.List exposing (Config, Message, State, View, borderWidthEach, configure, imageSrc, init, itemsCount, secondaryText, update)
+module Hatchinq.List exposing (Config, Message, State, View, configure, imageSrc, init, itemsCount, secondaryText, update)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, State, View, borderWidthEach, configure, imageSrc, init, itemsCount, secondaryText, update
+@docs Config, Message, State, View, configure, imageSrc, init, itemsCount, secondaryText, update
 
 -}
 
@@ -78,47 +78,34 @@ type alias Config item msg =
 
 
 {-| -}
-configure : Config item msg -> (List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg)
+configure : Config item msg -> (List (Attribute (InternalConfig item)) -> View item msg -> Element msg)
 configure config =
     view config
 
 
-type alias InternalConfig item msg =
+type alias InternalConfig item =
     { toSecondaryText : Maybe (item -> String)
     , toImageSrc : Maybe (item -> String)
     , itemsCount : Maybe Int
-    , extraExternalAttributes : List (Element.Attribute msg)
     }
 
 
 {-| -}
-secondaryText : (item -> String) -> Attribute (InternalConfig item msg)
+secondaryText : (item -> String) -> Attribute (InternalConfig item)
 secondaryText toSecondaryText =
     custom (\v -> { v | toSecondaryText = Just toSecondaryText })
 
 
 {-| -}
-imageSrc : (item -> String) -> Attribute (InternalConfig item msg)
+imageSrc : (item -> String) -> Attribute (InternalConfig item)
 imageSrc toImageSrc =
     custom (\v -> { v | toImageSrc = Just toImageSrc })
 
 
 {-| -}
-itemsCount : Int -> Attribute (InternalConfig item msg)
+itemsCount : Int -> Attribute (InternalConfig item)
 itemsCount n =
     custom (\v -> { v | itemsCount = Just n })
-
-
-{-| -}
-borderWidthEach :
-    { bottom : Int
-    , left : Int
-    , right : Int
-    , top : Int
-    }
-    -> Attribute (InternalConfig item msg)
-borderWidthEach borders =
-    custom (\v -> { v | extraExternalAttributes = Border.widthEach borders :: v.extraExternalAttributes })
 
 
 
@@ -135,7 +122,7 @@ type alias View item msg =
     }
 
 
-view : Config item msg -> List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg
+view : Config item msg -> List (Attribute (InternalConfig item)) -> View item msg -> Element msg
 view config attributes data =
     let
         { theme, lift } =
@@ -145,7 +132,6 @@ view config attributes data =
             { toSecondaryText = Nothing
             , toImageSrc = Nothing
             , itemsCount = Nothing
-            , extraExternalAttributes = []
             }
 
         internalConfig =
@@ -156,8 +142,6 @@ view config attributes data =
 
         bodyAttributes =
             [ paddingXY 0 8
-            , Border.width 1
-            , Border.color theme.colors.gray.light
             , width (px 280)
             ]
 
@@ -192,11 +176,11 @@ view config attributes data =
         bodyHeightAttribute =
             Maybe.withDefault [] (Maybe.map (\count -> [ height (px (count * itemHeightPx + 16)) ]) internalConfig.itemsCount)
     in
-    Element.el ([ scrollbarY ] ++ bodyAttributes ++ extraAttributes ++ externalAttributes ++ internalConfig.extraExternalAttributes ++ bodyHeightAttribute)
+    Element.el ([ scrollbarY ] ++ bodyAttributes ++ extraAttributes ++ externalAttributes ++ bodyHeightAttribute)
         (Element.column [ width fill, height fill ] (List.map (\item -> listItem config internalConfig data item itemHeightPx) data.items))
 
 
-listItem : Config item msg -> InternalConfig item msg -> View item msg -> item -> Int -> Element msg
+listItem : Config item msg -> InternalConfig item -> View item msg -> item -> Int -> Element msg
 listItem { theme, lift } internalConfig data item itemHeightPx =
     let
         ( leftPadding, additionalItemAttributes ) =
