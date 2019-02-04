@@ -1,11 +1,11 @@
-module Hatchinq.List exposing (Config, Message, State, View, configure, imageSrc, init, itemsCount, secondaryText, update)
+module Hatchinq.List exposing (Config, Message, State, View, configure, control, imageSrc, init, itemsCount, secondaryText, update)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, State, View, configure, imageSrc, init, itemsCount, secondaryText, update
+@docs Config, Message, State, View, configure, control, imageSrc, init, itemsCount, secondaryText, update
 
 -}
 
@@ -78,32 +78,39 @@ type alias Config item msg =
 
 
 {-| -}
-configure : Config item msg -> (List (Attribute (InternalConfig item)) -> View item msg -> Element msg)
+configure : Config item msg -> (List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg)
 configure config =
     view config
 
 
-type alias InternalConfig item =
+type alias InternalConfig item msg =
     { toSecondaryText : Maybe (item -> String)
     , toImageSrc : Maybe (item -> String)
+    , toControl : Maybe (item -> Element msg)
     , itemsCount : Maybe Int
     }
 
 
 {-| -}
-secondaryText : (item -> String) -> Attribute (InternalConfig item)
+secondaryText : (item -> String) -> Attribute (InternalConfig item msg)
 secondaryText toSecondaryText =
     custom (\v -> { v | toSecondaryText = Just toSecondaryText })
 
 
 {-| -}
-imageSrc : (item -> String) -> Attribute (InternalConfig item)
+imageSrc : (item -> String) -> Attribute (InternalConfig item msg)
 imageSrc toImageSrc =
     custom (\v -> { v | toImageSrc = Just toImageSrc })
 
 
 {-| -}
-itemsCount : Int -> Attribute (InternalConfig item)
+control : (item -> Element msg) -> Attribute (InternalConfig item msg)
+control toControl =
+    custom (\v -> { v | toControl = Just toControl })
+
+
+{-| -}
+itemsCount : Int -> Attribute (InternalConfig item msg)
 itemsCount n =
     custom (\v -> { v | itemsCount = Just n })
 
@@ -122,7 +129,7 @@ type alias View item msg =
     }
 
 
-view : Config item msg -> List (Attribute (InternalConfig item)) -> View item msg -> Element msg
+view : Config item msg -> List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg
 view config attributes data =
     let
         { theme, lift } =
@@ -131,6 +138,7 @@ view config attributes data =
         defaultInternalConfig =
             { toSecondaryText = Nothing
             , toImageSrc = Nothing
+            , toControl = Nothing
             , itemsCount = Nothing
             }
 
@@ -180,7 +188,7 @@ view config attributes data =
         (Element.column [ width fill, height fill ] (List.map (\item -> listItem config internalConfig data item itemHeightPx) data.items))
 
 
-listItem : Config item msg -> InternalConfig item -> View item msg -> item -> Int -> Element msg
+listItem : Config item msg -> InternalConfig item msg -> View item msg -> item -> Int -> Element msg
 listItem { theme, lift } internalConfig data item itemHeightPx =
     let
         ( leftPadding, additionalItemAttributes ) =
@@ -196,6 +204,22 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
                     ( 16
                     , [ height (px itemHeightPx) ]
                     )
+
+        controlAttributes =
+            case internalConfig.toControl of
+                Just toControl ->
+                    [ inFront
+                        (Element.el
+                            [ Element.alignRight
+                            , centerY
+                            , paddingEach { top = 0, right = 16, bottom = 0, left = 16 }
+                            ]
+                            (toControl item)
+                        )
+                    ]
+
+                Nothing ->
+                    []
 
         colorAttributes =
             if data.activated == Just item then
@@ -249,7 +273,7 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
                     []
     in
     Element.column
-        itemAttributes
+        (itemAttributes ++ controlAttributes)
         (Element.el textAttributes (data.toPrimaryText item |> textWithEllipsis)
             :: secondaryTextElements
         )

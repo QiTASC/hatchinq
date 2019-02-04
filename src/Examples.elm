@@ -698,7 +698,9 @@ mainContent model =
             , Element.el [ Element.height fill ]
                 (Element.el [ Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
                     (list WithImagesAndSelectable
-                        [ imageSrc (\person -> person.imageSrc) ]
+                        [ imageSrc (\person -> person.imageSrc)
+                        , control (\person -> iconButton [] { icon = "delete", onPress = Just PressMinus })
+                        ]
                         { items = persons
                         , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName
                         , onSelect = Just (\person -> ListValueChange WithImagesAndSelectable person)
