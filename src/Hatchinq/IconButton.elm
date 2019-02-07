@@ -126,7 +126,6 @@ view { theme } source data =
              , Font.size 24
              , Font.bold
              , Font.center
-             , padding 12
              ]
                 ++ dynamicAttributes
                 ++ attributes

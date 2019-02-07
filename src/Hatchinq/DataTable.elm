@@ -13,13 +13,14 @@ module Hatchinq.DataTable exposing
 
 -}
 
-import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarY, width)
+import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, px, scrollbarY, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalView)
 import Hatchinq.Checkbox as Checkbox
+import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon)
 import Html.Attributes
 import Task
@@ -321,7 +322,6 @@ view { theme, lift } attributes data =
                     [ Element.el
                         ([ width expansionWidth
                          , htmlAttribute <| Html.Attributes.style "will-change" "transform"
-                         , htmlAttribute <| Html.Attributes.style "pointer-events" "none"
                          , htmlAttribute arrowTransition
                          ]
                             ++ (if expanded it then
@@ -331,7 +331,14 @@ view { theme, lift } attributes data =
                                     []
                                )
                         )
-                        (Element.el [ centerX, centerY ] (icon "arrow_right"))
+                        (Element.el [ centerX, centerY ]
+                            (IconButton.configure { theme = theme }
+                                [ Attribute.width (px 40)
+                                , Attribute.height (px 40)
+                                ]
+                                { icon = "arrow_right", onPress = Just (lift Noop) }
+                            )
+                        )
                     ]
 
         selectionHeader =

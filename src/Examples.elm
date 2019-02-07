@@ -24,6 +24,7 @@ import Hatchinq.RadioButton as RadioButton
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
+import Hatchinq.Tree as Tree
 import Html exposing (Html)
 import List
 import Set exposing (Set)
@@ -107,6 +108,7 @@ type Msg
     | CheckboxValueChange Bool
     | WindowSizeChanged Int Int
     | SelectPerson (Maybe Person)
+    | FilesTreeLift Tree.Message
     | Noop
 
 
@@ -198,6 +200,10 @@ rightSidePanel =
     SidePanel.configure rightPanelConfig []
 
 
+tree =
+    Tree.configure { theme = theme, lift = FilesTreeLift }
+
+
 type alias Model =
     { counter : Int
     , inputValue : String
@@ -223,6 +229,7 @@ type alias Model =
     , expandedPersons : Set Int
     , checkboxValue : Maybe Bool
     , selectedPerson : Maybe Person
+    , filesTreeState : Tree.State
     , windowSize : ( Int, Int )
     }
 
@@ -260,6 +267,7 @@ init _ =
       , expandedPersons = Set.singleton 2
       , checkboxValue = Nothing
       , selectedPerson = Nothing
+      , filesTreeState = Tree.init
       , windowSize = ( 0, 0 )
       }
     , Cmd.batch
@@ -448,6 +456,13 @@ update msg model =
         WindowSizeChanged width height ->
             ( { model | windowSize = ( width, height ) }, Cmd.none )
 
+        FilesTreeLift message ->
+            let
+                newFilesTreeState =
+                    Tree.update message model.filesTreeState
+            in
+            ( { model | filesTreeState = newFilesTreeState }, Cmd.none )
+
         Noop ->
             ( model, Cmd.none )
 
@@ -499,9 +514,45 @@ view model =
             ]
 
 
-filesContent : Model -> () -> Element msg
-filesContent _ _ =
-    Element.text "Hello"
+filesContent : Model -> () -> Element Msg
+filesContent model _ =
+    Element.el
+        [ Element.width fill
+        , Element.height fill
+        , Element.paddingXY 0 8
+        ]
+        (tree []
+            { state = model.filesTreeState
+            , data =
+                [ Tree.node
+                    { text = "Documents"
+                    , children = []
+                    }
+                , Tree.node
+                    { text = "Videos"
+                    , children =
+                        [ Tree.node
+                            { text = "qitasc.mp4"
+                            , children = []
+                            }
+                        , Tree.node
+                            { text = "Tutorials"
+                            , children =
+                                [ Tree.node
+                                    { text = "intro.mp4"
+                                    , children = []
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                , Tree.node
+                    { text = "Projects"
+                    , children = []
+                    }
+                ]
+            }
+        )
 
 
 buttonsContent : Model -> () -> Element Msg
@@ -546,10 +597,10 @@ buttonsContent model _ =
             , iconButton [] { icon = "sync_disabled", onPress = Nothing }
             ]
         , Element.row [ spacing 16 ]
-            [ iconButton [ IconButton.filled ] { icon = "exposure_neg_1", onPress = Just PressMinus }
+            [ iconButton [ width (px 24), height (px 24), IconButton.filled ] { icon = "exposure_neg_1", onPress = Just PressMinus }
             , Element.text <| String.fromInt model.counter
             , iconButton [ IconButton.filled ] { icon = "exposure_plus_1", onPress = Just PressPlus }
-            , iconButton [ IconButton.filled ] { icon = "sync_disabled", onPress = Nothing }
+            , iconButton [ width (px 70), height (px 70), IconButton.filled ] { icon = "sync_disabled", onPress = Nothing }
             ]
         , Element.row [ spacing 16 ]
             [ Element.column []
