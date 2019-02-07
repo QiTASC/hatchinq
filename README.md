@@ -13,8 +13,10 @@ Next UI elements are available so far:
  - IconButton
  - List
  - Paginator
+ - RadioButton
  - SidePanel
  - TextField
+ - Tree
 
 
 Execute `Examples.elm`, or try it yourself:
@@ -27,9 +29,12 @@ import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton (..)
 import Hatchinq.List as MaterialList exposing (..)
+import Hatchinq.Paginator as Paginator exposing (..)
+import Hatchinq.RadioButton as RadioButton exposing (..)
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
+import Hatchinq.Tree as Tree exposing (..)
 
 theme =
     Theme.default
