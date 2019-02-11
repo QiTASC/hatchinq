@@ -1,11 +1,11 @@
-module Hatchinq.Tree exposing (Config, Message, State, View, configure, init, node, update)
+module Hatchinq.Tree exposing (Config, Message, State, TreeNode, View, configure, init, node, update)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, State, View, configure, init, node, update
+@docs Config, Message, State, TreeNode, View, configure, init, node, update
 
 -}
 
@@ -47,6 +47,7 @@ init =
     }
 
 
+{-| -}
 type TreeNode
     = TreeNode
         { text : String
