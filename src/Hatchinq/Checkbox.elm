@@ -68,12 +68,6 @@ view { theme } attributes data =
         internalConfig =
             toInternalConfig attributes defaultConfig
 
-        widthLength =
-            px 40
-
-        heightLength =
-            px 40
-
         elementAttributes =
             toElement attributes
 
@@ -153,8 +147,8 @@ view { theme } attributes data =
                     []
     in
     el
-        ([ width widthLength
-         , height heightLength
+        ([ width (px (theme.sizes.minRowHeight - 8))
+         , height (px (theme.sizes.minRowHeight - 8))
          , htmlAttribute <| Html.Attributes.style "border-radius" "50%"
          , htmlAttribute <| Html.Attributes.class "ripple focusSecondaryRipple"
          , behindContent

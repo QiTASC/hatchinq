@@ -127,8 +127,8 @@ view { theme } source data =
     in
     Element.el attributes
         (Input.button
-            ([ height (px 48)
-             , width (px 48)
+            ([ height (px (theme.sizes.minRowHeight - 8))
+             , width (px (theme.sizes.minRowHeight - 8))
              , Element.htmlAttribute (Html.Attributes.style "border-radius" "50%")
              , Font.family [ theme.font.main ]
              , Font.size 24

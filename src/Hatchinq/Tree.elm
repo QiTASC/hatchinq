@@ -152,10 +152,10 @@ renderTreeNode : Theme -> TreePath -> Maybe ExpandedNode -> TreeNode -> Element 
 renderTreeNode theme path maybeExpandedNode (TreeNode { text, children }) =
     let
         itemRowHeight =
-            48
+            theme.sizes.minRowHeight
 
         toggleButtonWidth =
-            40
+            theme.sizes.minRowHeight - 8
 
         toggleButton =
             if List.isEmpty children then
@@ -181,9 +181,7 @@ renderTreeNode theme path maybeExpandedNode (TreeNode { text, children }) =
                     )
                     (Element.el [ centerX, centerY ]
                         (IconButton.configure { theme = theme }
-                            [ Attribute.width (px toggleButtonWidth)
-                            , Attribute.height (px toggleButtonWidth)
-                            ]
+                            []
                             { icon = "arrow_right", onPress = Just (Toggle path) }
                         )
                     )

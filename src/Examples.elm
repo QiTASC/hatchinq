@@ -168,6 +168,13 @@ dataTable =
         }
 
 
+denseDataTable =
+    DataTable.configure
+        { theme = dense theme
+        , lift = DataTableChange
+        }
+
+
 paginator =
     Paginator.configure
         { theme = theme }
@@ -208,6 +215,10 @@ rightSidePanel =
 
 tree =
     Tree.configure { theme = theme, lift = FilesTreeLift }
+
+
+denseTree =
+    Tree.configure { theme = dense theme, lift = FilesTreeLift }
 
 
 type alias Model =
@@ -522,43 +533,55 @@ view model =
 
 filesContent : Model -> () -> Element Msg
 filesContent model _ =
-    Element.el
+    let
+        data =
+            [ Tree.node
+                { text = "Documents"
+                , children = []
+                }
+            , Tree.node
+                { text = "Videos"
+                , children =
+                    [ Tree.node
+                        { text = "qitasc.mp4"
+                        , children = []
+                        }
+                    , Tree.node
+                        { text = "Tutorials"
+                        , children =
+                            [ Tree.node
+                                { text = "intro.mp4"
+                                , children = []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            , Tree.node
+                { text = "Projects"
+                , children = []
+                }
+            ]
+    in
+    Element.column
         [ Element.width fill
         , Element.height fill
         , Element.paddingXY 0 8
+        , Element.spacing 8
         ]
-        (tree []
-            { state = model.filesTreeState
-            , data =
-                [ Tree.node
-                    { text = "Documents"
-                    , children = []
-                    }
-                , Tree.node
-                    { text = "Videos"
-                    , children =
-                        [ Tree.node
-                            { text = "qitasc.mp4"
-                            , children = []
-                            }
-                        , Tree.node
-                            { text = "Tutorials"
-                            , children =
-                                [ Tree.node
-                                    { text = "intro.mp4"
-                                    , children = []
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                , Tree.node
-                    { text = "Projects"
-                    , children = []
-                    }
-                ]
-            }
-        )
+        [ Element.el [ Element.width fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+            (tree []
+                { state = model.filesTreeState
+                , data = data
+                }
+            )
+        , Element.el [ Element.width fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+            (denseTree []
+                { state = model.filesTreeState
+                , data = data
+                }
+            )
+        ]
 
 
 buttonsContent : Model -> () -> Element Msg
@@ -734,20 +757,22 @@ mainContent model =
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
-            [ Element.el [ Element.height fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
-                (dataTable
-                    [ DataTable.selection (\p -> Set.member p.id model.selectedPersons) (\p checked -> DataTableSelectionChange (Just p) checked) (\allSelected -> DataTableSelectionChange Nothing allSelected)
-                    , DataTable.expansion (\p -> Set.member p.id model.expandedPersons) (\p expanded -> DataTableExpansionChange p expanded) (\p -> Element.text (Maybe.withDefault "Nothing" p.additionalInfo))
-                    ]
-                    { columns =
-                        [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
-                        , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (List.sortBy (\p -> p.lastName))
-                        , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
+            [ Element.el [ Element.height fill ]
+                (Element.el [ Element.height shrink, Element.scrollbarX, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+                    (denseDataTable
+                        [ DataTable.selection (\p -> Set.member p.id model.selectedPersons) (\p checked -> DataTableSelectionChange (Just p) checked) (\allSelected -> DataTableSelectionChange Nothing allSelected)
+                        , DataTable.expansion (\p -> Set.member p.id model.expandedPersons) (\p expanded -> DataTableExpansionChange p expanded) (\p -> Element.text (Maybe.withDefault "Nothing" p.additionalInfo))
                         ]
-                    , items =
-                        persons
-                    , state = model.dataTable
-                    }
+                        { columns =
+                            [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
+                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (List.sortBy (\p -> p.lastName))
+                            , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
+                            ]
+                        , items =
+                            persons
+                        , state = model.dataTable
+                        }
+                    )
                 )
             , Element.el [ Element.height fill ]
                 (Element.el [ Element.height shrink, Element.width (px 250), Element.scrollbarX, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]

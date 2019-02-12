@@ -1,11 +1,15 @@
-module Hatchinq.Theme exposing (ColorTheme, ColorType, FontTheme, Theme, arrowTransition, black, default, font, icon, stylesheet, textWithEllipsis, transition, transparent, white, withColors)
+module Hatchinq.Theme exposing
+    ( ColorTheme, ColorType, FontTheme, Theme
+    , arrowTransition, black, default, dense, font, icon, stylesheet, textWithEllipsis, transition, transparent, white, withColors
+    )
 
 {-|
 
 
 # Exposed
 
-@docs ColorTheme, ColorType, FontTheme, Theme, arrowTransition, black, default, font, icon, stylesheet, textWithEllipsis, transition, transparent, white, withColors
+@docs ColorTheme, ColorType, FontTheme, Theme
+@docs arrowTransition, black, default, dense, font, icon, stylesheet, textWithEllipsis, transition, transparent, white, withColors
 
 -}
 
@@ -56,7 +60,8 @@ type alias Table =
 
 
 type alias Sizes =
-    { table : Table
+    { minRowHeight : Int
+    , table : Table
     }
 
 
@@ -200,6 +205,22 @@ withColors primaryColor secondaryColor theme =
 
 
 {-| -}
+dense : Theme -> Theme
+dense theme =
+    { theme
+        | sizes =
+            { minRowHeight = 32
+            , table =
+                { rowHeight = px 32
+                , rowPadding = { top = 8, bottom = 8, left = 4, right = 4 }
+                , expansionPadding = { top = 8, bottom = 8, left = 12, right = 12 }
+                , cellPadding = { top = 0, bottom = 0, left = 8, right = 8 }
+                }
+            }
+    }
+
+
+{-| -}
 default : Theme
 default =
     let
@@ -218,7 +239,8 @@ default =
         }
     , colors = colors primaryColor secondaryColor
     , sizes =
-        { table =
+        { minRowHeight = 48
+        , table =
             { rowHeight = px 48
             , rowPadding = { top = 12, bottom = 12, left = 4, right = 4 }
             , expansionPadding = { top = 12, bottom = 12, left = 12, right = 12 }
