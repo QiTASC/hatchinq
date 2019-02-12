@@ -18,7 +18,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Checkbox as Checkbox
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon)
@@ -229,7 +229,7 @@ view { theme, lift } attributes data =
             }
 
         internalConfig =
-            defaultConfig |> toInternalView attributes
+            defaultConfig |> toInternalConfig attributes
 
         tableAttributes =
             [ Font.family [ theme.font.main ]
@@ -335,8 +335,9 @@ view { theme, lift } attributes data =
                             (IconButton.configure { theme = theme }
                                 [ Attribute.width (px 40)
                                 , Attribute.height (px 40)
+                                , IconButton.stopPropagation
                                 ]
-                                { icon = "arrow_right", onPress = Just (lift Noop) }
+                                { icon = "arrow_right", onPress = Just (onExpansion it (not (expanded it))) }
                             )
                         )
                     ]

@@ -20,6 +20,7 @@ import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.List as MaterialList exposing (..)
+import Hatchinq.Paginator as Paginator
 import Hatchinq.RadioButton as RadioButton
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
@@ -165,6 +166,11 @@ dataTable =
         { theme = theme
         , lift = DataTableChange
         }
+
+
+paginator =
+    Paginator.configure
+        { theme = theme }
 
 
 list id attr v =
@@ -477,10 +483,10 @@ view model =
         [ inFront
             (appBar [ AppBar.navigate ToggleNavigation, AppBar.elevate True ]
                 { title = Element.text "Hatchinq Examples"
-                , actions =
-                    [ { icon = "search", message = SearchPage }
-                    , { icon = "person", message = OpenUserOptions }
-                    , { icon = "more_vert", message = OpenUserOptions }
+                , buttons =
+                    [ { id = Just "appbar-button-1", icon = "search", message = SearchPage }
+                    , { id = Just "appbar-button-2", icon = "person", message = OpenUserOptions }
+                    , { id = Nothing, icon = "more_vert", message = OpenUserOptions }
                     ]
                 }
             )
@@ -728,7 +734,7 @@ mainContent model =
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
-            [ Element.el [ Element.height fill ]
+            [ Element.el [ Element.height fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
                 (dataTable
                     [ DataTable.selection (\p -> Set.member p.id model.selectedPersons) (\p checked -> DataTableSelectionChange (Just p) checked) (\allSelected -> DataTableSelectionChange Nothing allSelected)
                     , DataTable.expansion (\p -> Set.member p.id model.expandedPersons) (\p expanded -> DataTableExpansionChange p expanded) (\p -> Element.text (Maybe.withDefault "Nothing" p.additionalInfo))
@@ -744,7 +750,7 @@ mainContent model =
                     }
                 )
             , Element.el [ Element.height fill ]
-                (Element.el [ Element.height shrink, Element.width (px 250), Element.scrollbarX ]
+                (Element.el [ Element.height shrink, Element.width (px 250), Element.scrollbarX, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
                     (dataTable
                         [ DataTable.selection (\p -> Set.member p.id model.selectedPersons) (\p checked -> DataTableSelectionChange (Just p) checked) (\allSelected -> DataTableSelectionChange Nothing allSelected)
                         , width shrink
@@ -760,8 +766,8 @@ mainContent model =
                         }
                     )
                 )
-            , Element.el [ Element.height fill, Element.width fill ]
-                (dataTable
+            , Element.column [ Element.height fill, Element.width fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+                [ dataTable
                     [ height (px 200), width fill ]
                     { columns =
                         [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
@@ -772,7 +778,14 @@ mainContent model =
                         model.persons
                     , state = model.dataTable
                     }
-                )
+                , paginator []
+                    { rowsPerPage = 4
+                    , offset = 3
+                    , total = 8
+                    , nextPage = Noop
+                    , previousPage = Noop
+                    }
+                ]
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ Element.el [ Element.height fill ]

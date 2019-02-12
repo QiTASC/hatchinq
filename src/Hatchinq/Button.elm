@@ -14,7 +14,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Theme exposing (Theme)
 import Html.Attributes
 
@@ -32,7 +32,7 @@ type alias View msg =
     }
 
 
-type alias InternalView msg =
+type alias InternalConfig msg =
     { label : String
     , onPress : Maybe msg
     , buttonType : ButtonType
@@ -46,30 +46,30 @@ type ButtonType
 
 
 {-| -}
-configure : Config -> (List (Attribute (InternalView msg)) -> View msg -> Element msg)
+configure : Config -> (List (Attribute (InternalConfig msg)) -> View msg -> Element msg)
 configure config =
     view config
 
 
 {-| -}
-contained : Attribute (InternalView msg)
+contained : Attribute (InternalConfig msg)
 contained =
     custom (\v -> { v | buttonType = Contained })
 
 
 {-| -}
-outlined : Attribute (InternalView msg)
+outlined : Attribute (InternalConfig msg)
 outlined =
     custom (\v -> { v | buttonType = Outlined })
 
 
 {-| -}
-text : Attribute (InternalView msg)
+text : Attribute (InternalConfig msg)
 text =
     custom (\v -> { v | buttonType = Text })
 
 
-view : Config -> List (Attribute (InternalView msg)) -> View msg -> Element msg
+view : Config -> List (Attribute (InternalConfig msg)) -> View msg -> Element msg
 view { theme } source data =
     let
         defaultView =
@@ -78,20 +78,20 @@ view { theme } source data =
             , buttonType = Outlined
             }
 
-        internalView =
-            defaultView |> toInternalView source
+        internalConfig =
+            defaultView |> toInternalConfig source
 
         disabled =
-            internalView.onPress == Nothing
+            internalConfig.onPress == Nothing
 
         isOutlined =
-            internalView.buttonType == Outlined
+            internalConfig.buttonType == Outlined
 
         isFilled =
-            internalView.buttonType == Contained
+            internalConfig.buttonType == Contained
 
         isText =
-            internalView.buttonType == Text
+            internalConfig.buttonType == Text
 
         attributes =
             toElement source
@@ -200,5 +200,5 @@ view { theme } source data =
                     )
                 :: attributes
             )
-            { onPress = internalView.onPress, label = Element.text internalView.label }
+            { onPress = internalConfig.onPress, label = Element.text internalConfig.label }
         )

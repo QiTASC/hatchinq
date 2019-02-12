@@ -14,7 +14,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Theme exposing (Theme, textWithEllipsis)
 import Html
 import Html.Attributes
@@ -143,7 +143,7 @@ view config attributes data =
             }
 
         internalConfig =
-            defaultInternalConfig |> toInternalView attributes
+            defaultInternalConfig |> toInternalConfig attributes
 
         externalAttributes =
             toElement attributes

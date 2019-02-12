@@ -1,11 +1,15 @@
-module Hatchinq.AppBar exposing (Action, Config, Message, State, View, appBarHeight, configure, elevate, init, navigate, placeholder, update)
+module Hatchinq.AppBar exposing
+    ( AppBarButton, Config, Message, State, View
+    , appBarHeight, configure, elevate, init, navigate, placeholder, update
+    )
 
 {-|
 
 
 # Exposed
 
-@docs Action, Config, Message, State, View, appBarHeight, configure, elevate, init, navigate, placeholder, update
+@docs AppBarButton, Config, Message, State, View
+@docs appBarHeight, configure, elevate, init, navigate, placeholder, update
 
 -}
 
@@ -14,7 +18,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Theme as Theme exposing (Theme, icon)
 import Html.Attributes
 
@@ -48,13 +52,14 @@ type alias InternalState =
 {-| -}
 type alias View msg =
     { title : Element msg
-    , actions : List (Action msg)
+    , buttons : List (AppBarButton msg)
     }
 
 
 {-| -}
-type alias Action msg =
-    { icon : String
+type alias AppBarButton msg =
+    { id : Maybe String
+    , icon : String
     , message : msg
     }
 
@@ -113,7 +118,7 @@ view { theme } source data =
             toElement source
 
         internalView =
-            toInternalView source <| { navigation = Nothing, elevate = False }
+            toInternalConfig source <| { navigation = Nothing, elevate = False }
     in
     Element.el
         (Background.color theme.colors.primary.color
@@ -135,7 +140,7 @@ view { theme } source data =
         (Element.row [ width fill, Element.spacing 16 ]
             [ case internalView.navigation of
                 Just message ->
-                    iconButton theme "menu" message
+                    iconButton theme { id = Nothing, icon = "menu", message = message }
 
                 Nothing ->
                     Element.none
@@ -143,22 +148,33 @@ view { theme } source data =
             -- todo add navigation
             , Element.el [ paddingXY 16 0 ] data.title
             , Element.row [ Element.alignRight, Element.spacing 8 ]
-                (data.actions |> List.map (\a -> iconButton theme a.icon a.message))
+                (data.buttons |> List.map (\a -> iconButton theme a))
             ]
         )
 
 
-iconButton : Theme -> String -> msg -> Element msg
-iconButton theme iconName message =
+iconButton : Theme -> AppBarButton msg -> Element msg
+iconButton theme a =
+    let
+        idAttribute =
+            case a.id of
+                Just id ->
+                    [ Element.htmlAttribute <| Html.Attributes.id id ]
+
+                Nothing ->
+                    []
+    in
     Element.el
-        [ Events.onClick message
-        , Border.rounded 20
-        , width (px 40)
-        , height (px 40)
-        , Element.htmlAttribute
-            (Html.Attributes.class "button focusWhiteRipple")
-        , mouseOver
-            [ Background.color theme.colors.gray.light ]
-        , pointer
-        ]
-        (Element.el [ centerX, centerY ] (icon iconName))
+        (idAttribute
+            ++ [ Events.onClick a.message
+               , Border.rounded 20
+               , width (px 40)
+               , height (px 40)
+               , Element.htmlAttribute
+                    (Html.Attributes.class "button focusWhiteRipple")
+               , mouseOver
+                    [ Background.color theme.colors.gray.light ]
+               , pointer
+               ]
+        )
+        (Element.el [ centerX, centerY ] (icon a.icon))

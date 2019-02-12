@@ -9,10 +9,14 @@ module Hatchinq.Paginator exposing (Config, View, configure)
 
 -}
 
-import Element exposing (..)
+import Element exposing (Element, alignRight, fill, focused, height, htmlAttribute, padding, paddingEach, pointer, px, spacing, width)
+import Element.Background
 import Element.Events exposing (..)
 import Element.Font as Font
+import Hatchinq.Attribute exposing (Attribute, toElement)
 import Hatchinq.Theme exposing (Theme, icon)
+import Hatchinq.Util exposing (enterKeyCode, keyDownAttribute)
+import Html.Attributes
 
 
 
@@ -26,7 +30,7 @@ type alias Config =
 
 
 {-| -}
-configure : Config -> View msg -> Element msg
+configure : Config -> List (Attribute v) -> View msg -> Element msg
 configure config =
     view config
 
@@ -45,8 +49,8 @@ type alias View msg =
     }
 
 
-view : Config -> View msg -> Element msg
-view { theme } data =
+view : Config -> List (Attribute v) -> View msg -> Element msg
+view { theme } attributes data =
     let
         from =
             max (min (data.offset + 1) data.total) 1
@@ -54,40 +58,63 @@ view { theme } data =
         to =
             max (min (data.offset + data.rowsPerPage) data.total) 1
 
+        elementAttributes =
+            toElement attributes
+
         pagesText =
-            String.fromInt from ++ "-" ++ String.fromInt to ++ " of " ++ String.fromInt data.total
+            if data.total == 0 then
+                "0-0 of " ++ String.fromInt data.total
+
+            else
+                String.fromInt from ++ "-" ++ String.fromInt to ++ " of " ++ String.fromInt data.total
 
         nextPageButtonAttributes =
-            if to == data.total then
+            if to >= data.total then
                 [ Font.color theme.colors.gray.color ]
 
             else
-                [ pointer, onClick data.nextPage ]
+                [ pointer
+                , htmlAttribute <| Html.Attributes.attribute "tabindex" "0"
+                , htmlAttribute <| Html.Attributes.style "border-radius" "50%"
+                , htmlAttribute <| Html.Attributes.class "ripple focusGrayRipple"
+                , focused [ Element.Background.color theme.colors.gray.lighter ]
+                , onClick data.nextPage
+                , keyDownAttribute enterKeyCode data.nextPage
+                ]
 
         previousPageButtonAttributes =
             if from == 1 then
                 [ Font.color theme.colors.gray.color ]
 
             else
-                [ pointer, onClick data.previousPage ]
+                [ pointer
+                , htmlAttribute <| Html.Attributes.attribute "tabindex" "0"
+                , htmlAttribute <| Html.Attributes.style "border-radius" "50%"
+                , htmlAttribute <| Html.Attributes.class "ripple focusGrayRipple"
+                , focused [ Element.Background.color theme.colors.gray.lighter ]
+                , onClick data.previousPage
+                , keyDownAttribute enterKeyCode data.nextPage
+                ]
     in
-    row
-        [ width fill
-        , spacing 24
-        , padding 16
-        , Font.family [ theme.font.main ]
-        , Font.size theme.font.smallerSize
-        , Font.color (theme.colors.gray.withAlpha 0.54)
-        ]
-        [ el [ alignRight, paddingEach { top = 0, bottom = 0, left = 0, right = 6 } ]
-            (text ("Rows per page: " ++ String.fromInt data.rowsPerPage))
-        , el
+    Element.row
+        ([ width fill
+         , spacing 24
+         , padding 16
+         , Font.family [ theme.font.main ]
+         , Font.size theme.font.smallerSize
+         , Font.color (theme.colors.gray.withAlpha 0.54)
+         ]
+            ++ elementAttributes
+        )
+        [ Element.el [ alignRight, paddingEach { top = 0, bottom = 0, left = 0, right = 6 } ]
+            (Element.text ("Rows per page: " ++ String.fromInt data.rowsPerPage))
+        , Element.el
             [ alignRight, paddingEach { top = 0, bottom = 0, left = 0, right = 20 } ]
-            (text pagesText)
-        , el
+            (Element.text pagesText)
+        , Element.el
             ([ alignRight, width (px 24), height (px 24) ] ++ previousPageButtonAttributes)
             (icon "chevron_left")
-        , el
+        , Element.el
             ([ alignRight, width (px 24), height (px 24) ] ++ nextPageButtonAttributes)
             (icon "chevron_right")
         ]

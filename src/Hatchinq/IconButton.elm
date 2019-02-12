@@ -1,11 +1,11 @@
-module Hatchinq.IconButton exposing (Config, View, configure, filled, withTextColor)
+module Hatchinq.IconButton exposing (Config, View, configure, filled, stopPropagation, withTextColor)
 
 {-|
 
 
 # Exposed
 
-@docs Config, View, configure, filled, withTextColor
+@docs Config, View, configure, filled, stopPropagation, withTextColor
 
 -}
 
@@ -13,7 +13,7 @@ import Element exposing (Color, Element, centerX, centerY, focused, height, mous
 import Element.Background as Background
 import Element.Font as Font
 import Element.Input as Input
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Color as Color
 import Hatchinq.Theme exposing (Theme, black, icon)
 import Html.Attributes
@@ -30,6 +30,7 @@ type IconButtonType
 
 type alias InternalConfig =
     { iconButtonType : IconButtonType
+    , stopPropagation : Bool
     , textColor : Maybe Color
     }
 
@@ -58,6 +59,12 @@ type alias View msg =
 
 
 {-| -}
+stopPropagation : Attribute InternalConfig
+stopPropagation =
+    custom (\v -> { v | stopPropagation = True })
+
+
+{-| -}
 filled : Attribute InternalConfig
 filled =
     custom (\v -> { v | iconButtonType = Filled })
@@ -74,11 +81,12 @@ view { theme } source data =
     let
         defaultInternalConfig =
             { iconButtonType = Default
+            , stopPropagation = False
             , textColor = Nothing
             }
 
         internalConfig =
-            toInternalView source defaultInternalConfig
+            toInternalConfig source defaultInternalConfig
 
         disabled =
             data.onPress == Nothing

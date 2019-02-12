@@ -12,8 +12,9 @@ module Hatchinq.RadioButton exposing (Config, configure, stopPropagation)
 import Element exposing (Element, behindContent, centerX, centerY, el, focused, height, html, htmlAttribute, inFront, mouseOver, onRight, pointer, px, width)
 import Element.Background as Background
 import Element.Font as Font
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Theme as Theme exposing (Theme)
+import Hatchinq.Util exposing (enterKeyCode, keyDownAttribute)
 import Html
 import Html.Attributes
 import Html.Events
@@ -65,7 +66,7 @@ view { theme } attributes data =
             }
 
         internalConfig =
-            toInternalView attributes defaultConfig
+            toInternalConfig attributes defaultConfig
 
         widthLength =
             px 40
@@ -126,6 +127,14 @@ view { theme } attributes data =
                 , htmlAttribute <| Html.Attributes.attribute "tabindex" "0"
                 , pointer
                 ]
+
+        keyEnterAttributes =
+            case data.onChange of
+                Just onChange ->
+                    [ keyDownAttribute enterKeyCode (onChange (not data.value)) ]
+
+                Nothing ->
+                    []
     in
     el
         ([ width widthLength
@@ -149,6 +158,7 @@ view { theme } attributes data =
          ]
             ++ styleAttributes
             ++ radioButtonDisabledAttributes
+            ++ keyEnterAttributes
             ++ elementAttributes
         )
         Element.none

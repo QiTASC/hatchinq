@@ -18,7 +18,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalView)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.MouseDecoder exposing (MousePosition, positionDecoder)
 import Hatchinq.Theme as Theme exposing (Theme)
 import Html exposing (i)
@@ -179,7 +179,7 @@ view config source v =
             }
 
         internalConfig =
-            toInternalView source defaultInternalConfig
+            toInternalConfig source defaultInternalConfig
 
         sideBarButtons =
             Element.map lift <| sidebarButtons config v

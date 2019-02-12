@@ -1,15 +1,20 @@
-module Hatchinq.Attribute exposing (Attribute, custom, height, none, toElement, toInternalView, toWidth, width, withAttributes)
+module Hatchinq.Attribute exposing
+    ( Attribute
+    , custom, height, id, none, toElement, toInternalConfig, toWidth, width, withAttributes
+    )
 
 {-|
 
 
 # Exposed
 
-@docs Attribute, custom, height, none, toElement, toInternalView, toWidth, width, withAttributes
+@docs Attribute
+@docs custom, height, id, none, toElement, toInternalConfig, toWidth, width, withAttributes
 
 -}
 
 import Element exposing (Element, Length)
+import Html.Attributes
 
 
 {-| -}
@@ -17,6 +22,7 @@ type Attribute v
     = None
     | Width Length
     | Height Length
+    | Id String
     | Custom (v -> v)
 
 
@@ -45,8 +51,14 @@ height =
 
 
 {-| -}
-toInternalView : List (Attribute v) -> v -> v
-toInternalView source default =
+id : String -> Attribute v
+id idString =
+    Id idString
+
+
+{-| -}
+toInternalConfig : List (Attribute v) -> v -> v
+toInternalConfig source default =
     source
         |> List.foldr
             (\item view ->
@@ -72,6 +84,9 @@ toElement source =
 
                     Height l ->
                         Just <| Element.height l
+
+                    Id idString ->
+                        Just <| Element.htmlAttribute <| Html.Attributes.id idString
 
                     _ ->
                         Nothing
