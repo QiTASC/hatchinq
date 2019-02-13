@@ -1,5 +1,5 @@
 module Hatchinq.DataTable exposing
-    ( Config, Message, State, View
+    ( Config, InfiniteView, LoadingDirection(..), Message, State, View
     , column, configure, expansion, infinite, init, plain, selection, sortableColumn, externalSortableColumn, update
     )
 
@@ -8,21 +8,24 @@ module Hatchinq.DataTable exposing
 
 # Exposed
 
-@docs Config, Message, State, View
+@docs Config, InfiniteView, LoadingDirection, Message, State, View
 @docs column, configure, expansion, infinite, init, plain, selection, sortableColumn, externalSortableColumn, update
 
 -}
 
-import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, px, scrollbarY, width)
+import Browser.Dom as Dom
+import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarY, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalConfig)
+import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toId, toInternalConfig)
 import Hatchinq.Checkbox as Checkbox
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon)
 import Html.Attributes
+import Html.Events
+import Json.Decode as Decode
 import Task
 
 
@@ -30,13 +33,13 @@ import Task
 -- TYPES
 
 
-type DataTableType
+type DataTableType msg
     = Plain
-    | Infinite
+    | Infinite (InfiniteView msg)
 
 
 type alias InternalConfig item msg =
-    { dataTableType : DataTableType
+    { dataTableType : DataTableType msg
     , selection : Maybe ( item -> Bool, item -> Bool -> msg, Bool -> msg )
     , expansion : Maybe ( item -> Bool, item -> Bool -> msg, item -> Element msg )
     }
@@ -64,6 +67,22 @@ type Sort item
 type alias State item =
     { hoveredHeader : Maybe Int
     , sort : Sort item
+    , packetsScrollPos : ScrollPos
+    }
+
+
+{-| -}
+type LoadingDirection
+    = Up
+    | Down
+
+
+{-| -}
+type alias InfiniteView msg =
+    { loadingTop : Bool
+    , loadingBottom : Bool
+    , bufferLimit : Int
+    , loadExtraItemsMsg : LoadingDirection -> msg
     }
 
 
@@ -72,6 +91,11 @@ init : State item
 init =
     { hoveredHeader = Nothing
     , sort = NoSort
+    , packetsScrollPos =
+        { scrollTop = 0
+        , contentHeight = 0
+        , containerHeight = 0
+        }
     }
 
 
@@ -127,7 +151,7 @@ externalSortableColumn header width toElement sorter =
 {-| -}
 type Message item msg
     = Sort Int (SortMethod item msg)
-    | Select item msg
+    | TableScroll msg Int String (InfiniteView msg) ScrollPos
     | Noop
 
 
@@ -170,8 +194,56 @@ update msg model =
                     else
                         ( { model | sort = Increasing columnIndex sorterFunc }, command (Just True) )
 
-        _ ->
+        TableScroll noop rowHeight elementId infiniteView scrollPos ->
+            let
+                adjustedViewportY =
+                    infiniteView.bufferLimit * rowHeight
+            in
+            if not infiniteView.loadingBottom && scrolledToBottom 0 scrollPos then
+                ( { model
+                    | packetsScrollPos = scrollPos
+                  }
+                , Task.perform identity <| Task.succeed (infiniteView.loadExtraItemsMsg Down)
+                )
+
+            else if not infiniteView.loadingTop && scrolledToTop 0 scrollPos then
+                ( { model
+                    | packetsScrollPos = scrollPos
+                  }
+                , Cmd.batch
+                    [ Task.perform identity <| Task.succeed (infiniteView.loadExtraItemsMsg Up)
+                    , Dom.setViewportOf elementId 0 (toFloat adjustedViewportY)
+                        |> Task.attempt (\_ -> noop)
+                    ]
+                )
+
+            else if infiniteView.loadingBottom && scrolledToBottom 1 scrollPos then
+                ( model
+                , Dom.setViewportOf elementId 0 (toFloat (scrollPos.contentHeight - scrollPos.containerHeight - 1))
+                    |> Task.attempt (\_ -> noop)
+                )
+
+            else if infiniteView.loadingTop && scrolledToTop 1 scrollPos then
+                ( model
+                , Dom.setViewportOf elementId 0 (toFloat 1)
+                    |> Task.attempt (\_ -> noop)
+                )
+
+            else
+                ( model, Cmd.none )
+
+        Noop ->
             ( model, Cmd.none )
+
+
+scrolledToTop : Int -> ScrollPos -> Bool
+scrolledToTop tolerance pos =
+    round pos.scrollTop <= tolerance
+
+
+scrolledToBottom : Int -> ScrollPos -> Bool
+scrolledToBottom tolerance pos =
+    pos.contentHeight - pos.containerHeight - tolerance <= round pos.scrollTop
 
 
 
@@ -199,9 +271,9 @@ plain =
 
 
 {-| -}
-infinite : Attribute (InternalConfig item msg)
-infinite =
-    custom (\v -> { v | dataTableType = Infinite })
+infinite : InfiniteView msg -> Attribute (InternalConfig item msg)
+infinite infiniteView =
+    custom (\v -> { v | dataTableType = Infinite infiniteView })
 
 
 {-| -}
@@ -299,7 +371,7 @@ view { theme, lift } attributes data =
             sorterFunc data.items
 
         expansionWidth =
-            theme.sizes.table.rowHeight
+            Element.px theme.sizes.table.rowHeight
 
         checkbox =
             Checkbox.configure { theme = theme } [ Checkbox.stopPropagation ]
@@ -369,7 +441,7 @@ view { theme, lift } attributes data =
                     [ Element.el cellAttributes (checkbox { value = Just (selected it), onChange = Just (onSelected it) }) ]
 
         rowAttributes =
-            [ height theme.sizes.table.rowHeight, paddingEach theme.sizes.table.rowPadding, Element.width fill ]
+            [ height (Element.px theme.sizes.table.rowHeight), paddingEach theme.sizes.table.rowPadding, Element.width fill ]
 
         rowHeaderAttributes =
             rowAttributes
@@ -417,11 +489,56 @@ view { theme, lift } attributes data =
                    )
                 ++ rowAttributes
 
+        elementId =
+            Maybe.withDefault "" (toId attributes) ++ "-internal-scroll"
+
+        extraItemsTop =
+            case internalConfig.dataTableType of
+                Infinite infiniteView ->
+                    if infiniteView.loadingTop then
+                        List.repeat infiniteView.bufferLimit
+                            (Element.row
+                                (rowAttributes
+                                    ++ [ Border.widthEach { bottom = 0, top = 1, left = 0, right = 0 }
+                                       , Border.color theme.colors.gray.lighter
+                                       , Background.color theme.colors.gray.lightest
+                                       ]
+                                )
+                                []
+                            )
+
+                    else
+                        []
+
+                _ ->
+                    []
+
+        extraItemsBottom =
+            case internalConfig.dataTableType of
+                Infinite infiniteView ->
+                    if infiniteView.loadingBottom then
+                        List.repeat infiniteView.bufferLimit
+                            (Element.row
+                                (rowAttributes
+                                    ++ [ Border.widthEach { bottom = 0, top = 1, left = 0, right = 0 }
+                                       , Border.color theme.colors.gray.lighter
+                                       , Background.color theme.colors.gray.lightest
+                                       ]
+                                )
+                                []
+                            )
+
+                    else
+                        []
+
+                _ ->
+                    []
+
         rowDisplay : Int -> item -> Element msg
         rowDisplay rowIndex it =
             let
                 borderAttributes =
-                    if rowIndex == 0 then
+                    if rowIndex == 0 && List.isEmpty extraItemsTop then
                         []
 
                     else
@@ -455,6 +572,14 @@ view { theme, lift } attributes data =
                     else
                         Element.column [ width fill ]
                             [ rowDisplay rowIndex it ]
+
+        scrollingAttribute =
+            case internalConfig.dataTableType of
+                Infinite infiniteView ->
+                    [ Html.Events.on "scroll" (Decode.map (lift << TableScroll (lift Noop) theme.sizes.table.rowHeight elementId infiniteView) decodeScrollPos) |> htmlAttribute ]
+
+                _ ->
+                    []
     in
     Element.column
         (tableAttributes ++ elementAttributes)
@@ -463,11 +588,41 @@ view { theme, lift } attributes data =
                 ++ selectionHeader
                 ++ List.indexedMap (\columnIndex headerColumn -> createHeader headerColumn columnIndex) data.columns
             )
-        , Element.el [ scrollbarY, height fill, width fill ]
+        , Element.el
+            (scrollingAttribute
+                ++ [ scrollbarY, height fill, width fill, Html.Attributes.id elementId |> htmlAttribute ]
+            )
             (Element.column [ height fill, width fill ]
-                (List.indexedMap
-                    itemDisplay
-                    items
+                (extraItemsTop
+                    ++ List.indexedMap
+                        itemDisplay
+                        items
+                    ++ extraItemsBottom
                 )
             )
         ]
+
+
+type alias ScrollPos =
+    { scrollTop : Float
+    , contentHeight : Int
+    , containerHeight : Int
+    }
+
+
+decodeScrollPos : Decode.Decoder ScrollPos
+decodeScrollPos =
+    Decode.map3 ScrollPos
+        (Decode.at [ "target", "scrollTop" ] Decode.float)
+        (Decode.at [ "target", "scrollHeight" ] Decode.int)
+        (Decode.map2 Basics.max offsetHeight clientHeight)
+
+
+offsetHeight : Decode.Decoder Int
+offsetHeight =
+    Decode.at [ "target", "offsetHeight" ] Decode.int
+
+
+clientHeight : Decode.Decoder Int
+clientHeight =
+    Decode.at [ "target", "clientHeight" ] Decode.int

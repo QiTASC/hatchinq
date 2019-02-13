@@ -9,11 +9,12 @@ module Examples exposing (main)
 import Browser
 import Browser.Dom
 import Browser.Events
-import Element exposing (Element, alignTop, fill, inFront, padding, paddingEach, px, shrink, spacing)
+import Delay exposing (TimeUnit(..))
+import Element exposing (Element, alignTop, fill, inFront, padding, px, shrink, spacing)
 import Element.Border
 import Element.Events
 import Hatchinq.AppBar as AppBar
-import Hatchinq.Attribute exposing (Attribute, height, width, withAttributes)
+import Hatchinq.Attribute exposing (Attribute, height, id, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
 import Hatchinq.Checkbox as Checkbox exposing (..)
 import Hatchinq.DataTable as DataTable exposing (..)
@@ -110,6 +111,8 @@ type Msg
     | WindowSizeChanged Int Int
     | SelectPerson (Maybe Person)
     | FilesTreeLift Tree.Message
+    | LoadPeople LoadingDirection
+    | GotPeople
     | Noop
 
 
@@ -236,6 +239,9 @@ type alias Model =
     , rightSidePanelState : SidePanel.State
     , dataTable : DataTable.State Person
     , persons : List Person
+    , infinitePersons : List Person
+    , loadingTop : Bool
+    , loadingBottom : Bool
     , list1State : MaterialList.State Person
     , list2State : MaterialList.State Person
     , list3State : MaterialList.State Person
@@ -274,6 +280,9 @@ init _ =
       , rightSidePanelState = rightPanelState
       , dataTable = DataTable.init
       , persons = persons
+      , infinitePersons = persons ++ persons ++ persons
+      , loadingTop = False
+      , loadingBottom = False
       , list1State = MaterialList.init
       , list2State = MaterialList.init
       , list3State = MaterialList.init
@@ -479,6 +488,17 @@ update msg model =
                     Tree.update message model.filesTreeState
             in
             ( { model | filesTreeState = newFilesTreeState }, Cmd.none )
+
+        LoadPeople direction ->
+            case direction of
+                Up ->
+                    ( { model | loadingTop = True }, Delay.after 1000 Millisecond GotPeople )
+
+                Down ->
+                    ( { model | loadingBottom = True }, Delay.after 1000 Millisecond GotPeople )
+
+        GotPeople ->
+            ( { model | infinitePersons = model.infinitePersons ++ persons ++ persons ++ persons ++ persons, loadingTop = False, loadingBottom = False }, Cmd.none )
 
         Noop ->
             ( model, Cmd.none )
@@ -791,9 +811,47 @@ mainContent model =
                         }
                     )
                 )
+            , Element.el [ Element.height fill, Element.width fill ]
+                (Element.el [ Element.height shrink, Element.width fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+                    (dataTable
+                        [ height (px 300)
+                        , width fill
+                        , infinite { loadingBottom = model.loadingBottom, loadingTop = model.loadingTop, bufferLimit = 16, loadExtraItemsMsg = LoadPeople }
+                        , id "infinite-data-table"
+                        ]
+                        { columns =
+                            [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
+                            , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> Element.text person.lastName)
+                            , DataTable.externalSortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) DataTableSortChange
+                            ]
+                        , items =
+                            model.infinitePersons
+                        , state = model.dataTable
+                        }
+                    )
+                )
+            , Element.el [ Element.height fill, Element.width fill ]
+                (Element.el [ Element.height shrink, Element.width fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
+                    (denseDataTable
+                        [ height (px 300)
+                        , width fill
+                        , infinite { loadingBottom = model.loadingBottom, loadingTop = model.loadingTop, bufferLimit = 16, loadExtraItemsMsg = LoadPeople }
+                        , id "infinite-data-table2"
+                        ]
+                        { columns =
+                            [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
+                            , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> Element.text person.lastName)
+                            , DataTable.externalSortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) DataTableSortChange
+                            ]
+                        , items =
+                            model.infinitePersons
+                        , state = model.dataTable
+                        }
+                    )
+                )
             , Element.column [ Element.height fill, Element.width fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
                 [ dataTable
-                    [ height (px 200), width fill ]
+                    [ height (px 240), width fill ]
                     { columns =
                         [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
                         , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> Element.text person.lastName)

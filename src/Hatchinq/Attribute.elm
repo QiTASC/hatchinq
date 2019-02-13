@@ -1,6 +1,6 @@
 module Hatchinq.Attribute exposing
     ( Attribute
-    , custom, height, id, none, toElement, toInternalConfig, toWidth, width, withAttributes
+    , custom, height, id, none, toElement, toInternalConfig, toId, toWidth, width, withAttributes
     )
 
 {-|
@@ -9,7 +9,7 @@ module Hatchinq.Attribute exposing
 # Exposed
 
 @docs Attribute
-@docs custom, height, id, none, toElement, toInternalConfig, toWidth, width, withAttributes
+@docs custom, height, id, none, toElement, toInternalConfig, toId, toWidth, width, withAttributes
 
 -}
 
@@ -104,6 +104,25 @@ toWidth source =
                         case i of
                             Width l ->
                                 Just <| l
+
+                            _ ->
+                                Nothing
+                    )
+            )
+        )
+
+
+{-| -}
+toId : List (Attribute v) -> Maybe String
+toId source =
+    List.head
+        (List.reverse
+            (source
+                |> List.filterMap
+                    (\a ->
+                        case a of
+                            Id i ->
+                                Just <| i
 
                             _ ->
                                 Nothing

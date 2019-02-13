@@ -13,7 +13,7 @@ module Hatchinq.Theme exposing
 
 -}
 
-import Element exposing (Attribute, Color, Element, Length, el, fill, height, html, htmlAttribute, paddingXY, px, width)
+import Element exposing (Attribute, Color, Element, Length, el, fill, height, html, htmlAttribute, paddingXY, width)
 import Element.Font exposing (Font)
 import Hatchinq.Color as QColor exposing (alpha, blue, green, isBrighter, red, rgba, toElement, withAlpha)
 import Html exposing (Html)
@@ -52,7 +52,7 @@ type alias ColorTheme =
 
 
 type alias Table =
-    { rowHeight : Length
+    { rowHeight : Int
     , rowPadding : { top : Int, right : Int, bottom : Int, left : Int }
     , expansionPadding : { top : Int, right : Int, bottom : Int, left : Int }
     , cellPadding : { top : Int, right : Int, bottom : Int, left : Int }
@@ -211,7 +211,7 @@ dense theme =
         | sizes =
             { minRowHeight = 32
             , table =
-                { rowHeight = px 32
+                { rowHeight = 32
                 , rowPadding = { top = 8, bottom = 8, left = 4, right = 4 }
                 , expansionPadding = { top = 8, bottom = 8, left = 12, right = 12 }
                 , cellPadding = { top = 0, bottom = 0, left = 8, right = 8 }
@@ -241,7 +241,7 @@ default =
     , sizes =
         { minRowHeight = 48
         , table =
-            { rowHeight = px 48
+            { rowHeight = 48
             , rowPadding = { top = 12, bottom = 12, left = 4, right = 4 }
             , expansionPadding = { top = 12, bottom = 12, left = 12, right = 12 }
             , cellPadding = { top = 0, bottom = 0, left = 8, right = 8 }
