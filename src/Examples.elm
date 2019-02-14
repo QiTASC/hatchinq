@@ -112,8 +112,8 @@ type Msg
     | SelectPerson (Maybe Person)
     | FilesTreeLift Tree.Message
     | LoadPeople LoadingDirection
-    | GotPeople
-    | Noop
+    | GotPeople LoadingDirection
+    | NoOp
 
 
 theme =
@@ -240,8 +240,8 @@ type alias Model =
     , dataTable : DataTable.State Person
     , persons : List Person
     , infinitePersons : List Person
-    , loadingTop : Bool
-    , loadingBottom : Bool
+    , loadingTop : Maybe Int
+    , loadingBottom : Maybe Int
     , list1State : MaterialList.State Person
     , list2State : MaterialList.State Person
     , list3State : MaterialList.State Person
@@ -281,8 +281,8 @@ init _ =
       , dataTable = DataTable.init
       , persons = persons
       , infinitePersons = persons ++ persons ++ persons
-      , loadingTop = False
-      , loadingBottom = False
+      , loadingTop = Nothing
+      , loadingBottom = Nothing
       , list1State = MaterialList.init
       , list2State = MaterialList.init
       , list3State = MaterialList.init
@@ -490,17 +490,33 @@ update msg model =
             ( { model | filesTreeState = newFilesTreeState }, Cmd.none )
 
         LoadPeople direction ->
+            let
+                totalItemsCount =
+                    List.length model.infinitePersons + Maybe.withDefault 0 model.loadingTop + Maybe.withDefault 0 model.loadingBottom
+
+                deltaItemsCount =
+                    List.length persons
+            in
             case direction of
                 Up ->
-                    ( { model | loadingTop = True }, Delay.after 1000 Millisecond GotPeople )
+                    ( { model | loadingTop = Just deltaItemsCount }
+                    , Delay.after 1000 Millisecond (GotPeople Up)
+                    )
 
                 Down ->
-                    ( { model | loadingBottom = True }, Delay.after 1000 Millisecond GotPeople )
+                    ( { model | loadingBottom = Just deltaItemsCount }
+                    , Delay.after 1000 Millisecond (GotPeople Down)
+                    )
 
-        GotPeople ->
-            ( { model | infinitePersons = model.infinitePersons ++ persons ++ persons ++ persons ++ persons, loadingTop = False, loadingBottom = False }, Cmd.none )
+        GotPeople direction ->
+            case direction of
+                Up ->
+                    ( { model | infinitePersons = model.infinitePersons ++ persons, loadingTop = Nothing }, Cmd.none )
 
-        Noop ->
+                Down ->
+                    ( { model | infinitePersons = model.infinitePersons ++ persons, loadingBottom = Nothing }, Cmd.none )
+
+        NoOp ->
             ( model, Cmd.none )
 
 
@@ -735,7 +751,7 @@ mainContent model =
                         Nothing
 
                     else
-                        Just (\_ -> Noop)
+                        Just (\_ -> NoOp)
                 }
             , dropDown Disabled
                 [ DropDown.label
@@ -816,7 +832,7 @@ mainContent model =
                     (dataTable
                         [ height (px 300)
                         , width fill
-                        , infinite { loadingBottom = model.loadingBottom, loadingTop = model.loadingTop, bufferLimit = 16, loadExtraItemsMsg = LoadPeople }
+                        , infinite { loadingBottom = model.loadingBottom, loadingTop = model.loadingTop, loadExtraItems = \direction -> Just { loadCount = List.length persons, excessCount = 0, loadMsg = LoadPeople direction } }
                         , id "infinite-data-table"
                         ]
                         { columns =
@@ -835,7 +851,7 @@ mainContent model =
                     (denseDataTable
                         [ height (px 300)
                         , width fill
-                        , infinite { loadingBottom = model.loadingBottom, loadingTop = model.loadingTop, bufferLimit = 16, loadExtraItemsMsg = LoadPeople }
+                        , infinite { loadingBottom = model.loadingBottom, loadingTop = model.loadingTop, loadExtraItems = \direction -> Just { loadCount = List.length persons, excessCount = 0, loadMsg = LoadPeople direction } }
                         , id "infinite-data-table2"
                         ]
                         { columns =
@@ -865,8 +881,8 @@ mainContent model =
                     { rowsPerPage = 4
                     , offset = 3
                     , total = 8
-                    , nextPage = Noop
-                    , previousPage = Noop
+                    , nextPage = NoOp
+                    , previousPage = NoOp
                     }
                 ]
             ]
