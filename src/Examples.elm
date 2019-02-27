@@ -56,6 +56,8 @@ subscriptions model =
 type InputField
     = FirstInputField
     | SecondInputField
+    | FirstMultiline
+    | SecondMultiline
 
 
 type DropDownComponent
@@ -228,6 +230,8 @@ type alias Model =
     { counter : Int
     , inputValue : String
     , secondInputValue : String
+    , multilineValue : String
+    , secondMultilineValue : String
     , inputField : TextField.State InputField
     , defaultDropdownValue : Maybe String
     , defaultDropdown : DropDown.State
@@ -269,6 +273,8 @@ init _ =
     ( { counter = 0
       , inputValue = ""
       , secondInputValue = "Some text"
+      , multilineValue = ""
+      , secondMultilineValue = "Some text\nOn multiple lines"
       , inputField = TextField.init
       , defaultDropdownValue = Nothing
       , defaultDropdown = DropDown.init
@@ -321,6 +327,12 @@ update msg model =
 
                 SecondInputField ->
                     ( { model | secondInputValue = newValue }, Cmd.none )
+
+                FirstMultiline ->
+                    ( { model | multilineValue = newValue }, Cmd.none )
+
+                SecondMultiline ->
+                    ( { model | secondMultilineValue = newValue }, Cmd.none )
 
         InputStateChange inputMessage ->
             let
@@ -731,6 +743,27 @@ mainContent model =
 
                     else
                         Just (InputChange SecondInputField)
+                }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ textField [ multiline, height (px 100) ]
+                { id = FirstMultiline
+                , label = "My input field"
+                , value = model.multilineValue
+                , state = model.inputField
+                , onChange = Just (InputChange FirstMultiline)
+                }
+            , textField [ multiline, height (px 100), width fill ]
+                { id = SecondMultiline
+                , label = "Second field"
+                , value = model.secondMultilineValue
+                , state = model.inputField
+                , onChange =
+                    if model.checkboxValue == Nothing || model.checkboxValue == Just False then
+                        Nothing
+
+                    else
+                        Just (InputChange SecondMultiline)
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
