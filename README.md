@@ -13,6 +13,7 @@ Next UI elements are available so far:
  - IconButton
  - List
  - Paginator
+ - ProgressIndicator
  - RadioButton
  - SidePanel
  - TextField
@@ -30,6 +31,7 @@ import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton (..)
 import Hatchinq.List as MaterialList exposing (..)
 import Hatchinq.Paginator as Paginator exposing (..)
+import Hatchinq.ProgressIndicator as ProgressIndicator exposing (..)
 import Hatchinq.RadioButton as RadioButton exposing (..)
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)

@@ -3,7 +3,7 @@
     "name": "QiTASC/hatchinq",
     "summary": "An experimental library for UI elements. Not for production use.",
     "license": "Apache-2.0",
-    "version": "8.0.0",
+    "version": "8.1.0",
     "exposed-modules": [
         "Examples",
         "Hatchinq.AppBar",
@@ -16,6 +16,7 @@
         "Hatchinq.IconButton",
         "Hatchinq.List",
         "Hatchinq.Paginator",
+        "Hatchinq.ProgressIndicator",
         "Hatchinq.RadioButton",
         "Hatchinq.SidePanel",
         "Hatchinq.TextField",
@@ -31,6 +32,7 @@
         "elm/html": "1.0.0 <= v < 2.0.0",
         "elm/json": "1.1.2 <= v < 2.0.0",
         "elm/random": "1.0.0 <= v < 2.0.0",
+        "elm/time": "1.0.0 <= v < 2.0.0",
         "mdgriffith/elm-ui": "1.1.0 <= v < 2.0.0",
         "rtfeldman/elm-css": "16.0.0 <= v < 17.0.0"
     },

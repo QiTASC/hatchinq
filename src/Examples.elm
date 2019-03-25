@@ -22,6 +22,7 @@ import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.List as MaterialList exposing (..)
 import Hatchinq.Paginator as Paginator
+import Hatchinq.ProgressIndicator as ProgressIndicator exposing (Progress(..), visibility)
 import Hatchinq.RadioButton as RadioButton
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
@@ -31,6 +32,7 @@ import Html exposing (Html)
 import List
 import Set exposing (Set)
 import Task
+import Time exposing (Posix, posixToMillis, utc)
 
 
 {-| -}
@@ -50,6 +52,7 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
+        , Time.every 10 Tick
         ]
 
 
@@ -115,6 +118,7 @@ type Msg
     | FilesTreeLift Tree.Message
     | LoadPeople LoadingDirection
     | GotPeople LoadingDirection
+    | Tick Posix
     | NoOp
 
 
@@ -183,6 +187,10 @@ denseDataTable =
 paginator =
     Paginator.configure
         { theme = theme }
+
+
+progressIndicator =
+    ProgressIndicator.configure { theme = theme }
 
 
 list id attr v =
@@ -258,6 +266,10 @@ type alias Model =
     , selectedPerson : Maybe Person
     , filesTreeState : Tree.State
     , windowSize : ( Int, Int )
+    , progressIndicator1 : Progress
+    , progressIndicatorVisiblity1 : Bool
+    , progressIndicator2 : Progress
+    , progressIndicatorVisiblity2 : Bool
     }
 
 
@@ -301,6 +313,10 @@ init _ =
       , selectedPerson = Nothing
       , filesTreeState = Tree.init
       , windowSize = ( 0, 0 )
+      , progressIndicator1 = Determinate 0
+      , progressIndicatorVisiblity1 = True
+      , progressIndicator2 = Indeterminate
+      , progressIndicatorVisiblity2 = True
       }
     , Cmd.batch
         [ leftPanelCmd
@@ -527,6 +543,29 @@ update msg model =
 
                 Down ->
                     ( { model | infinitePersons = model.infinitePersons ++ persons, loadingBottom = Nothing }, Cmd.none )
+
+        Tick posix ->
+            let
+                millis =
+                    posixToMillis posix
+
+                progress1 =
+                    toFloat (remainderBy 4000 millis) / 20
+
+                progressVisibility =
+                    if progress1 > 100 then
+                        False
+
+                    else
+                        True
+            in
+            ( { model
+                | progressIndicator1 = Determinate progress1
+                , progressIndicatorVisiblity1 = progressVisibility
+                , progressIndicatorVisiblity2 = progressVisibility
+              }
+            , Cmd.none
+            )
 
         NoOp ->
             ( model, Cmd.none )
@@ -978,5 +1017,11 @@ mainContent model =
                         }
                     )
                 )
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ progressIndicator [ visibility model.progressIndicatorVisiblity1 ] { progress = model.progressIndicator1 }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ progressIndicator [ visibility model.progressIndicatorVisiblity1 ] { progress = model.progressIndicator2 }
             ]
         ]

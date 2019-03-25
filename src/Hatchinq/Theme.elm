@@ -367,6 +367,152 @@ stylesheet theme =
                             opacity: 1;
                             transition: transform .5s, opacity .25s;
                         }
+
+                        .progress-indicator-primary-bar {
+                            display: block;
+                            transform-origin: top left;
+                            left: -145.166611%;
+
+                            -webkit-animation: progress-indicator-primary-bar-translate 2s infinite linear;
+                            -webkit-transition: none;
+                            -webkit-transform: scaleX(0);
+
+                            animation: progress-indicator-primary-bar-translate 2s infinite linear;
+                            transition: none;
+                            transform: scaleX(0);
+                        }
+
+                        @keyframes progress-indicator-primary-bar-translate {
+                            0%      {
+                                -webkit-transform: translateX(0);
+                                transform: translateX(0);
+                            }
+
+                            20%     {
+                                -webkit-animation-timing-function: cubic-bezier(.5,0,.701732,.495819);
+                                animation-timing-function: cubic-bezier(.5,0,.701732,.495819);
+                                -webkit-transform: translateX(0);
+                                transform: translateX(0);
+                            }
+
+                            59.15%  {
+                                -webkit-animation-timing-function: cubic-bezier(.302435,.381352,.55,.956352);
+                                animation-timing-function: cubic-bezier(.302435,.381352,.55,.956352);
+                                -webkit-transform: translateX(83.67142%);
+                                transform: translateX(83.67142%);
+                            }
+
+                            100%    {
+                                -webkit-transform: translateX(200.611057%);
+                                transform: translateX(200.611057%);
+                            }
+                        }
+
+                        .progress-indicator-primary-bar-inner {
+                            display: inline-block;
+
+                            -webkit-animation: progress-indicator-primary-bar-scale 2s infinite linear;
+
+                            animation: progress-indicator-primary-bar-scale 2s infinite linear;
+                        }
+
+                        @keyframes progress-indicator-primary-bar-scale {
+                            0%      {
+                                -webkit-transform: scaleX(.08);
+                                transform: scaleX(.08);
+                            }
+                            36.65%  {
+                                -webkit-animation-timing-function: cubic-bezier(.334731,.12482,.785844,1);
+                                animation-timing-function: cubic-bezier(.334731,.12482,.785844,1);
+                                -webkit-transform: scaleX(.08);
+                                transform: scaleX(.08);
+                            }
+
+                            69.15%  {
+                                -webkit-animation-timing-function: cubic-bezier(.06,.11,.6,1);
+                                animation-timing-function: cubic-bezier(.06,.11,.6,1);
+                                -webkit-transform: scaleX(.661479);
+                                transform: scaleX(.661479);
+                            }
+                            100%    {
+                                -webkit-transform: scaleX(.08);
+                                transform: scaleX(.08);
+                            }
+                        }
+
+                        .progress-indicator-secondary-bar {
+                            display: block;
+                            transform-origin: top left;
+                            left: -54.888891%;
+
+                            -webkit-animation: progress-indicator-secondary-bar-translate 2s infinite linear;
+                            -webkit-transition: none;
+                            -webkit-transform: scaleX(0);
+
+                            animation: progress-indicator-secondary-bar-translate 2s infinite linear;
+                            transition: none;
+                            transform: scaleX(0);
+                        }
+
+                        @keyframes progress-indicator-secondary-bar-translate {
+                            0%      {
+                                -webkit-animation-timing-function: cubic-bezier(.15,0,.515058,.409685);
+                                animation-timing-function: cubic-bezier(.15,0,.515058,.409685);
+                                -webkit-transform: translateX(0);
+                                transform: translateX(0);
+                            }
+
+                            25%     {
+                                -webkit-animation-timing-function: cubic-bezier(.31033,.284058,.8,.733712);
+                                animation-timing-function: cubic-bezier(.31033,.284058,.8,.733712);
+                                -webkit-transform: translateX(37.651913%);
+                                transform: translateX(37.651913%);
+                            }
+                            48.35%  {
+                                -webkit-animation-timing-function: cubic-bezier(.4,.627035,.6,.902026);
+                                animation-timing-function: cubic-bezier(.4,.627035,.6,.902026);
+                                -webkit-transform: translateX(84.386165%);
+                                transform: translateX(84.386165%);
+                            }
+                            100%    {
+                                -webkit-transform: translateX(160.277782%);
+                                transform: translateX(160.277782%);
+                            }
+                        }
+
+                        .progress-indicator-secondary-bar-inner {
+                            display: inline-block;
+
+                            -webkit-animation: progress-indicator-secondary-bar-scale 2s infinite linear;
+
+                            animation: progress-indicator-secondary-bar-scale 2s infinite linear;
+                        }
+
+                        @keyframes progress-indicator-secondary-bar-scale {
+                            0%      {
+                                -webkit-animation-timing-function: cubic-bezier(.205028,.057051,.57661,.453971);
+                                animation-timing-function: cubic-bezier(.205028,.057051,.57661,.453971);
+                                -webkit-transform: scaleX(.08);
+                                transform: scaleX(.08);
+                            }
+
+                            19.15%  {
+                                -webkit-animation-timing-function: cubic-bezier(.152313,.196432,.648374,1.004315);
+                                animation-timing-function: cubic-bezier(.152313,.196432,.648374,1.004315);
+                                -webkit-transform: scaleX(.457104);
+                                transform: scaleX(.457104);
+                            }
+                            44.15%  {
+                                -webkit-animation-timing-function: cubic-bezier(.257759,-.003163,.211762,1.38179);
+                                animation-timing-function: cubic-bezier(.257759,-.003163,.211762,1.38179);
+                                -webkit-transform: scaleX(.72796);
+                                transform: scaleX(.72796);
+                            }
+                            100%    {
+                                -webkit-transform: scaleX(.08);
+                                transform: scaleX(.08);
+                            }
+                        }
                     """)
                 ]
             ]

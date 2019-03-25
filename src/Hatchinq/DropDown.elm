@@ -159,7 +159,6 @@ update msg model =
 -- VIEW
 
 
-{-| -}
 type alias View item msg =
     { items : List item
     , itemToString : item -> String
