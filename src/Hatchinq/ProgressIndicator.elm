@@ -1,17 +1,17 @@
-module Hatchinq.ProgressIndicator exposing (Config, Progress(..), circular, configure, linear, visibility)
+module Hatchinq.ProgressIndicator exposing (Config, Progress(..), GrowthDirection(..), circular, configure, linear, startDelaySeconds, visibility)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Progress, circular, configure, linear, visibility
+@docs Config, Progress, GrowthDirection, circular, configure, growth, linear, startDelaySeconds, visibility
 
 -}
 
 import Element exposing (Element, fill, height, px, width)
 import Element.Background as Background
-import Hatchinq.Attribute exposing (Attribute, custom, toInternalConfig)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Theme exposing (Theme)
 import Html.Attributes
 
@@ -20,8 +20,14 @@ import Html.Attributes
 -- TYPES
 
 
+{-| -}
+type GrowthDirection
+    = TopDown
+    | BottomUp
+
+
 type ProgressIndicatorType
-    = Linear
+    = Linear GrowthDirection
     | Circular
 
 
@@ -40,6 +46,7 @@ configure config =
 type alias InternalConfig =
     { visible : Bool
     , progressIndicatorType : ProgressIndicatorType
+    , startDelaySeconds : Float
     }
 
 
@@ -60,9 +67,9 @@ type alias View =
 
 
 {-| -}
-linear : Attribute InternalConfig
-linear =
-    custom (\v -> { v | progressIndicatorType = Linear })
+linear : GrowthDirection -> Attribute InternalConfig
+linear growthDirection =
+    custom (\v -> { v | progressIndicatorType = Linear growthDirection })
 
 
 {-| -}
@@ -77,16 +84,26 @@ visibility visible =
     custom (\v -> { v | visible = visible })
 
 
+{-| -}
+startDelaySeconds : Float -> Attribute InternalConfig
+startDelaySeconds seconds =
+    custom (\v -> { v | startDelaySeconds = seconds })
+
+
 view : Config -> List (Attribute InternalConfig) -> View -> Element msg
 view { theme } attributes { progress } =
     let
         defaultInternalConfig =
             { visible = True
-            , progressIndicatorType = Linear
+            , progressIndicatorType = Linear TopDown
+            , startDelaySeconds = 0
             }
 
         internalConfig =
             toInternalConfig attributes defaultInternalConfig
+
+        externalAttributes =
+            toElement attributes
 
         bar =
             case progress of
@@ -143,15 +160,34 @@ view { theme } attributes { progress } =
 
             else
                 []
+
+        transformOrigin =
+            case internalConfig.progressIndicatorType of
+                Linear TopDown ->
+                    "top"
+
+                Linear BottomUp ->
+                    "bottom"
+
+                _ ->
+                    "top"
+
+        transitionDelaySeconds =
+            if not internalConfig.visible then
+                0
+
+            else
+                internalConfig.startDelaySeconds
     in
     Element.row
         ([ height (px 4)
          , width fill
          , Background.color theme.colors.gray.lighter
          , Element.clipX
-         , Element.htmlAttribute <| Html.Attributes.style "transform-origin" "top"
-         , Element.htmlAttribute <| Html.Attributes.style "transition" "transform .5s"
+         , Element.htmlAttribute <| Html.Attributes.style "transform-origin" transformOrigin
+         , Element.htmlAttribute <| Html.Attributes.style "transition" ("transform .5s " ++ String.fromFloat transitionDelaySeconds ++ "s")
          ]
             ++ progressIndicatorAttributes
+            ++ externalAttributes
         )
         bar
