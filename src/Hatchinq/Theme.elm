@@ -412,7 +412,6 @@ stylesheet theme =
                             display: inline-block;
 
                             -webkit-animation: progress-indicator-primary-bar-scale 2s infinite linear;
-
                             animation: progress-indicator-primary-bar-scale 2s infinite linear;
                         }
 
@@ -484,7 +483,6 @@ stylesheet theme =
                             display: inline-block;
 
                             -webkit-animation: progress-indicator-secondary-bar-scale 2s infinite linear;
-
                             animation: progress-indicator-secondary-bar-scale 2s infinite linear;
                         }
 
@@ -512,6 +510,195 @@ stylesheet theme =
                                 -webkit-transform: scaleX(.08);
                                 transform: scaleX(.08);
                             }
+                        }
+
+                        .progress-indicator-circular-container {
+                            display: inline-block !important;
+                            position: relative !important;
+
+                            -webkit-animation: progress-indicator-circular-container-rotate 1568ms linear infinite;
+                            animation: progress-indicator-circular-container-rotate 1568ms linear infinite;
+                        }
+
+                        @keyframes progress-indicator-circular-container-rotate {
+                            100%    {
+                                -webkit-transform: rotate(360deg);
+                                transform: rotate(360deg);
+                            }
+                        }
+
+                        .progress-indicator-circular-spinner {
+                            position: absolute !important;
+                            width: 100% !important;
+                            height: 100% !important;
+                            transition: opacity .5s;
+                            border-color: inherit;
+
+                            -webkit-animation: progress-indicator-circular-spinner-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+                            animation: progress-indicator-circular-spinner-rotate 5332ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+                        }
+
+                        @keyframes progress-indicator-circular-spinner-rotate {
+                            12.5%   {
+                                -webkit-transform: rotate(135deg);
+                                transform: rotate(135deg);
+                            }
+                            25%     {
+                                -webkit-transform: rotate(270deg);
+                                transform: rotate(270deg);
+                            }
+                            37.5%   {
+                                -webkit-transform: rotate(405deg);
+                                transform: rotate(405deg);
+                            }
+                            50%     {
+                                -webkit-transform: rotate(540deg);
+                                transform: rotate(540deg);
+                            }
+                            62.5%   {
+                                -webkit-transform: rotate(675deg);
+                                transform: rotate(675deg);
+                            }
+                            75%     {
+                                -webkit-transform: rotate(810deg);
+                                transform: rotate(810deg);
+                            }
+                            87.5%   {
+                                -webkit-transform: rotate(945deg);
+                                transform: rotate(945deg);
+                            }
+                            100%    {
+                                -webkit-transform: rotate(1080deg);
+                                transform: rotate(1080deg);
+                            }
+                        }
+
+                        .circle {
+                            border-radius: 50%;
+                        }
+
+                        .progress-indicator-circular-determinate-container {
+                            position: relative !important;
+                        }
+
+                        .progress-indicator-circular-determinate-container.lt50 {
+                            clip-path: polygon(50% 0%, 50% 100%, 100% 100%, 100% 0%);
+                        }
+
+                        .progress-indicator-circular-determinate-container .circle {
+                            width: 100% !important;
+                            height: 100% !important;
+                            border-width: 4px;
+                            border-style: solid;
+                            border-color: inherit;
+                            border-radius: 50%;
+                            -webkit-animation: none;
+                            animation: none;
+                            position: absolute;
+                        }
+
+                        .progress-indicator-circular-determinate-container .circle.half {
+                            clip-path: polygon(50% 0%, 50% 100%, 0% 100%, 0% 0%);
+                        }
+
+                        .circle-clipper {
+                            flex-basis: auto !important;
+                            display: inline-block !important;
+                            position: relative !important;
+                            width: 50% !important;
+                            height: 100% !important;
+                            overflow: hidden;
+                            border-color: inherit;
+                        }
+
+                        .circle-clipper .circle {
+                            width: 200% !important;
+                            height: 100% !important;
+                            border-width: 4px;
+                            border-style: solid;
+                            border-color: inherit;
+                            border-bottom-color: transparent !important;
+                            border-radius: 50%;
+                            -webkit-animation: none;
+                            animation: none;
+                            position: absolute;
+                            top: 0;
+                            right: 0;
+                            bottom: 0;
+                        }
+
+                        .left {
+                            float: left !important;
+                        }
+
+                        .right {
+                            float: right !important;
+                        }
+
+                        .circle-clipper.left .circle {
+                            left: 0;
+                            border-right-color: transparent !important;
+                            -webkit-transform: rotate(129deg);
+                            transform: rotate(129deg);
+
+                            -webkit-animation: left-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+                            animation: left-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+                        }
+
+                        @keyframes left-spin {
+                            0% {
+                                -webkit-transform: rotate(130deg);
+                                transform: rotate(130deg);
+                            }
+
+                            50% {
+                                -webkit-transform: rotate(-5deg);
+                                transform: rotate(-5deg);
+                            }
+                            100% {
+                                -webkit-transform: rotate(130deg);
+                                transform: rotate(130deg);
+                            }
+                        }
+
+                        .circle-clipper.right .circle {
+                            left: -100%;
+                            border-left-color: transparent !important;
+                            -webkit-transform: rotate(-129deg);
+                            transform: rotate(-129deg);
+
+                            -webkit-animation: right-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+                            animation: right-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+                        }
+
+                        @keyframes right-spin {
+                            0% {
+                                -webkit-transform: rotate(-130deg);
+                                transform: rotate(-130deg);
+                            }
+                            50% {
+                                -webkit-transform: rotate(5deg);
+                                transform: rotate(5deg);
+                            }
+                            100% {
+                                -webkit-transform: rotate(-130deg);
+                                transform: rotate(-130deg);
+                            }
+                        }
+
+                        .gap-patch {
+                            position: absolute !important;
+                            top: 0;
+                            left: 45%;
+                            width: 10% !important;
+                            height: 100% !important;
+                            overflow: hidden;
+                            border-color: inherit;
+                        }
+
+                        .gap-patch .circle {
+                            width: 1000%;
+                            left: -450%;
                         }
                     """)
                 ]

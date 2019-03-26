@@ -22,7 +22,7 @@ import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.List as MaterialList exposing (..)
 import Hatchinq.Paginator as Paginator
-import Hatchinq.ProgressIndicator as ProgressIndicator exposing (GrowthDirection(..), Progress(..), linear, startDelaySeconds, visibility)
+import Hatchinq.ProgressIndicator as ProgressIndicator exposing (GrowthDirection(..), Progress(..), circular, linear, startDelaySeconds, visibility)
 import Hatchinq.RadioButton as RadioButton
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
@@ -1019,9 +1019,11 @@ mainContent model =
                 )
             ]
         , Element.row [ Element.width fill, spacing 16 ]
-            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, linear BottomUp ] { progress = model.progressIndicator1 }
+            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular ] { progress = model.progressIndicator1 }
+            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear BottomUp ] { progress = model.progressIndicator1 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
-            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
+            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
+            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
             ]
         ]
