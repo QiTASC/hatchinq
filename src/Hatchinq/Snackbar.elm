@@ -1,5 +1,14 @@
 module Hatchinq.Snackbar exposing (Content(..), Message, State, View, alert, configure, dismissible, init, update, view)
 
+{-|
+
+
+# Exposed
+
+@docs Content, Message, State, View, alert, configure, dismissible, init, update, view
+
+-}
+
 import Delay exposing (TimeUnit(..))
 import Element exposing (Element, px, shrink)
 import Element.Background
@@ -23,6 +32,7 @@ type alias Config msg =
     }
 
 
+{-| -}
 type Content msg
     = Plain String
     | WithAction String String msg
@@ -33,11 +43,13 @@ type alias InternalConfig =
     }
 
 
+{-| -}
 dismissible : Attribute InternalConfig
 dismissible =
     custom (\v -> { v | dismissable = True })
 
 
+{-| -}
 type alias State msg =
     { values : List (Content msg)
     , currentValue : Content msg
@@ -46,6 +58,7 @@ type alias State msg =
     }
 
 
+{-| -}
 init : State msg
 init =
     { values = []
@@ -59,6 +72,7 @@ init =
 -- MESSAGES
 
 
+{-| -}
 type Message msg
     = Close Int (Maybe msg)
     | Open (Maybe (Content msg))
@@ -68,6 +82,7 @@ type Message msg
 -- UPDATE
 
 
+{-| -}
 update : (Message msg -> msg) -> Message msg -> State msg -> ( State msg, Cmd msg )
 update lift message state =
     case message of
@@ -122,6 +137,7 @@ update lift message state =
                 ( state, Cmd.none )
 
 
+{-| -}
 alert : (Message msg -> msg) -> Content msg -> Cmd msg
 alert lift content =
     Cmd.map lift
@@ -135,16 +151,19 @@ alert lift content =
 -- VIEW
 
 
+{-| -}
 type alias View msg =
     { state : State msg
     }
 
 
+{-| -}
 configure : Config msg -> (List (Attribute InternalConfig) -> View msg -> Element msg)
 configure config =
     view config
 
 
+{-| -}
 view : Config msg -> List (Attribute InternalConfig) -> View msg -> Element msg
 view { theme, lift } attributes { state } =
     let
