@@ -9,6 +9,15 @@ module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, al
 
 -}
 
+{-|
+
+
+# Exposed
+
+@docs Content, Message, State, View, alert, configure, dismissible, init, update, view
+
+-}
+
 import Delay exposing (TimeUnit(..))
 import Element exposing (Element, fill, px, shrink)
 import Element.Background
