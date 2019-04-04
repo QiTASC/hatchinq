@@ -303,3 +303,13 @@ getText maybeValue =
 takeFirstTwoLines : String -> String
 takeFirstTwoLines text =
     String.join "\n" (List.take 2 (String.split "\n" text))
+
+
+getText : Content msg -> String
+getText value =
+    case value of
+        Plain text ->
+            text
+
+        WithAction text _ _ ->
+            text
