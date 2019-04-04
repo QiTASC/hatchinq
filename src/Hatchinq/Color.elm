@@ -1,11 +1,11 @@
-module Hatchinq.Color exposing (Color, alpha, blue, green, isBrighter, isDarker, red, rgba, toElement, withAlpha, textColor)
+module Hatchinq.Color exposing (Color, alpha, blue, green, isBrighter, isDarker, red, rgb, rgba, toElement, withAlpha, textColor)
 
 {-|
 
 
 # Exposed
 
-@docs Color, alpha, blue, green, isBrighter, isDarker, red, rgba, toElement, withAlpha, textColor
+@docs Color, alpha, blue, green, isBrighter, isDarker, red, rgb, rgba, toElement, withAlpha, textColor
 
 -}
 

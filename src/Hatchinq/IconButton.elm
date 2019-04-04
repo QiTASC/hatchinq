@@ -1,11 +1,11 @@
-module Hatchinq.IconButton exposing (Config, View, configure, filled, stopPropagation, withTextColor)
+module Hatchinq.IconButton exposing (Config, View, configure, filled, stopPropagation, withTextColor, white)
 
 {-|
 
 
 # Exposed
 
-@docs Config, View, configure, filled, stopPropagation, withTextColor
+@docs Config, View, configure, filled, stopPropagation, withTextColor, white
 
 -}
 
@@ -15,7 +15,7 @@ import Element.Font as Font
 import Element.Input as Input
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Color as Color
-import Hatchinq.Theme exposing (Theme, black, icon)
+import Hatchinq.Theme as Theme exposing (Theme, black, icon)
 import Html.Attributes
 
 
@@ -25,6 +25,7 @@ import Html.Attributes
 
 type IconButtonType
     = Default
+    | White
     | Filled
 
 
@@ -71,6 +72,12 @@ filled =
 
 
 {-| -}
+white : Attribute InternalConfig
+white =
+    custom (\v -> { v | iconButtonType = White })
+
+
+{-| -}
 withTextColor : Color -> Attribute InternalConfig
 withTextColor color =
     custom (\v -> { v | textColor = Just color })
@@ -100,6 +107,9 @@ view { theme } source data =
                             Default ->
                                 []
 
+                            White ->
+                                []
+
                             Filled ->
                                 [ Background.color theme.colors.gray.lightest ]
                        )
@@ -111,6 +121,13 @@ view { theme } source data =
                         , Element.htmlAttribute (Html.Attributes.class "ripple focusGrayRipple")
                         , focused [ Background.color theme.colors.gray.lighter ]
                         , mouseOver [ Background.color theme.colors.gray.lightest ]
+                        ]
+
+                    White ->
+                        [ Font.color (Maybe.withDefault Theme.white internalConfig.textColor)
+                        , Element.htmlAttribute (Html.Attributes.class "ripple focusWhiteRipple")
+                        , focused [ Background.color (Color.toElement (Color.rgba 255 255 255 0.08)) ]
+                        , mouseOver [ Background.color (Color.toElement (Color.rgba 255 255 255 0.04)) ]
                         ]
 
                     Filled ->

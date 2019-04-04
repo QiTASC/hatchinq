@@ -25,6 +25,7 @@ import Hatchinq.Paginator as Paginator
 import Hatchinq.ProgressIndicator as ProgressIndicator exposing (GrowthDirection(..), Progress(..), circular, linear, startDelaySeconds, visibility)
 import Hatchinq.RadioButton as RadioButton
 import Hatchinq.SidePanel as SidePanel exposing (..)
+import Hatchinq.Snackbar as Snackbar exposing (Content(..))
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
 import Hatchinq.Tree as Tree
@@ -119,6 +120,8 @@ type Msg
     | LoadPeople LoadingDirection
     | GotPeople LoadingDirection
     | Tick Posix
+    | SnackbarLift (Snackbar.Message Msg)
+    | SnackbarAlert (Content Msg)
     | NoOp
 
 
@@ -234,6 +237,10 @@ denseTree =
     Tree.configure { theme = dense theme, lift = FilesTreeLift }
 
 
+snackbar =
+    Snackbar.configure { theme = dense theme, lift = SnackbarLift }
+
+
 type alias Model =
     { counter : Int
     , inputValue : String
@@ -265,6 +272,7 @@ type alias Model =
     , checkboxValue : Maybe Bool
     , selectedPerson : Maybe Person
     , filesTreeState : Tree.State
+    , snackbarState : Snackbar.State Msg
     , windowSize : ( Int, Int )
     , progressIndicator1 : Progress
     , progressIndicatorVisiblity1 : Bool
@@ -312,6 +320,7 @@ init _ =
       , checkboxValue = Nothing
       , selectedPerson = Nothing
       , filesTreeState = Tree.init
+      , snackbarState = Snackbar.init
       , windowSize = ( 0, 0 )
       , progressIndicator1 = Determinate 0
       , progressIndicatorVisiblity1 = True
@@ -566,6 +575,16 @@ update msg model =
               }
             , Cmd.none
             )
+
+        SnackbarLift internalMsg ->
+            let
+                ( state, cmd ) =
+                    Snackbar.update SnackbarLift internalMsg model.snackbarState
+            in
+            ( { model | snackbarState = state }, cmd )
+
+        SnackbarAlert content ->
+            ( model, Snackbar.alert SnackbarLift content )
 
         NoOp ->
             ( model, Cmd.none )
@@ -1026,4 +1045,13 @@ mainContent model =
             [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
             , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
             ]
+        , Element.row [ spacing 16 ]
+            [ button [] { label = "Snackbar", onPress = Just (SnackbarAlert (Plain "Snackbar message")) }
+            , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Retry" NoOp)) }
+            ]
+        , Element.el [ Element.height fill, Element.width fill, Element.centerX ]
+            (snackbar [ Snackbar.dismissible ]
+                { state = model.snackbarState
+                }
+            )
         ]

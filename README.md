@@ -16,6 +16,7 @@ Next UI elements are available so far:
  - ProgressIndicator
  - RadioButton
  - SidePanel
+ - Snackabar
  - TextField
  - Tree
 
@@ -34,6 +35,7 @@ import Hatchinq.Paginator as Paginator exposing (..)
 import Hatchinq.ProgressIndicator as ProgressIndicator exposing (..)
 import Hatchinq.RadioButton as RadioButton exposing (..)
 import Hatchinq.SidePanel as SidePanel exposing (..)
+import Hatchinq.Snackbar as Snackbar exposing (..)
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
 import Hatchinq.Tree as Tree exposing (..)
