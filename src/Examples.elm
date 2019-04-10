@@ -26,6 +26,7 @@ import Hatchinq.ProgressIndicator as ProgressIndicator exposing (GrowthDirection
 import Hatchinq.RadioButton as RadioButton
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.Snackbar as Snackbar exposing (Content(..))
+import Hatchinq.TabBar as TabBar exposing (TabButtons(..))
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
 import Hatchinq.Tree as Tree
@@ -33,7 +34,7 @@ import Html exposing (Html)
 import List
 import Set exposing (Set)
 import Task
-import Time exposing (Posix, posixToMillis, utc)
+import Time exposing (Posix, posixToMillis)
 
 
 {-| -}
@@ -122,6 +123,7 @@ type Msg
     | Tick Posix
     | SnackbarLift (Snackbar.Message Msg)
     | SnackbarAlert (Content Msg)
+    | TabBarLift (TabBar.Message Msg)
     | NoOp
 
 
@@ -241,6 +243,10 @@ snackbar =
     Snackbar.configure { theme = dense theme, lift = SnackbarLift }
 
 
+tabBar =
+    TabBar.configure { theme = theme, lift = TabBarLift }
+
+
 type alias Model =
     { counter : Int
     , inputValue : String
@@ -273,6 +279,7 @@ type alias Model =
     , selectedPerson : Maybe Person
     , filesTreeState : Tree.State
     , snackbarState : Snackbar.State Msg
+    , tabBarState : TabBar.State
     , windowSize : ( Int, Int )
     , progressIndicator1 : Progress
     , progressIndicatorVisiblity1 : Bool
@@ -321,6 +328,7 @@ init _ =
       , selectedPerson = Nothing
       , filesTreeState = Tree.init
       , snackbarState = Snackbar.init
+      , tabBarState = TabBar.init
       , windowSize = ( 0, 0 )
       , progressIndicator1 = Determinate 0
       , progressIndicatorVisiblity1 = True
@@ -586,6 +594,13 @@ update msg model =
         SnackbarAlert content ->
             ( model, Snackbar.alert SnackbarLift content )
 
+        TabBarLift internalMsg ->
+            let
+                ( state, cmd ) =
+                    TabBar.update TabBarLift internalMsg model.tabBarState
+            in
+            ( { model | tabBarState = state }, cmd )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -783,6 +798,24 @@ mainContent model =
         , Element.scrollbars
         ]
         [ Element.row [ Element.width fill, spacing 16 ]
+            [ tabBar []
+                { tabButtons = IconAndText [ ( "menu", "Main", NoOp ), ( "settings", "Settings / Preferences", NoOp ), ( "info", "Very large tab name that doesn't fit into the box", NoOp ) ]
+                , state = model.tabBarState
+                }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ tabBar []
+                { tabButtons = TextOnly [ ( "Main", NoOp ), ( "Settings / Preferences", NoOp ), ( "Very large tab name that doesn't fit into the box", NoOp ) ]
+                , state = model.tabBarState
+                }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ tabBar []
+                { tabButtons = IconOnly [ ( "menu", NoOp ), ( "settings", NoOp ), ( "info", NoOp ) ]
+                , state = model.tabBarState
+                }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
             [ textField []
                 { id = FirstInputField
                 , label = "My input field"
