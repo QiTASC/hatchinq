@@ -58,6 +58,12 @@ subscriptions model =
         ]
 
 
+type TabType
+    = MainTab
+    | SettingsTab
+    | CustomTab
+
+
 type InputField
     = FirstInputField
     | SecondInputField
@@ -124,6 +130,7 @@ type Msg
     | SnackbarLift (Snackbar.Message Msg)
     | SnackbarAlert (Content Msg)
     | TabBarLift (TabBar.Message Msg)
+    | TabBarSelect TabType
     | NoOp
 
 
@@ -279,6 +286,7 @@ type alias Model =
     , selectedPerson : Maybe Person
     , filesTreeState : Tree.State
     , snackbarState : Snackbar.State Msg
+    , selectedTab : TabType
     , tabBarState : TabBar.State
     , windowSize : ( Int, Int )
     , progressIndicator1 : Progress
@@ -328,6 +336,7 @@ init _ =
       , selectedPerson = Nothing
       , filesTreeState = Tree.init
       , snackbarState = Snackbar.init
+      , selectedTab = MainTab
       , tabBarState = TabBar.init
       , windowSize = ( 0, 0 )
       , progressIndicator1 = Determinate 0
@@ -601,6 +610,9 @@ update msg model =
             in
             ( { model | tabBarState = state }, cmd )
 
+        TabBarSelect tab ->
+            ( { model | selectedTab = tab }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -799,20 +811,26 @@ mainContent model =
         ]
         [ Element.row [ Element.width fill, spacing 16 ]
             [ tabBar []
-                { tabButtons = IconAndText [ ( "menu", "Main", NoOp ), ( "settings", "Settings / Preferences", NoOp ), ( "info", "Very large tab name that doesn't fit into the box", NoOp ) ]
-                , state = model.tabBarState
+                { state = model.tabBarState
+                , tabButtons = IconAndText [ ( "menu", "Main", MainTab ), ( "settings", "Settings / Preferences", SettingsTab ), ( "info", "Very large tab name that doesn't fit into the box", CustomTab ) ]
+                , selectedTab = model.selectedTab
+                , onTabSelect = TabBarSelect
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ tabBar []
-                { tabButtons = TextOnly [ ( "Main", NoOp ), ( "Settings / Preferences", NoOp ), ( "Very large tab name that doesn't fit into the box", NoOp ) ]
-                , state = model.tabBarState
+                { state = model.tabBarState
+                , tabButtons = TextOnly [ ( "Main", MainTab ), ( "Settings / Preferences", SettingsTab ), ( "Very large tab name that doesn't fit into the box", CustomTab ) ]
+                , selectedTab = model.selectedTab
+                , onTabSelect = TabBarSelect
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ tabBar []
-                { tabButtons = IconOnly [ ( "menu", NoOp ), ( "settings", NoOp ), ( "info", NoOp ) ]
-                , state = model.tabBarState
+                { state = model.tabBarState
+                , tabButtons = IconOnly [ ( "menu", MainTab ), ( "settings", SettingsTab ), ( "info", CustomTab ) ]
+                , selectedTab = model.selectedTab
+                , onTabSelect = TabBarSelect
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]

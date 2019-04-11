@@ -34,7 +34,7 @@ type alias Config msg =
 
 
 {-| -}
-configure : Config msg -> (List (Attribute InternalConfig) -> View msg -> Element msg)
+configure : Config msg -> (List (Attribute InternalConfig) -> View tab msg -> Element msg)
 configure config =
     view config
 
@@ -46,24 +46,22 @@ type TabBarType
 
 {-| -}
 type alias State =
-    { selectedTabIndex : Int
-    , focused : Int
+    { focused : Int
     }
 
 
 {-| -}
 init : State
 init =
-    { selectedTabIndex = 0
-    , focused = -1
+    { focused = -1
     }
 
 
 {-| -}
-type TabButtons msg
-    = TextOnly (List ( String, msg ))
-    | IconOnly (List ( String, msg ))
-    | IconAndText (List ( String, String, msg ))
+type TabButtons tab
+    = TextOnly (List ( String, tab ))
+    | IconOnly (List ( String, tab ))
+    | IconAndText (List ( String, String, tab ))
 
 
 type alias InternalConfig =
@@ -97,7 +95,7 @@ update : (Message msg -> msg) -> Message msg -> State -> ( State, Cmd msg )
 update lift message state =
     case message of
         SelectTab index onSelect ->
-            ( { state | selectedTabIndex = index, focused = index }, Task.perform identity <| Task.succeed onSelect )
+            ( { state | focused = index }, Task.perform identity <| Task.succeed onSelect )
 
         Focus index ->
             ( { state | focused = index }, Cmd.none )
@@ -111,14 +109,16 @@ update lift message state =
 
 
 {-| -}
-type alias View msg =
-    { tabButtons : TabButtons msg
-    , state : State
+type alias View tab msg =
+    { state : State
+    , tabButtons : TabButtons tab
+    , selectedTab : tab
+    , onTabSelect : tab -> msg
     }
 
 
-view : Config msg -> List (Attribute InternalConfig) -> View msg -> Element msg
-view { lift, theme } attributes { tabButtons, state } =
+view : Config msg -> List (Attribute InternalConfig) -> View tab msg -> Element msg
+view { lift, theme } attributes { state, tabButtons, selectedTab, onTabSelect } =
     let
         textContent =
             \text -> Element.el [ Element.width (minimum 90 fill), Font.center, Element.centerY, Element.paddingXY 16 0 ] (textWithEllipsis text)
@@ -137,7 +137,7 @@ view { lift, theme } attributes { tabButtons, state } =
                     [ Element.el [ Element.width fill, Element.paddingXY 0 6 ] (icon iconName), textWithEllipsis text ]
 
         contentElement =
-            \content index onClick ->
+            \content index tab ->
                 Element.el
                     ([ Element.width (maximum 360 shrink)
                      , Element.height fill
@@ -150,7 +150,7 @@ view { lift, theme } attributes { tabButtons, state } =
                                 , Background.color theme.colors.primary.color
                                 , Element.htmlAttribute <| Html.Attributes.style "transition" "all 0.25s"
                                 , Element.htmlAttribute <| Html.Attributes.style "will-change" "transform"
-                                , if index == state.selectedTabIndex then
+                                , if tab == selectedTab then
                                     Element.htmlAttribute <| Html.Attributes.style "transform" "scaleY(1)"
 
                                   else
@@ -159,9 +159,9 @@ view { lift, theme } attributes { tabButtons, state } =
                                 Element.none
                             )
                         )
-                     , Events.onClick (lift <| SelectTab index onClick)
+                     , Events.onClick (lift <| SelectTab index (onTabSelect tab))
                      ]
-                        ++ (if index == state.selectedTabIndex then
+                        ++ (if tab == selectedTab then
                                 [ Font.color theme.colors.primary.color
                                 ]
 
@@ -178,21 +178,38 @@ view { lift, theme } attributes { tabButtons, state } =
                     )
                     content
 
-        ( buttons, onFocusedClick ) =
+        findSelectedTabIndex =
+            \list ->
+                List.head
+                    (List.filterMap
+                        (\( index, tab ) ->
+                            if tab == selectedTab then
+                                Just index
+
+                            else
+                                Nothing
+                        )
+                        list
+                    )
+
+        ( buttons, maybeFocusedTab, selectedTabIndex ) =
             case tabButtons of
                 TextOnly textItems ->
-                    ( List.indexedMap (\index ( text, onClick ) -> contentElement (textContent text) index onClick) textItems
-                    , Maybe.map (\( _, onClick ) -> onClick) (Array.get state.focused (Array.fromList textItems))
+                    ( List.indexedMap (\index ( text, tab ) -> contentElement (textContent text) index tab) textItems
+                    , Maybe.map (\( _, tab ) -> tab) (Array.get state.focused (Array.fromList textItems))
+                    , findSelectedTabIndex (List.indexedMap (\index ( _, tab ) -> ( index, tab )) textItems)
                     )
 
                 IconOnly iconItems ->
-                    ( List.indexedMap (\index ( iconName, onClick ) -> contentElement (iconContent iconName) index onClick) iconItems
-                    , Maybe.map (\( _, onClick ) -> onClick) (Array.get state.focused (Array.fromList iconItems))
+                    ( List.indexedMap (\index ( iconName, tab ) -> contentElement (iconContent iconName) index tab) iconItems
+                    , Maybe.map (\( _, tab ) -> tab) (Array.get state.focused (Array.fromList iconItems))
+                    , findSelectedTabIndex (List.indexedMap (\index ( _, tab ) -> ( index, tab )) iconItems)
                     )
 
                 IconAndText items ->
-                    ( List.indexedMap (\index ( iconName, text, onClick ) -> contentElement (iconAndTextContent iconName text) index onClick) items
-                    , Maybe.map (\( _, _, onClick ) -> onClick) (Array.get state.focused (Array.fromList items))
+                    ( List.indexedMap (\index ( iconName, text, tab ) -> contentElement (iconAndTextContent iconName text) index tab) items
+                    , Maybe.map (\( _, _, tab ) -> tab) (Array.get state.focused (Array.fromList items))
+                    , findSelectedTabIndex (List.indexedMap (\index ( _, _, tab ) -> ( index, tab )) items)
                     )
 
         buttonsCount =
@@ -222,9 +239,9 @@ view { lift, theme } attributes { tabButtons, state } =
                             )
                        )
                      ]
-                        ++ (case onFocusedClick of
-                                Just onClick ->
-                                    [ ( enterKeyCode, lift (SelectTab state.focused onClick) ) ]
+                        ++ (case maybeFocusedTab of
+                                Just focusedTab ->
+                                    [ ( enterKeyCode, lift (SelectTab state.focused (onTabSelect focusedTab)) ) ]
 
                                 Nothing ->
                                     []
@@ -255,13 +272,7 @@ view { lift, theme } attributes { tabButtons, state } =
          , Element.htmlAttribute <| Html.Attributes.attribute "tabindex" "0"
          , Events.onFocus
             (lift <|
-                Focus
-                    (if state.selectedTabIndex == -1 then
-                        0
-
-                     else
-                        state.selectedTabIndex
-                    )
+                Focus (Maybe.withDefault 0 selectedTabIndex)
             )
          , Events.onLoseFocus (lift <| Blur)
          ]
