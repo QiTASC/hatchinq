@@ -645,8 +645,8 @@ view model =
                 ]
                 [ leftSidePanel
                     { buttons =
-                        [ { icon = "apps", title = "Buttons", containerContent = buttonsContent model }
-                        , { icon = "folder", title = "Files", containerContent = filesContent model }
+                        [ { id = Just "buttons-tab-button", icon = "apps", title = "Buttons", containerContent = buttonsContent model }
+                        , { id = Just "files-tab-button", icon = "folder", title = "Files", containerContent = filesContent model }
                         ]
                     , state = model.leftSidePanelState
                     , topPageOffset = AppBar.appBarHeight
@@ -654,8 +654,8 @@ view model =
                 , mainContent model
                 , rightSidePanel
                     { buttons =
-                        [ { icon = "account_balance", title = "Projects", containerContent = filesContent model }
-                        , { icon = "settings", title = "Settings", containerContent = filesContent model }
+                        [ { id = Just "projects-tab-button", icon = "account_balance", title = "Projects", containerContent = filesContent model }
+                        , { id = Just "settings-tab-button", icon = "settings", title = "Settings", containerContent = filesContent model }
                         ]
                     , state = model.rightSidePanelState
                     , topPageOffset = AppBar.appBarHeight
