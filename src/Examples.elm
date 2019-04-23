@@ -26,6 +26,7 @@ import Hatchinq.ProgressIndicator as ProgressIndicator exposing (GrowthDirection
 import Hatchinq.RadioButton as RadioButton
 import Hatchinq.SidePanel as SidePanel exposing (..)
 import Hatchinq.Snackbar as Snackbar exposing (Content(..))
+import Hatchinq.TabBar as TabBar exposing (TabButtons(..))
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
 import Hatchinq.Tree as Tree
@@ -33,7 +34,7 @@ import Html exposing (Html)
 import List
 import Set exposing (Set)
 import Task
-import Time exposing (Posix, posixToMillis, utc)
+import Time exposing (Posix, posixToMillis)
 
 
 {-| -}
@@ -55,6 +56,12 @@ subscriptions model =
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
         , Time.every 10 Tick
         ]
+
+
+type TabType
+    = MainTab
+    | SettingsTab
+    | CustomTab
 
 
 type InputField
@@ -122,6 +129,8 @@ type Msg
     | Tick Posix
     | SnackbarLift (Snackbar.Message Msg)
     | SnackbarAlert (Content Msg)
+    | TabBarLift (TabBar.Message Msg)
+    | TabBarSelect TabType
     | NoOp
 
 
@@ -238,7 +247,11 @@ denseTree =
 
 
 snackbar =
-    Snackbar.configure { theme = dense theme, lift = SnackbarLift }
+    Snackbar.configure { theme = theme, lift = SnackbarLift }
+
+
+tabBar =
+    TabBar.configure { theme = theme, lift = TabBarLift }
 
 
 type alias Model =
@@ -273,6 +286,8 @@ type alias Model =
     , selectedPerson : Maybe Person
     , filesTreeState : Tree.State
     , snackbarState : Snackbar.State Msg
+    , selectedTab : TabType
+    , tabBarState : TabBar.State
     , windowSize : ( Int, Int )
     , progressIndicator1 : Progress
     , progressIndicatorVisiblity1 : Bool
@@ -321,6 +336,8 @@ init _ =
       , selectedPerson = Nothing
       , filesTreeState = Tree.init
       , snackbarState = Snackbar.init
+      , selectedTab = MainTab
+      , tabBarState = TabBar.init
       , windowSize = ( 0, 0 )
       , progressIndicator1 = Determinate 0
       , progressIndicatorVisiblity1 = True
@@ -586,6 +603,16 @@ update msg model =
         SnackbarAlert content ->
             ( model, Snackbar.alert SnackbarLift content )
 
+        TabBarLift internalMsg ->
+            let
+                ( state, cmd ) =
+                    TabBar.update TabBarLift internalMsg model.tabBarState
+            in
+            ( { model | tabBarState = state }, cmd )
+
+        TabBarSelect tab ->
+            ( { model | selectedTab = tab }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -618,8 +645,8 @@ view model =
                 ]
                 [ leftSidePanel
                     { buttons =
-                        [ { icon = "apps", title = "Buttons", containerContent = buttonsContent model }
-                        , { icon = "folder", title = "Files", containerContent = filesContent model }
+                        [ { id = Just "buttons-tab-button", icon = "apps", title = "Buttons", containerContent = buttonsContent model }
+                        , { id = Just "files-tab-button", icon = "folder", title = "Files", containerContent = filesContent model }
                         ]
                     , state = model.leftSidePanelState
                     , topPageOffset = AppBar.appBarHeight
@@ -627,8 +654,8 @@ view model =
                 , mainContent model
                 , rightSidePanel
                     { buttons =
-                        [ { icon = "account_balance", title = "Projects", containerContent = filesContent model }
-                        , { icon = "settings", title = "Settings", containerContent = filesContent model }
+                        [ { id = Just "projects-tab-button", icon = "account_balance", title = "Projects", containerContent = filesContent model }
+                        , { id = Just "settings-tab-button", icon = "settings", title = "Settings", containerContent = filesContent model }
                         ]
                     , state = model.rightSidePanelState
                     , topPageOffset = AppBar.appBarHeight
@@ -783,6 +810,30 @@ mainContent model =
         , Element.scrollbars
         ]
         [ Element.row [ Element.width fill, spacing 16 ]
+            [ tabBar []
+                { state = model.tabBarState
+                , tabButtons = IconAndText [ ( "menu", "Main", MainTab ), ( "settings", "Settings / Preferences", SettingsTab ), ( "info", "Very large tab name that doesn't fit into the box", CustomTab ) ]
+                , selectedTab = model.selectedTab
+                , onTabSelect = TabBarSelect
+                }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ tabBar []
+                { state = model.tabBarState
+                , tabButtons = TextOnly [ ( "Main", MainTab ), ( "Settings / Preferences", SettingsTab ), ( "Very large tab name that doesn't fit into the box", CustomTab ) ]
+                , selectedTab = model.selectedTab
+                , onTabSelect = TabBarSelect
+                }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ tabBar []
+                { state = model.tabBarState
+                , tabButtons = IconOnly [ ( "menu", MainTab ), ( "settings", SettingsTab ), ( "info", CustomTab ) ]
+                , selectedTab = model.selectedTab
+                , onTabSelect = TabBarSelect
+                }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
             [ textField []
                 { id = FirstInputField
                 , label = "My input field"

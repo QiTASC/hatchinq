@@ -1,11 +1,11 @@
-module Hatchinq.Snackbar exposing (Content(..), Message, State, View, alert, configure, dismissible, maximumWidth, init, update, view)
+module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, alert, configure, dismissible, maximumWidth, init, update)
 
 {-|
 
 
 # Exposed
 
-@docs Content, Message, State, View, alert, configure, dismissible, maximumWidth, init, update, view
+@docs Config, Content, Message, State, View, alert, configure, dismissible, maximumWidth, init, update
 
 -}
 
@@ -27,6 +27,7 @@ import Task
 -- TYPES
 
 
+{-| -}
 type alias Config msg =
     { theme : Theme
     , lift : Message msg -> msg

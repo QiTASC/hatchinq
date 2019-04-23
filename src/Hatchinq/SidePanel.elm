@@ -85,7 +85,7 @@ elevate =
 
 
 type alias SidePanelButton msg =
-    { icon : String, title : String, containerContent : () -> Element msg }
+    { id : Maybe String, icon : String, title : String, containerContent : () -> Element msg }
 
 
 initialOpenPanelWidth =
@@ -305,15 +305,17 @@ toSidePanelButton index btn state config =
                 Theme.transparent
     in
     row
-        [ Element.paddingEach { top = 4, right = 12, bottom = 4, left = 4 }
-        , Events.onClick <| stateFromSelectionChanged index state
-        , Background.color backgroundColor
-        , if config.orientation == LeftHand then
+        ([ Element.paddingEach { top = 4, right = 12, bottom = 4, left = 4 }
+         , Events.onClick <| stateFromSelectionChanged index state
+         , Background.color backgroundColor
+         , if config.orientation == LeftHand then
             Element.rotate pi
 
-          else
+           else
             Element.rotate 0
-        ]
+         ]
+            ++ Maybe.withDefault [] (Maybe.map (\id -> [ Element.htmlAttribute <| Html.Attributes.id id ]) btn.id)
+        )
         [ Element.el
             [ centerX
             , centerY

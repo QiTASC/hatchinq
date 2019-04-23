@@ -1,4 +1,4 @@
-module Hatchinq.Util exposing (arrowDownKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute)
+module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute)
 
 import Dict exposing (Dict)
 import Element
@@ -10,12 +10,20 @@ enterKeyCode =
     13
 
 
-arrowDownKeyCode =
-    40
+arrowLeftKeyCode =
+    37
 
 
 arrowUpKeyCode =
     38
+
+
+arrowRightKeyCode =
+    39
+
+
+arrowDownKeyCode =
+    40
 
 
 escapeKeyCode =
