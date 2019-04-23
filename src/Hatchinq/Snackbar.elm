@@ -14,7 +14,7 @@ module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, al
 
 # Exposed
 
-@docs Content, Message, State, View, alert, configure, dismissible, init, update, view
+@docs Content, Message, State, View, alert, configure, dismissible, maximumWidth, init, update, view
 
 -}
 
@@ -59,6 +59,12 @@ type alias InternalConfig =
 dismissible : Attribute InternalConfig
 dismissible =
     custom (\v -> { v | dismissible = True })
+
+
+{-| -}
+maximumWidth : Int -> Attribute InternalConfig
+maximumWidth max =
+    custom (\v -> { v | maximumWidth = max })
 
 
 {-| -}
@@ -294,31 +300,16 @@ calculateHeight text =
         48
 
 
-getText : Maybe (Content msg) -> String
-getText maybeValue =
-    case maybeValue of
-        Just value ->
-            case value of
-                Plain text ->
-                    takeFirstTwoLines text
+getText : Content msg -> String
+getText value =
+    case value of
+        Plain text ->
+            takeFirstTwoLines text
 
-                WithAction text _ _ ->
-                    takeFirstTwoLines text
-
-        Nothing ->
-            ""
+        WithAction text _ _ ->
+            takeFirstTwoLines text
 
 
 takeFirstTwoLines : String -> String
 takeFirstTwoLines text =
     String.join "\n" (List.take 2 (String.split "\n" text))
-
-
-getText : Content msg -> String
-getText value =
-    case value of
-        Plain text ->
-            text
-
-        WithAction text _ _ ->
-            text
