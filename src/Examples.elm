@@ -247,7 +247,7 @@ denseTree =
 
 
 snackbar =
-    Snackbar.configure { theme = dense theme, lift = SnackbarLift }
+    Snackbar.configure { theme = theme, lift = SnackbarLift }
 
 
 tabBar =

@@ -1,16 +1,16 @@
-module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, alert, configure, dismissible, init, update)
+module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, alert, configure, dismissible, maximumWidth, init, update)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Content, Message, State, View, alert, configure, dismissible, init, update
+@docs Config, Content, Message, State, View, alert, configure, dismissible, maximumWidth, init, update
 
 -}
 
 import Delay exposing (TimeUnit(..))
-import Element exposing (Element, px, shrink)
+import Element exposing (Element, fill, px, shrink)
 import Element.Background
 import Element.Border
 import Element.Font
@@ -18,6 +18,7 @@ import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toInternalCo
 import Hatchinq.Button as Button
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme as Theme exposing (Theme, white)
+import Html
 import Html.Attributes
 import Task
 
@@ -41,6 +42,7 @@ type Content msg
 
 type alias InternalConfig =
     { dismissable : Bool
+    , maximumWidth : Int
     }
 
 
@@ -48,6 +50,12 @@ type alias InternalConfig =
 dismissible : Attribute InternalConfig
 dismissible =
     custom (\v -> { v | dismissable = True })
+
+
+{-| -}
+maximumWidth : Int -> Attribute InternalConfig
+maximumWidth max =
+    custom (\v -> { v | maximumWidth = max })
 
 
 {-| -}
@@ -170,6 +178,7 @@ view { theme, lift } attributes { state } =
     let
         defaultInternalConfig =
             { dismissable = False
+            , maximumWidth = 344
             }
 
         internalConfig =
@@ -206,7 +215,7 @@ view { theme, lift } attributes { state } =
             if state.isOpen then
                 [ Element.htmlAttribute <| Html.Attributes.style "opacity" "1"
                 , Element.htmlAttribute <| Html.Attributes.style "transform" "scale(1)"
-                , Element.htmlAttribute <| Html.Attributes.style "transition" "all .25s"
+                , Element.htmlAttribute <| Html.Attributes.style "transition" "opacity .25s, transform .25s"
                 ]
 
             else
@@ -225,8 +234,8 @@ view { theme, lift } attributes { state } =
         , Element.padding 20
         ]
         [ Element.row
-            ([ Element.height (px 48)
-             , Element.width (Element.minimum 344 shrink)
+            ([ Element.height (px (calculateHeight (getText state.currentValue)))
+             , Element.width (shrink |> Element.minimum 344 |> Element.maximum internalConfig.maximumWidth)
              , Element.alignBottom
              , Element.centerX
              , Element.Background.color theme.colors.gray.dark
@@ -239,17 +248,39 @@ view { theme, lift } attributes { state } =
              ]
                 ++ htmlAttributes
             )
-            [ Element.el [ Element.paddingXY 16 0, Element.centerY ] (Element.text (getText state.currentValue))
-            , getButton state.currentValue
+            [ Element.el
+                [ Element.width fill
+                , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
+                , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
+                , Element.htmlAttribute <| Html.Attributes.style "line-height" "1.6"
+                , Element.paddingEach { left = 16, right = 8, top = 0, bottom = 0 }
+                ]
+                (Element.html <| Html.text (getText state.currentValue))
+            , Element.el [ Element.width shrink ] (getButton state.currentValue)
             ]
         ]
+
+
+calculateHeight : String -> Int
+calculateHeight text =
+    if List.length (String.split "\n" text) > 1 then
+        68
+
+    else
+        48
 
 
 getText : Content msg -> String
 getText value =
     case value of
         Plain text ->
-            text
+            takeFirstTwoLines text
 
         WithAction text _ _ ->
-            text
+            takeFirstTwoLines text
+
+
+takeFirstTwoLines : String -> String
+takeFirstTwoLines text =
+    String.join "\n" (List.take 2 (String.split "\n" text))
