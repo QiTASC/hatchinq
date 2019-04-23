@@ -15,7 +15,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
-import Hatchinq.Theme exposing (Theme)
+import Hatchinq.Theme exposing (Theme, textWithEllipsis)
 import Html.Attributes
 
 
@@ -200,5 +200,5 @@ view { theme } source data =
                     )
                 :: attributes
             )
-            { onPress = internalConfig.onPress, label = Element.text internalConfig.label }
+            { onPress = internalConfig.onPress, label = Element.el [ Element.width Element.fill ] (textWithEllipsis internalConfig.label) }
         )

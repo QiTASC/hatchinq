@@ -1098,7 +1098,7 @@ mainContent model =
             ]
         , Element.row [ spacing 16 ]
             [ button [] { label = "Snackbar", onPress = Just (SnackbarAlert (Plain "Snackbar message")) }
-            , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Retry" NoOp)) }
+            , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Alert Again" (SnackbarAlert (Plain "Tried again but failed")))) }
             ]
         , Element.el [ Element.height fill, Element.width fill, Element.centerX ]
             (snackbar [ Snackbar.dismissible ]

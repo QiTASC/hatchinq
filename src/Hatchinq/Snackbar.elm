@@ -14,7 +14,7 @@ import Element exposing (Element, fill, px, shrink)
 import Element.Background
 import Element.Border
 import Element.Font
-import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toInternalConfig)
+import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toInternalConfig, width)
 import Hatchinq.Button as Button
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme as Theme exposing (Theme, white)
@@ -41,7 +41,7 @@ type Content msg
 
 
 type alias InternalConfig =
-    { dismissable : Bool
+    { dismissible : Bool
     , maximumWidth : Int
     }
 
@@ -49,7 +49,7 @@ type alias InternalConfig =
 {-| -}
 dismissible : Attribute InternalConfig
 dismissible =
-    custom (\v -> { v | dismissable = True })
+    custom (\v -> { v | dismissible = True })
 
 
 {-| -}
@@ -61,7 +61,7 @@ maximumWidth max =
 {-| -}
 type alias State msg =
     { values : List (Content msg)
-    , currentValue : Content msg
+    , currentValue : Maybe (Content msg)
     , id : Int
     , isOpen : Bool
     }
@@ -71,7 +71,7 @@ type alias State msg =
 init : State msg
 init =
     { values = []
-    , currentValue = Plain ""
+    , currentValue = Nothing
     , id = 0
     , isOpen = False
     }
@@ -117,20 +117,20 @@ update lift message state =
             else
                 case values of
                     head :: otherValues ->
-                        ( { state | values = otherValues, currentValue = head, id = newId, isOpen = True }, close head )
+                        if maybeContent == Nothing || state.currentValue == Nothing then
+                            ( { state | values = otherValues, currentValue = Just head, id = newId, isOpen = True }, close head )
+
+                        else
+                            ( { state | values = values }, Cmd.none )
 
                     _ ->
-                        ( state, Cmd.none )
+                        ( { state | currentValue = Nothing }, Cmd.none )
 
         Close id maybeAction ->
             if state.id == id then
                 let
                     openAgainCmd =
-                        if List.isEmpty state.values then
-                            Cmd.none
-
-                        else
-                            Cmd.map lift <| Delay.after 500 Millisecond (Open Nothing)
+                        Cmd.map lift <| Delay.after 500 Millisecond (Open Nothing)
 
                     actionCmd =
                         case maybeAction of
@@ -177,7 +177,7 @@ view : Config msg -> List (Attribute InternalConfig) -> View msg -> Element msg
 view { theme, lift } attributes { state } =
     let
         defaultInternalConfig =
-            { dismissable = False
+            { dismissible = False
             , maximumWidth = 344
             }
 
@@ -190,26 +190,40 @@ view { theme, lift } attributes { state } =
         iconButton =
             IconButton.configure { theme = theme }
 
+        dismissibleButton =
+            if internalConfig.dismissible then
+                iconButton [ IconButton.white, Attribute.width (px 36), Attribute.height (px 36) ] { icon = "close", onPress = Just (Close state.id Nothing) }
+
+            else
+                Element.none
+
         getButton =
-            \value ->
-                Element.map lift
-                    (Element.row
-                        [ Element.paddingXY 8 0
-                        , Element.alignRight
-                        ]
-                        [ case value of
-                            Plain _ ->
-                                Element.none
+            \maybeValue ->
+                case maybeValue of
+                    Just value ->
+                        Element.map lift
+                            (Element.row
+                                [ Element.paddingXY 8 0
+                                , Element.alignRight
+                                ]
+                                [ case value of
+                                    Plain _ ->
+                                        Element.none
 
-                            WithAction _ buttonText buttonMsg ->
-                                button [ Button.text ] { label = buttonText, onPress = Just (Close state.id (Just buttonMsg)) }
-                        , if internalConfig.dismissable then
-                            iconButton [ IconButton.white, Attribute.width (px 36), Attribute.height (px 36) ] { icon = "close", onPress = Just (Close state.id Nothing) }
+                                    WithAction _ buttonText buttonMsg ->
+                                        button [ Button.text, width (shrink |> Element.maximum 120) ] { label = buttonText, onPress = Just (Close state.id (Just buttonMsg)) }
+                                , dismissibleButton
+                                ]
+                            )
 
-                          else
-                            Element.none
-                        ]
-                    )
+                    Nothing ->
+                        Element.map lift
+                            (Element.row
+                                [ Element.paddingXY 8 0
+                                , Element.alignRight
+                                ]
+                                [ dismissibleButton ]
+                            )
 
         htmlAttributes =
             if state.isOpen then
@@ -271,14 +285,19 @@ calculateHeight text =
         48
 
 
-getText : Content msg -> String
-getText value =
-    case value of
-        Plain text ->
-            takeFirstTwoLines text
+getText : Maybe (Content msg) -> String
+getText maybeValue =
+    case maybeValue of
+        Just value ->
+            case value of
+                Plain text ->
+                    takeFirstTwoLines text
 
-        WithAction text _ _ ->
-            takeFirstTwoLines text
+                WithAction text _ _ ->
+                    takeFirstTwoLines text
+
+        Nothing ->
+            ""
 
 
 takeFirstTwoLines : String -> String
