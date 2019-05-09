@@ -1,4 +1,7 @@
-module Hatchinq.List exposing (Config, Message, State, View, configure, control, imageSrc, init, itemsCount, secondaryText, update)
+module Hatchinq.List exposing
+    ( Config, Message, State, View, configure, control, imageSrc, init, itemsCount, secondaryText, update
+    , roundImage
+    )
 
 {-|
 

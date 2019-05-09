@@ -7,6 +7,7 @@ Implementation is based on [mdgriffith/elm-ui](https://package.elm-lang.org/pack
 Next UI elements are available so far:
  - AppBar
  - Button
+ - Card
  - Checkbox
  - DataTable
  - DropDown
@@ -16,7 +17,7 @@ Next UI elements are available so far:
  - ProgressIndicator
  - RadioButton
  - SidePanel
- - Snackabar
+ - Snackbar
  - TextField
  - Tree
 

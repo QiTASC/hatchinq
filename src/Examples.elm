@@ -10,12 +10,15 @@ import Browser
 import Browser.Dom
 import Browser.Events
 import Delay exposing (TimeUnit(..))
-import Element exposing (Element, alignTop, fill, inFront, padding, px, shrink, spacing)
+import Element exposing (Element, alignRight, alignTop, centerX, centerY, fill, html, inFront, layout, padding, paddingXY, px, shrink, spacing)
+import Element.Background as Background
 import Element.Border
 import Element.Events
+import Element.Font as Font
 import Hatchinq.AppBar as AppBar
-import Hatchinq.Attribute exposing (Attribute, height, id, width, withAttributes)
+import Hatchinq.Attribute as Html exposing (Attribute, height, id, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
+import Hatchinq.Card as Card exposing (Layout(..), Thumbnail(..))
 import Hatchinq.Checkbox as Checkbox exposing (..)
 import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
@@ -30,7 +33,8 @@ import Hatchinq.TabBar as TabBar exposing (TabButtons(..))
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
 import Hatchinq.Tree as Tree
-import Html exposing (Html)
+import Html exposing (Html, img)
+import Html.Attributes exposing (src)
 import List
 import Set exposing (Set)
 import Task
@@ -54,7 +58,8 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
-        , Time.every 10 Tick
+
+        --        , Time.every 10 Tick
         ]
 
 
@@ -131,6 +136,7 @@ type Msg
     | SnackbarAlert (Content Msg)
     | TabBarLift (TabBar.Message Msg)
     | TabBarSelect TabType
+    | CardLift (Card.Message Msg)
     | NoOp
 
 
@@ -254,6 +260,10 @@ tabBar =
     TabBar.configure { theme = theme, lift = TabBarLift }
 
 
+card =
+    Card.configure { theme = theme, lift = CardLift }
+
+
 type alias Model =
     { counter : Int
     , inputValue : String
@@ -289,6 +299,7 @@ type alias Model =
     , selectedTab : TabType
     , tabBarState : TabBar.State
     , windowSize : ( Int, Int )
+    , cardState : Card.State
     , progressIndicator1 : Progress
     , progressIndicatorVisiblity1 : Bool
     , progressIndicator2 : Progress
@@ -336,6 +347,7 @@ init _ =
       , selectedPerson = Nothing
       , filesTreeState = Tree.init
       , snackbarState = Snackbar.init
+      , cardState = Card.init
       , selectedTab = MainTab
       , tabBarState = TabBar.init
       , windowSize = ( 0, 0 )
@@ -612,6 +624,13 @@ update msg model =
 
         TabBarSelect tab ->
             ( { model | selectedTab = tab }, Cmd.none )
+
+        CardLift internalMsg ->
+            let
+                ( state, cmd ) =
+                    Card.update CardLift internalMsg model.cardState
+            in
+            ( { model | cardState = state }, cmd )
 
         NoOp ->
             ( model, Cmd.none )
@@ -1087,15 +1106,88 @@ mainContent model =
                         }
                     )
                 )
+            , Element.el []
+                (card []
+                    { media =
+                        Element.el
+                            []
+                            (html
+                                (Html.img [ Html.Attributes.src "https://i.kym-cdn.com/photos/images/original/000/533/682/ba8.jpg" ] [])
+                            )
+                    , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdf!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya! \nHe loves his marinara\nHe loves his marinara" }
+                    , thumbnail = Icon "settings"
+                    , content = Element.el [] (Element.text "He loves his marinara\nHe loves his marinara\nHe loves his marinara")
+                    , actions =
+                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        ]
+                    , state = model.cardState
+                    }
+                )
+            , Element.el []
+                (card [ Card.expandable ]
+                    { media =
+                        Element.el
+                            []
+                            (html
+                                (Html.img [ Html.Attributes.src "https://i.kym-cdn.com/photos/images/original/000/533/682/ba8.jpg" ] [])
+                            )
+                    , titles = { head = "It's Spagett!\nReally Gotcha This Time\nNot Visible", subHead = Nothing }
+                    , thumbnail = Image "https://yt3.ggpht.com/a-/AAuE7mDcTKETagtXnvAvWU9A9NhpDHQyiw9b9-UnKA=s48-c-k-c0xffffffff-no-rj-mo"
+                    , content = Element.el [] (Element.text "He loves his marinaraasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdfasdfbasd asdfsa fasdhfahsdfasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf\nasdfbasd asdfsa fasdhfahsdf")
+                    , actions =
+                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        ]
+                    , state = model.cardState
+                    }
+                )
+            , Element.el []
+                (card [ Card.layout MediaTop ]
+                    { media =
+                        Element.el
+                            []
+                            (html
+                                (Html.img [ Html.Attributes.src "https://i.kym-cdn.com/photos/images/original/000/533/682/ba8.jpg", Html.Attributes.style "object-fit" "contained" ] [])
+                            )
+                    , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdf!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya!" }
+                    , thumbnail = Icon "settings"
+                    , content = Element.el [] (Element.text "He loves his marinara")
+                    , actions =
+                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        ]
+                    , state = model.cardState
+                    }
+                )
+            , Element.el []
+                (card [ Card.layout MediaTop, Card.expandable ]
+                    { media =
+                        Element.el
+                            []
+                            (html
+                                (Html.img [ Html.Attributes.src "https://i.kym-cdn.com/photos/images/original/000/533/682/ba8.jpg", Html.Attributes.style "object-fit" "contained" ] [])
+                            )
+                    , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdf!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya!" }
+                    , thumbnail = Icon "settings"
+                    , content = Element.el [] (Element.text "He loves his marinara")
+                    , actions =
+                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        ]
+                    , state = model.cardState
+                    }
+                )
             ]
-        , Element.row [ Element.width fill, spacing 16 ]
-            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular ] { progress = model.progressIndicator1 }
-            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear BottomUp ] { progress = model.progressIndicator1 }
-            ]
-        , Element.row [ Element.width fill, spacing 16 ]
-            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
-            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
-            ]
+
+        --        , Element.row [ Element.width fill, spacing 16 ]
+        --            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular ] { progress = model.progressIndicator1 }
+        --            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear BottomUp ] { progress = model.progressIndicator1 }
+        --            ]
+        --        , Element.row [ Element.width fill, spacing 16 ]
+        --            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
+        --            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
+        --            ]
         , Element.row [ spacing 16 ]
             [ button [] { label = "Snackbar", onPress = Just (SnackbarAlert (Plain "Snackbar message")) }
             , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Alert Again" (SnackbarAlert (Plain "Tried again but failed")))) }
