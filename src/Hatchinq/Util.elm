@@ -1,4 +1,4 @@
-module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute)
+module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, takeFirstTwoLines)
 
 import Dict exposing (Dict)
 import Element
@@ -59,3 +59,9 @@ keyDownAttribute keyCode message =
                 Json.Decode.fail ("not keyCode " ++ String.fromInt keyCode)
     in
     Element.htmlAttribute <| Html.Events.on "keydown" (Json.Decode.andThen isKey Html.Events.keyCode)
+
+
+{--}
+takeFirstTwoLines : String -> String
+takeFirstTwoLines text =
+    String.join "\n" (List.take 2 (String.split "\n" text))

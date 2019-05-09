@@ -27,6 +27,7 @@ import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toInternalCo
 import Hatchinq.Button as Button
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme as Theme exposing (Theme, white)
+import Hatchinq.Util exposing (takeFirstTwoLines)
 import Html
 import Html.Attributes
 import Task
@@ -309,7 +310,5 @@ getText value =
         WithAction text _ _ ->
             takeFirstTwoLines text
 
-
-takeFirstTwoLines : String -> String
-takeFirstTwoLines text =
-    String.join "\n" (List.take 2 (String.split "\n" text))
+        Nothing ->
+            ""
