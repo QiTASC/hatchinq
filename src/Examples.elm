@@ -1048,7 +1048,7 @@ mainContent model =
                 (Element.el [ Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
                     (list WithImagesAndSelectable
                         [ imageSrc (\person -> person.imageSrc)
-                        , control (\person -> iconButton [ withTextColor (theme.colors.gray.withAlpha 0.46) ] { icon = "delete", onPress = Just PressMinus })
+                        , control (\person -> iconButton [ withTextColor (theme.colors.gray.withAlpha 0.46), IconButton.stopPropagation ] { icon = "delete", onPress = Just PressMinus })
                         ]
                         { items = persons
                         , toPrimaryText = \person -> person.firstName ++ " " ++ person.lastName

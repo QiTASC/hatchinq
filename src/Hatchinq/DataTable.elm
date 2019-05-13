@@ -422,8 +422,7 @@ view { theme, lift } attributes data =
                         )
                         (Element.el [ centerX, centerY ]
                             (IconButton.configure { theme = theme }
-                                [ IconButton.stopPropagation
-                                ]
+                                []
                                 { icon = "arrow_right", onPress = Just (onExpansion it (not (expanded it))) }
                             )
                         )

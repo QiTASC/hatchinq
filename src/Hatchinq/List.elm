@@ -11,7 +11,6 @@ module Hatchinq.List exposing (Config, Message, State, View, configure, control,
 
 import Element exposing (Element, centerY, fill, height, html, htmlAttribute, inFront, mouseOver, paddingEach, paddingXY, px, scrollbarY, width)
 import Element.Background as Background
-import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
@@ -247,7 +246,7 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
             [ width fill
             , Font.family [ theme.font.main ]
             , Font.size theme.font.defaultSize
-            , Events.onMouseUp (lift <| Select (Just item) (Maybe.map (\onSelect -> onSelect item) data.onSelect))
+            , Events.onClick (lift <| Select (Just item) (Maybe.map (\onSelect -> onSelect item) data.onSelect))
             ]
                 ++ colorAttributes
                 ++ additionalItemAttributes

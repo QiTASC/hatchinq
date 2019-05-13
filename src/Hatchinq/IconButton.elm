@@ -9,14 +9,15 @@ module Hatchinq.IconButton exposing (Config, View, configure, filled, stopPropag
 
 -}
 
-import Element exposing (Color, Element, centerX, centerY, focused, height, mouseOver, padding, px, width)
+import Element exposing (Color, Element, centerX, centerY, focused, height, mouseOver, px, width)
 import Element.Background as Background
 import Element.Font as Font
-import Element.Input as Input
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Color as Color
 import Hatchinq.Theme as Theme exposing (Theme, black, icon)
 import Html.Attributes
+import Html.Events
+import Json.Decode as Decode
 
 
 
@@ -141,9 +142,17 @@ view { theme } source data =
 
         attributes =
             toElement source
+
+        onClickMsg =
+            case data.onPress of
+                Nothing ->
+                    []
+
+                Just msg ->
+                    [ onClickNoBubble internalConfig.stopPropagation msg ]
     in
     Element.el attributes
-        (Input.button
+        (Element.el
             ([ height (px (theme.sizes.minRowHeight - 8))
              , width (px (theme.sizes.minRowHeight - 8))
              , Element.htmlAttribute (Html.Attributes.style "border-radius" "50%")
@@ -154,6 +163,12 @@ view { theme } source data =
              ]
                 ++ dynamicAttributes
                 ++ attributes
+                ++ onClickMsg
             )
-            { onPress = data.onPress, label = Element.el [ centerX, centerY ] (icon data.icon) }
+            (Element.el [ centerX, centerY ] (icon data.icon))
         )
+
+
+onClickNoBubble : Bool -> msg -> Element.Attribute msg
+onClickNoBubble noPropagation message =
+    Element.htmlAttribute <| Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = noPropagation, preventDefault = True })
