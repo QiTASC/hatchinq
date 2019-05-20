@@ -1109,14 +1109,11 @@ mainContent model =
             , Element.el []
                 (card []
                     { media =
-                        Element.el
-                            []
-                            (html
-                                (Html.img [ Html.Attributes.src "https://i.kym-cdn.com/photos/images/original/000/533/682/ba8.jpg" ] [])
-                            )
+                        html
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
                     , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdf!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya! \nHe loves his marinara\nHe loves his marinara" }
                     , thumbnail = Icon "settings"
-                    , content = Element.text "He loves his marinara"
+                    , content = Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara"
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1127,14 +1124,11 @@ mainContent model =
             , Element.el []
                 (card [ Card.expandable ]
                     { media =
-                        Element.el
-                            []
-                            (html
-                                (Html.img [ Html.Attributes.src "https://i.kym-cdn.com/photos/images/original/000/533/682/ba8.jpg" ] [])
-                            )
-                    , titles = { head = "It's Spagett!\nReally Gotcha This Time\nNot Visible", subHead = Just "Testing whether or not this works.\nIt should take the first\n two lines" }
+                        html
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
+                    , titles = { head = "It's Spagett!\nReally Gotcha This Time\nNot Visible", subHead = Nothing } --Just "Testing whether or not this works.\nIt should take the first\n two lines" }
                     , thumbnail = Image "https://yt3.ggpht.com/a-/AAuE7mDcTKETagtXnvAvWU9A9NhpDHQyiw9b9-UnKA=s48-c-k-c0xffffffff-no-rj-mo"
-                    , content = Element.el [] (Element.text "He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
+                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1145,14 +1139,11 @@ mainContent model =
             , Element.el []
                 (card [ Card.layout MediaTop ]
                     { media =
-                        Element.el
-                            []
-                            (html
-                                (Html.img [ Html.Attributes.src "https://i.kym-cdn.com/photos/images/original/000/533/682/ba8.jpg", Html.Attributes.style "object-fit" "contained" ] [])
-                            )
-                    , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdf!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya!" }
+                        html
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://i.ytimg.com/vi/6_TjSMFrIWI/maxresdefault.jpg" ] [])
+                    , titles = { head = "It's Spagett", subHead = Nothing }
                     , thumbnail = Icon "settings"
-                    , content = Element.el [] (Element.text "He loves his marinara \nHe does!\nHe does!\nHe does!\nHe does!\nHe does!\nHe does!\nHe does!\nHe does!\nHe does!\nHe does!\nHe does!")
+                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1163,14 +1154,11 @@ mainContent model =
             , Element.el []
                 (card [ Card.layout MediaTop, Card.expandable ]
                     { media =
-                        Element.el
-                            []
-                            (html
-                                (Html.img [ Html.Attributes.src "https://i.kym-cdn.com/photos/images/original/000/533/682/ba8.jpg", Html.Attributes.style "object-fit" "contained" ] [])
-                            )
-                    , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdf!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya!" }
+                        html
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
+                    , titles = { head = "It's Spagett", subHead = Nothing }
                     , thumbnail = Icon "settings"
-                    , content = Element.el [] (Element.text "He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
+                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
