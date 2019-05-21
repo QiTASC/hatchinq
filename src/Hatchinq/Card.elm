@@ -10,11 +10,8 @@ import Hatchinq.IconButton as IconButton
 import Hatchinq.List exposing (roundImage)
 import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
 import Hatchinq.Util exposing (takeFirstTwoLines)
+import Html
 import Html.Attributes
-
-
-
--- fix ellipse for headers
 
 
 defaultTheme =
@@ -145,43 +142,43 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                         (Element.el [ Element.centerX, Element.centerY ] (icon url))
 
         headers =
-            Element.row
-                [ Element.width fill ]
-                [ case titles.subHead of
-                    Nothing ->
-                        Element.paragraph
-                            [ Font.family [ theme.font.main ]
-                            , Font.size theme.font.defaultSize
-                            , Font.bold
-                            , Element.height shrink
-                            , Element.centerY
-                            ]
-                            [ textWithEllipsis (takeFirstTwoLines titles.head) ]
+            case titles.subHead of
+                Nothing ->
+                    Element.el
+                        [ Element.paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
+                        , Font.family [ theme.font.main ]
+                        , Font.size theme.font.defaultSize
+                        , Font.bold
+                        , Element.width fill
+                        , Element.height fill
+                        , Element.height shrink
+                        , Element.centerY
+                        , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
+                        , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                        , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
+                        ]
+                        (Element.html <| Html.text (takeFirstTwoLines titles.head))
 
-                    Just subHead ->
-                        Element.column []
-                            [ Element.el
-                                [ Font.family [ theme.font.main ]
-                                , Font.size theme.font.defaultSize
-                                , Font.bold
-                                , Element.width fill
-                                , Element.height shrink
-                                , Element.centerY
-                                ]
-                                (textWithEllipsis ((\t -> String.join "\n" (List.take 1 (String.split "\n" t))) titles.head))
-                            , Element.paragraph
-                                [ Element.width fill
-                                , Element.height fill
-                                , Font.family [ theme.font.main ]
-                                , Font.size theme.font.smallerSize
-                                , Font.color theme.colors.gray.dark
-                                , Font.semiBold
-                                , Element.centerX
-                                , Element.centerY
-                                ]
-                                [ textWithEllipsis (takeFirstTwoLines subHead) ]
+                Just subHead ->
+                    Element.column
+                        [ Element.paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
+                        , Font.family [ theme.font.main ]
+                        , Font.size theme.font.defaultSize
+                        , Font.bold
+                        , Element.width fill
+                        , Element.height fill
+                        , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
+                        , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                        , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
+                        ]
+                        [ Element.html <| Html.text ((\t -> String.join "\n" (List.take 1 (String.split "\n" t))) titles.head)
+                        , Element.el
+                            [ Font.size theme.font.smallerSize
+                            , Font.color theme.colors.gray.dark
+                            , Font.semiBold
                             ]
-                ]
+                            (textWithEllipsis (takeFirstTwoLines subHead))
+                        ]
 
         mediaRow =
             Element.row
@@ -196,7 +193,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
         contentRow =
             Element.row
                 ([ Element.width fill
-                 , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                 , Element.htmlAttribute <| Html.Attributes.style "overflow" "auto"
                  , Element.htmlAttribute <| Html.Attributes.style "transition" "transform 0.25s, opacity 0.25s, max-height 0.25s"
                  ]
                     ++ (if (internalConfig.expandable && state.contentExpanded) || not internalConfig.expandable then
@@ -212,8 +209,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                        )
                 )
                 [ Element.el
-                    [ Element.htmlAttribute <| Html.Attributes.style "overflow" "auto"
-                    , Element.width fill
+                    [ Element.width fill
                     , Element.height fill
                     ]
                     content
@@ -258,17 +254,16 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
          , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
          , Element.Border.color theme.colors.gray.lightest
          , Element.Border.shadow { offset = ( 0, 0 ), size = 0, blur = 3, color = Element.rgba255 140 140 140 0.58 }
-         , Element.mouseOver [ Background.color theme.colors.gray.lightest ]
-         , Element.mouseOver [ Element.Border.shadow { offset = ( 0, 4 ), size = 3, blur = 8, color = Element.rgba255 140 140 140 0.58 } ]
+         , Element.mouseOver [ Background.color theme.colors.gray.lightest, Element.Border.shadow { offset = ( 0, 2 ), size = 2, blur = 4, color = Element.rgba255 140 140 140 0.58 } ]
          , Element.Border.rounded 4
+         , Element.htmlAttribute <| Html.Attributes.style "transition" "box-shadow 0.1s"
          ]
             ++ toElement attributes
         )
         (case internalConfig.layout of
             MediaCenter ->
                 [ Element.row
-                    [ Element.height fill
-                    , Element.width fill
+                    [ Element.width fill
                     , Element.height (shrink |> Element.maximum 80)
                     , Element.paddingEach { left = 0, right = 0, top = 16, bottom = 16 }
                     , Element.centerY
@@ -284,7 +279,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                             Element.paddingEach { left = 16, right = 16, top = 8, bottom = 0 }
 
                         else
-                            Element.paddingEach { left = 0, right = 0, top = 0, bottom = 0 }
+                            Element.paddingEach { left = 16, right = 16, top = 0, bottom = 0 }
 
                       else
                         Element.paddingEach { left = 16, right = 16, top = 8, bottom = 0 }

@@ -1111,9 +1111,9 @@ mainContent model =
                     { media =
                         html
                             (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
-                    , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdf!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya! \nHe loves his marinara\nHe loves his marinara" }
+                    , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdfj fsdjh fsdj flksjlkfj skldj fksld flkjdkl!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya! \nHe loves his marinaraHe loves his marinara sdafjklsjdkl fjklsda jflk;asjdlf;k jasdlk;j flksdaj flkjsd gheowi goisdklasdkjkljl jhkjh" }
                     , thumbnail = Icon "settings"
-                    , content = Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara"
+                    , content = Element.text "He loves his marinara. He loves his marinara. "
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1126,9 +1126,9 @@ mainContent model =
                     { media =
                         html
                             (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
-                    , titles = { head = "It's Spagett!\nReally Gotcha This Time\nNot Visible", subHead = Nothing } --Just "Testing whether or not this works.\nIt should take the first\n two lines" }
+                    , titles = { head = "It's Spagett!Really Gotcha This Time asdufh ljkasdhf lkjhadslkj fhajklsdh fkldsahlf hadslkf klasdlk sdalhNot Visible", subHead = Nothing } --Just "Testing whether or not this works.\nIt should take the first\n two lines" }
                     , thumbnail = Image "https://yt3.ggpht.com/a-/AAuE7mDcTKETagtXnvAvWU9A9NhpDHQyiw9b9-UnKA=s48-c-k-c0xffffffff-no-rj-mo"
-                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
+                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1143,7 +1143,7 @@ mainContent model =
                             (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://i.ytimg.com/vi/6_TjSMFrIWI/maxresdefault.jpg" ] [])
                     , titles = { head = "It's Spagett", subHead = Nothing }
                     , thumbnail = Icon "settings"
-                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
+                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1158,7 +1158,7 @@ mainContent model =
                             (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
                     , titles = { head = "It's Spagett", subHead = Nothing }
                     , thumbnail = Icon "settings"
-                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
+                    , content = Element.el [] (Element.text "He loves his marinara.\nHe loves his marinara.He loves his marinara")
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
