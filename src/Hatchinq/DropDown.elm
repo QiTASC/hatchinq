@@ -19,7 +19,7 @@ import Element.Input as Input
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig, toWidth)
 import Hatchinq.Theme as Theme exposing (Theme, arrowTransition, icon, textWithEllipsis, transition)
 import Hatchinq.Util exposing (arrowDownKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keysDownAttribute)
-import Html.Attributes
+import Html.Attributes as Attr
 import Task
 
 
@@ -236,7 +236,7 @@ view config attributes data =
             data.itemToString
 
         standardLabelAttributes =
-            [ width fill, height shrink, Font.family [ theme.font.main ], htmlAttribute transition, htmlAttribute <| Html.Attributes.style "pointer-events" "none" ]
+            [ width fill, height shrink, Font.family [ theme.font.main ], htmlAttribute transition, htmlAttribute <| Attr.style "pointer-events" "none" ]
 
         labelColor =
             if disabled then
@@ -415,9 +415,9 @@ view config attributes data =
                 :: Font.size theme.font.defaultSize
                 :: width (px 280)
                 :: height (px 56)
-                :: (htmlAttribute <| Html.Attributes.style "display" "inline-block")
-                :: (htmlAttribute <| Html.Attributes.style "overflow" "hidden")
-                :: (htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis")
+                :: (htmlAttribute <| Attr.style "display" "inline-block")
+                :: (htmlAttribute <| Attr.style "overflow" "hidden")
+                :: (htmlAttribute <| Attr.style "text-overflow" "ellipsis")
                 :: paddingEach { left = 12, top = 20, right = 32, bottom = 4 }
                 :: inFront labelElement
                 :: Events.onClick (lift <| OpenSelect selectedItemIndex)
@@ -429,11 +429,11 @@ view config attributes data =
                             else
                                 CloseSelect
                    )
-                :: (Element.htmlAttribute <| Html.Attributes.disabled disabled)
+                :: (Element.htmlAttribute <| Attr.disabled disabled)
                 :: keyDownAttributes
 
         arrowAttributes =
-            (htmlAttribute <| Html.Attributes.style "will-change" "transform")
+            (htmlAttribute <| Attr.style "will-change" "transform")
                 :: pointer
                 :: alignRight
                 :: centerY
@@ -442,11 +442,11 @@ view config attributes data =
                 :: (case state.uiState of
                         Open _ ->
                             [ Font.color theme.colors.secondary.color
-                            , htmlAttribute <| Html.Attributes.style "transform" "rotate(180deg) translateY(-5px)"
+                            , htmlAttribute <| Attr.style "transform" "rotate(180deg) translateY(-5px)"
                             ]
 
                         Closed ->
-                            [ Font.color labelColor, htmlAttribute <| Html.Attributes.style "pointer-events" "none" ]
+                            [ Font.color labelColor, htmlAttribute <| Attr.style "pointer-events" "none" ]
                    )
     in
     el
@@ -456,7 +456,7 @@ view config attributes data =
             :: elementAttributes
         )
         (Input.text
-            (inputStyledAttributes ++ inputAttributes ++ inputHoverAttributes ++ elementAttributes)
+            (inputStyledAttributes ++ inputAttributes ++ inputHoverAttributes ++ elementAttributes ++ [ htmlAttribute <| Attr.value text ])
             { onChange = \newQuery -> lift <| SearchInput (Query newQuery)
             , text = text
             , placeholder = placeholder
@@ -516,22 +516,22 @@ dropdownBody config internalConfig widthLength { uiState, focusedItem } (Query q
             , height bodyHeight
             , width widthLength
             , paddingXY 0 8
-            , htmlAttribute <| Html.Attributes.style "will-change" "transform, opacity"
-            , htmlAttribute <| Html.Attributes.style "transform-origin" "center top 0px"
-            , htmlAttribute <| Html.Attributes.style "box-shadow" "0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12)"
-            , htmlAttribute <| Html.Attributes.style "-webkit-box-shadow" "0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12)"
+            , htmlAttribute <| Attr.style "will-change" "transform, opacity"
+            , htmlAttribute <| Attr.style "transform-origin" "center top 0px"
+            , htmlAttribute <| Attr.style "box-shadow" "0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12)"
+            , htmlAttribute <| Attr.style "-webkit-box-shadow" "0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12)"
             , htmlAttribute transition
             ]
 
         bodyAttributes =
             case uiState of
                 Open _ ->
-                    htmlAttribute (Html.Attributes.style "opacity" "1")
+                    htmlAttribute (Attr.style "opacity" "1")
                         :: scale 1
                         :: standardBodyAttributes
 
                 Closed ->
-                    htmlAttribute (Html.Attributes.style "opacity" "0")
+                    htmlAttribute (Attr.style "opacity" "0")
                         :: scale 0
                         :: standardBodyAttributes
 

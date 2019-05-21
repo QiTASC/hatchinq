@@ -237,7 +237,7 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
         )
         (if internalConfig.multiline then
             Input.multiline
-                ([ htmlAttribute <| Attr.attribute "rows" "1" ] ++ inputAttributes)
+                ([ htmlAttribute <| Attr.attribute "rows" "1", htmlAttribute <| Attr.value value ] ++ inputAttributes)
                 { onChange = onChange |> Maybe.withDefault (lift << Impossible)
                 , text = value
                 , placeholder = Nothing
@@ -247,7 +247,7 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
 
          else
             Input.text
-                inputAttributes
+                ([ htmlAttribute <| Attr.value value ] ++ inputAttributes)
                 { onChange = onChange |> Maybe.withDefault (lift << Impossible)
                 , text = value
                 , placeholder = Nothing

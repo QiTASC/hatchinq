@@ -16,7 +16,7 @@ Next UI elements are available so far:
  - ProgressIndicator
  - RadioButton
  - SidePanel
- - Snackabar
+ - Snackbar
  - TextField
  - Tree
 
