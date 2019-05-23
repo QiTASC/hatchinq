@@ -1,5 +1,14 @@
 module Hatchinq.Card exposing (Config, Layout(..), Message(..), State, Thumbnail(..), View, configure, expandable, init, layout, update)
 
+{-|
+
+
+# Exposed
+
+@docs Config, Layout, Message, State, Thumbnail, View, configure, expandable, init, layout, update
+
+-}
+
 import Element exposing (Element, centerY, fill, px, shrink)
 import Element.Background as Background
 import Element.Border
@@ -14,18 +23,11 @@ import Html
 import Html.Attributes
 
 
-defaultTheme =
-    Theme.default
+
+-- TYPES
 
 
-button =
-    Button.configure { theme = defaultTheme }
-
-
-iconButton =
-    IconButton.configure { theme = defaultTheme }
-
-
+{-| -}
 type alias Config msg =
     { theme : Theme
     , lift : Message msg -> msg
@@ -45,12 +47,6 @@ type alias State =
 
 
 {-| -}
-init : State
-init =
-    { contentExpanded = False
-    }
-
-
 type Layout
     = MediaTop
     | MediaCenter
@@ -59,6 +55,31 @@ type Layout
 type alias Title =
     { head : String
     , subHead : Maybe String
+    }
+
+
+{-| -}
+type Thumbnail
+    = Icon String
+    | Image String
+
+
+defaultTheme =
+    Theme.default
+
+
+button =
+    Button.configure { theme = defaultTheme }
+
+
+iconButton =
+    IconButton.configure { theme = defaultTheme }
+
+
+{-| -}
+init : State
+init =
+    { contentExpanded = False
     }
 
 
@@ -74,28 +95,13 @@ layout msg =
     custom (\v -> { v | layout = msg })
 
 
+
+-- MESSAGES
+
+
+{-| -}
 type Message msg
     = ToggleExpanded
-
-
-type Thumbnail
-    = Icon String
-    | Image String
-
-
-type alias View msg =
-    { media : Element msg
-    , titles : Title
-    , thumbnail : Thumbnail
-    , content : Element msg
-    , actions : List ( String, msg )
-    , state : State
-    }
-
-
-configure : Config msg -> (List (Attribute InternalConfig) -> View msg -> Element msg)
-configure config =
-    view config
 
 
 
@@ -108,6 +114,27 @@ update lift message state =
     case message of
         ToggleExpanded ->
             ( { state | contentExpanded = not state.contentExpanded }, Cmd.none )
+
+
+
+-- VIEW
+
+
+{-| -}
+type alias View msg =
+    { media : Element msg
+    , titles : Title
+    , thumbnail : Thumbnail
+    , content : Element msg
+    , actions : List ( String, msg )
+    , state : State
+    }
+
+
+{-| -}
+configure : Config msg -> (List (Attribute InternalConfig) -> View msg -> Element msg)
+configure config =
+    view config
 
 
 view : Config msg -> List (Attribute InternalConfig) -> View msg -> Element msg
@@ -208,12 +235,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                             ]
                        )
                 )
-                [ Element.el
-                    [ Element.width fill
-                    , Element.height fill
-                    ]
-                    content
-                ]
+                [ Element.el [ Element.width fill, Element.height fill ] content ]
 
         toggleContentButton =
             iconButton []
@@ -263,7 +285,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
         (case internalConfig.layout of
             MediaCenter ->
                 [ Element.row
-                    [ Element.width fill
+                    [ Element.width (fill |> Element.minimum 344)
                     , Element.height (shrink |> Element.maximum 80)
                     , Element.paddingEach { left = 0, right = 0, top = 16, bottom = 16 }
                     , Element.centerY
@@ -288,7 +310,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                 , Element.row [ Element.width fill ]
                     [ buttonsRow
                     , if internalConfig.expandable then
-                        Element.el [ Element.paddingXY 8 8 ] toggleContentButton
+                        Element.el [ Element.paddingXY 8 8, Element.alignRight ] toggleContentButton
 
                       else
                         Element.none
@@ -298,10 +320,14 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
             MediaTop ->
                 [ mediaRow
                 , Element.row
-                    [ Element.width fill
+                    [ Element.width (fill |> Element.minimum 344)
                     , Element.height (shrink |> Element.maximum 80)
-                    , if internalConfig.expandable && state.contentExpanded then
-                        Element.paddingEach { left = 0, right = 0, top = 8, bottom = 8 }
+                    , if internalConfig.expandable then
+                        if state.contentExpanded then
+                            Element.paddingEach { left = 0, right = 0, top = 8, bottom = 8 }
+
+                        else
+                            Element.paddingEach { left = 0, right = 0, top = 8, bottom = 0 }
 
                       else
                         Element.paddingEach { left = 0, right = 0, top = 8, bottom = 0 }
@@ -315,7 +341,15 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                       else
                         Element.none
                     ]
-                , Element.row [ Element.width fill, Element.paddingEach { left = 16, right = 16, top = 0, bottom = 0 } ] [ contentRow ]
+                , Element.row
+                    [ Element.width fill
+                    , if buttonsRow == Element.none then
+                        Element.paddingEach { left = 16, right = 16, top = 0, bottom = 8 }
+
+                      else
+                        Element.paddingEach { left = 16, right = 16, top = 0, bottom = 0 }
+                    ]
+                    [ contentRow ]
                 , buttonsRow
                 ]
         )

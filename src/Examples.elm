@@ -1106,14 +1106,17 @@ mainContent model =
                         }
                     )
                 )
-            , Element.el []
+            ]
+        , Element.row
+            [ Element.spacing 24 ]
+            [ Element.el [ Element.alignTop ]
                 (card []
                     { media =
                         html
-                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
-                    , titles = { head = "It's Spagettasdfasdfasdfasdfasdfasdfasdfasdfsdfj fsdjh fsdj flksjlkfj skldj fksld flkjdkl!\nasdfbasd asdfsa fasdhfahsdf", subHead = Just "Spooked ya! \nHe loves his marinaraHe loves his marinara sdafjklsjdkl fjklsda jflk;asjdlf;k jasdlk;j flksdaj flkjsd gheowi goisdklasdkjkljl jhkjh" }
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
+                    , titles = { head = "MediaCenter With Header and Subheader", subHead = Just "Here is a very long subtitle that does not fit within the allotted space. The overflow of this is handled by an ellipsis." }
                     , thumbnail = Icon "settings"
-                    , content = Element.text "He loves his marinara. He loves his marinara. "
+                    , content = Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is not expandable and it uses the settings Icon as the Thumbnail. It has some simple text content in a paragraph which does not require scrollbars to view in its entirety." ]
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1121,29 +1124,27 @@ mainContent model =
                     , state = model.cardState
                     }
                 )
-            , Element.el []
+            , Element.el [ Element.alignTop ]
                 (card [ Card.expandable ]
                     { media =
                         html
-                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
-                    , titles = { head = "It's Spagett!Really Gotcha This Time asdufh ljkasdhf lkjhadslkj fhajklsdh fkldsahlf hadslkf klasdlk sdalhNot Visible", subHead = Nothing } --Just "Testing whether or not this works.\nIt should take the first\n two lines" }
-                    , thumbnail = Image "https://yt3.ggpht.com/a-/AAuE7mDcTKETagtXnvAvWU9A9NhpDHQyiw9b9-UnKA=s48-c-k-c0xffffffff-no-rj-mo"
-                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
-                    , actions =
-                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
-                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
-                        ]
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
+                    , titles = { head = "Header Only", subHead = Nothing }
+                    , thumbnail = Image "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png"
+                    , content =
+                        Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable, does not have buttons and uses an image as the thumbnail." ]
+                    , actions = []
                     , state = model.cardState
                     }
                 )
-            , Element.el []
+            , Element.el [ Element.alignTop ]
                 (card [ Card.layout MediaTop ]
                     { media =
                         html
-                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://i.ytimg.com/vi/6_TjSMFrIWI/maxresdefault.jpg" ] [])
-                    , titles = { head = "It's Spagett", subHead = Nothing }
-                    , thumbnail = Icon "settings"
-                    , content = Element.el [] (Element.text "He loves his marinara. He loves his marinara. He loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara.He loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara\nHe loves his marinara")
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
+                    , titles = { head = "MediaTop", subHead = Just "With Subheader" }
+                    , thumbnail = Icon "location_city"
+                    , content = Element.el [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] (Element.text "This card has the following:\n\n- Header\n\n- Subheader\n\n- Buttons\n\n- Content\n\nIt uses a different icon as the Thumbnail and has both a Header and Subheader.\nThe content of this card is too large for the provided display area. Therefore, horizontal and vertical scrollbars are present.")
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1151,31 +1152,27 @@ mainContent model =
                     , state = model.cardState
                     }
                 )
-            , Element.el []
+            , Element.el [ Element.alignTop ]
                 (card [ Card.layout MediaTop, Card.expandable ]
                     { media =
                         html
-                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/lena.png" ] [])
-                    , titles = { head = "It's Spagett", subHead = Nothing }
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
+                    , titles = { head = "MediaTop Header Only", subHead = Nothing }
                     , thumbnail = Icon "settings"
-                    , content = Element.el [] (Element.text "He loves his marinara.\nHe loves his marinara.He loves his marinara")
-                    , actions =
-                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
-                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
-                        ]
+                    , content = Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable and does not have buttons." ]
+                    , actions = []
                     , state = model.cardState
                     }
                 )
             ]
-
-        --        , Element.row [ Element.width fill, spacing 16 ]
-        --            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular ] { progress = model.progressIndicator1 }
-        --            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear BottomUp ] { progress = model.progressIndicator1 }
-        --            ]
-        --        , Element.row [ Element.width fill, spacing 16 ]
-        --            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
-        --            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
-        --            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular ] { progress = model.progressIndicator1 }
+            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear BottomUp ] { progress = model.progressIndicator1 }
+            ]
+        , Element.row [ Element.width fill, spacing 16 ]
+            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
+            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
+            ]
         , Element.row [ spacing 16 ]
             [ button [] { label = "Snackbar", onPress = Just (SnackbarAlert (Plain "Snackbar message")) }
             , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Alert Again" (SnackbarAlert (Plain "Tried again but failed")))) }
