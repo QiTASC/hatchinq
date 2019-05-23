@@ -177,7 +177,6 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                         , Font.size theme.font.defaultSize
                         , Font.bold
                         , Element.width fill
-                        , Element.height fill
                         , Element.height shrink
                         , Element.centerY
                         , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
@@ -193,7 +192,8 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                         , Font.size theme.font.defaultSize
                         , Font.bold
                         , Element.width fill
-                        , Element.height fill
+                        , Element.height shrink
+                        , Element.centerY
                         , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
                         , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
                         , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
@@ -235,7 +235,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                             ]
                        )
                 )
-                [ Element.el [ Element.width fill, Element.height fill ] content ]
+                [ content ]
 
         toggleContentButton =
             iconButton []
@@ -330,7 +330,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                             Element.paddingEach { left = 0, right = 0, top = 8, bottom = 0 }
 
                       else
-                        Element.paddingEach { left = 0, right = 0, top = 8, bottom = 0 }
+                        Element.paddingEach { left = 0, right = 0, top = 8, bottom = 8 }
                     , Element.centerY
                     ]
                     [ imageOrIcon
