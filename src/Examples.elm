@@ -1115,8 +1115,8 @@ mainContent model =
                         html
                             (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
                     , titles = { head = "MediaCenter With Header and Subheader", subHead = Just "Here is a very long subtitle that does not fit within the allotted space. The overflow of this is handled by an ellipsis." }
-                    , thumbnail = Icon "settings"
-                    , content = Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is not expandable and it uses the settings Icon as the Thumbnail. It has some simple text content in a paragraph which does not require scrollbars to view in its entirety." ]
+                    , thumbnail = Image "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png"
+                    , content = Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is not expandable and it uses an image as the Thumbnail. It has some simple text content in a paragraph which does not require scrollbars to view in its entirety." ]
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
