@@ -1,4 +1,7 @@
-module Hatchinq.Card exposing (Config, Layout(..), Message(..), State, Thumbnail(..), View, configure, expandable, init, layout, update)
+module Hatchinq.Card exposing
+    ( Config, Layout(..), Message(..), State, Thumbnail(..), View, configure, expandable, init, layout, update
+    , Title
+    )
 
 {-|
 
@@ -52,6 +55,7 @@ type Layout
     | MediaCenter
 
 
+{-| -}
 type alias Title =
     { head : String
     , subHead : Maybe String
@@ -62,18 +66,6 @@ type alias Title =
 type Thumbnail
     = Icon String
     | Image String
-
-
-defaultTheme =
-    Theme.default
-
-
-button =
-    Button.configure { theme = defaultTheme }
-
-
-iconButton =
-    IconButton.configure { theme = defaultTheme }
 
 
 {-| -}
@@ -163,49 +155,56 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                     Element.el
                         [ Element.width (px 40)
                         , Element.height (px 40)
-                        , centerY
                         , Element.paddingXY 26 0
                         ]
                         (Element.el [ Element.centerX, Element.centerY ] (icon url))
 
         headers =
-            case titles.subHead of
-                Nothing ->
-                    Element.el
-                        [ Element.paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
-                        , Font.family [ theme.font.main ]
-                        , Font.size theme.font.defaultSize
-                        , Font.bold
-                        , Element.width fill
-                        , Element.height shrink
-                        , Element.centerY
-                        , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
-                        , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
-                        , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
-                        ]
-                        (Element.html <| Html.text (takeFirstTwoLines titles.head))
+            Element.column
+                [ Element.paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
+                , Font.family [ theme.font.main ]
+                , Font.size theme.font.defaultSize
+                , Font.bold
+                , Element.width fill
+                , Element.height shrink
+                , Element.centerY
+                , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
+                , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
+                ]
+                [ Element.el
+                    [ Element.paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
+                    , Font.family [ theme.font.main ]
+                    , Font.size theme.font.defaultSize
+                    , Font.bold
+                    , Element.width fill
+                    , Element.height shrink
+                    , Element.centerY
+                    , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
+                    , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                    , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
+                    ]
+                    (Element.html <|
+                        Html.text
+                            (if titles.subHead == Nothing then
+                                takeFirstTwoLines titles.head
 
-                Just subHead ->
-                    Element.column
-                        [ Element.paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
-                        , Font.family [ theme.font.main ]
-                        , Font.size theme.font.defaultSize
-                        , Font.bold
-                        , Element.width fill
-                        , Element.height shrink
-                        , Element.centerY
-                        , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
-                        , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
-                        , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
-                        ]
-                        [ Element.html <| Html.text ((\t -> String.join "\n" (List.take 1 (String.split "\n" t))) titles.head)
-                        , Element.el
+                             else
+                                (\t -> String.join "\n" (List.take 1 (String.split "\n" t))) titles.head
+                            )
+                    )
+                , case titles.subHead of
+                    Nothing ->
+                        Element.none
+
+                    Just subHead ->
+                        Element.el
                             [ Font.size theme.font.smallerSize
                             , Font.color theme.colors.gray.dark
                             , Font.semiBold
                             ]
                             (textWithEllipsis (takeFirstTwoLines subHead))
-                        ]
+                ]
 
         mediaRow =
             Element.row
@@ -238,7 +237,8 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                 [ content ]
 
         toggleContentButton =
-            iconButton []
+            IconButton.configure { theme = theme }
+                []
                 { icon =
                     if state.contentExpanded then
                         "expand_less"
@@ -251,7 +251,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                 }
 
         actionsButtons =
-            List.map (\( text, action ) -> button [ Button.text ] { label = text, onPress = Just action }) actions
+            List.map (\( text, action ) -> Button.configure { theme = theme } [ Button.text ] { label = text, onPress = Just action }) actions
 
         buttonsRow =
             if List.isEmpty actionsButtons then
@@ -263,6 +263,8 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                     , Element.height (shrink |> Element.minimum 48)
                     , Element.spacing 8
                     , Element.paddingEach { left = 8, right = 8, top = 8, bottom = 8 }
+                    , Element.htmlAttribute <| Html.Attributes.style "transition" "box-shadow 0.1s"
+                    , Element.htmlAttribute <| Html.Attributes.style "overflow-x" "auto"
                     ]
                     actionsButtons
     in

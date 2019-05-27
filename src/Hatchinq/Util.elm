@@ -61,7 +61,7 @@ keyDownAttribute keyCode message =
     Element.htmlAttribute <| Html.Events.on "keydown" (Json.Decode.andThen isKey Html.Events.keyCode)
 
 
-{--}
+{-| -}
 takeFirstTwoLines : String -> String
 takeFirstTwoLines text =
     String.join "\n" (List.take 2 (String.split "\n" text))
