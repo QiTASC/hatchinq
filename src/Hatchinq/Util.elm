@@ -1,4 +1,4 @@
-module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, takeFirstTwoLines)
+module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, takeFirstNLines)
 
 import Dict exposing (Dict)
 import Element
@@ -62,6 +62,6 @@ keyDownAttribute keyCode message =
 
 
 {-| -}
-takeFirstTwoLines : String -> String
-takeFirstTwoLines text =
-    String.join "\n" (List.take 2 (String.split "\n" text))
+takeFirstNLines : String -> Int -> String
+takeFirstNLines text numLines =
+    String.join "\n" (List.take numLines (String.split "\n" text))

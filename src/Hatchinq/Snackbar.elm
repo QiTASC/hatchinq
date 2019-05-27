@@ -18,7 +18,7 @@ import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toInternalCo
 import Hatchinq.Button as Button
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme as Theme exposing (Theme, white)
-import Hatchinq.Util exposing (takeFirstTwoLines)
+import Hatchinq.Util exposing (takeFirstNLines)
 import Html
 import Html.Attributes
 import Task
@@ -292,10 +292,10 @@ getText maybeValue =
         Just value ->
             case value of
                 Plain text ->
-                    takeFirstTwoLines text
+                    takeFirstNLines text 2
 
                 WithAction text _ _ ->
-                    takeFirstTwoLines text
+                    takeFirstNLines text 2
 
         Nothing ->
             ""
