@@ -9,15 +9,6 @@ module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, al
 
 -}
 
-{-|
-
-
-# Exposed
-
-@docs Content, Message, State, View, alert, configure, dismissible, maximumWidth, init, update, view
-
--}
-
 import Delay exposing (TimeUnit(..))
 import Element exposing (Element, fill, px, shrink)
 import Element.Background
@@ -27,7 +18,7 @@ import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toInternalCo
 import Hatchinq.Button as Button
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme as Theme exposing (Theme, white)
-import Hatchinq.Util exposing (takeFirstTwoLines)
+import Hatchinq.Util exposing (takeFirstNLines)
 import Html
 import Html.Attributes
 import Task
@@ -60,12 +51,6 @@ type alias InternalConfig =
 dismissible : Attribute InternalConfig
 dismissible =
     custom (\v -> { v | dismissible = True })
-
-
-{-| -}
-maximumWidth : Int -> Attribute InternalConfig
-maximumWidth max =
-    custom (\v -> { v | maximumWidth = max })
 
 
 {-| -}
@@ -301,14 +286,16 @@ calculateHeight text =
         48
 
 
-getText : Content msg -> String
-getText value =
-    case value of
-        Plain text ->
-            takeFirstTwoLines text
+getText : Maybe (Content msg) -> String
+getText maybeValue =
+    case maybeValue of
+        Just value ->
+            case value of
+                Plain text ->
+                    takeFirstNLines text 2
 
-        WithAction text _ _ ->
-            takeFirstTwoLines text
+                WithAction text _ _ ->
+                    takeFirstNLines text 2
 
         Nothing ->
             ""

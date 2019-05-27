@@ -21,7 +21,7 @@ import Hatchinq.Button as Button
 import Hatchinq.IconButton as IconButton
 import Hatchinq.List exposing (roundImage)
 import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
-import Hatchinq.Util exposing (takeFirstTwoLines)
+import Hatchinq.Util exposing (takeFirstNLines)
 import Html
 import Html.Attributes
 
@@ -172,27 +172,14 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                 , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
                 , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
                 ]
-                [ Element.el
-                    [ Element.paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
-                    , Font.family [ theme.font.main ]
-                    , Font.size theme.font.defaultSize
-                    , Font.bold
-                    , Element.width fill
-                    , Element.height shrink
-                    , Element.centerY
-                    , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
-                    , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
-                    , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
-                    ]
-                    (Element.html <|
-                        Html.text
-                            (if titles.subHead == Nothing then
-                                takeFirstTwoLines titles.head
+                [ Element.html <|
+                    Html.text
+                        (if titles.subHead == Nothing then
+                            takeFirstNLines titles.head 2
 
-                             else
-                                (\t -> String.join "\n" (List.take 1 (String.split "\n" t))) titles.head
-                            )
-                    )
+                         else
+                            takeFirstNLines titles.head 1
+                        )
                 , case titles.subHead of
                     Nothing ->
                         Element.none
@@ -203,7 +190,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                             , Font.color theme.colors.gray.dark
                             , Font.semiBold
                             ]
-                            (textWithEllipsis (takeFirstTwoLines subHead))
+                            (textWithEllipsis (takeFirstNLines subHead 2))
                 ]
 
         mediaRow =
