@@ -1131,7 +1131,7 @@ mainContent model =
                     , titles = { head = "Header Only", subHead = Nothing }
                     , thumbnail = Image "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png"
                     , content =
-                        Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable, does not have buttons and uses an image as the thumbnail." ]
+                        Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable and uses an image as the thumbnail. It has a horizontal scrollbar because all of the buttons do not fit within the card width." ]
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
