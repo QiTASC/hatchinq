@@ -10,7 +10,7 @@ module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, al
 -}
 
 import Delay exposing (TimeUnit(..))
-import Element exposing (Element, fill, px, shrink)
+import Element exposing (Element, alignBottom, alignRight, centerX, column, el, fill, html, htmlAttribute, maximum, minimum, padding, paddingEach, paddingXY, px, row, shrink, text)
 import Element.Background
 import Element.Border
 import Element.Font
@@ -203,76 +203,76 @@ view { theme, lift } attributes { state } =
                 case maybeValue of
                     Just value ->
                         Element.map lift
-                            (Element.row
-                                [ Element.paddingXY 8 0
-                                , Element.alignRight
+                            (row
+                                [ paddingXY 8 0
+                                , alignRight
                                 ]
                                 [ case value of
                                     Plain _ ->
                                         Element.none
 
                                     WithAction _ buttonText buttonMsg ->
-                                        button [ Button.text, width (shrink |> Element.maximum 120) ] { label = buttonText, onPress = Just (Close state.id (Just buttonMsg)) }
+                                        button [ Button.text, width (shrink |> maximum 120) ] { label = buttonText, onPress = Just (Close state.id (Just buttonMsg)) }
                                 , dismissibleButton
                                 ]
                             )
 
                     Nothing ->
                         Element.map lift
-                            (Element.row
-                                [ Element.paddingXY 8 0
-                                , Element.alignRight
+                            (row
+                                [ paddingXY 8 0
+                                , alignRight
                                 ]
                                 [ dismissibleButton ]
                             )
 
         htmlAttributes =
             if state.isOpen then
-                [ Element.htmlAttribute <| Html.Attributes.style "opacity" "1"
-                , Element.htmlAttribute <| Html.Attributes.style "transform" "scale(1)"
-                , Element.htmlAttribute <| Html.Attributes.style "transition" "opacity .25s, transform .25s"
+                [ htmlAttribute <| Html.Attributes.style "opacity" "1"
+                , htmlAttribute <| Html.Attributes.style "transform" "scale(1)"
+                , htmlAttribute <| Html.Attributes.style "transition" "opacity .25s, transform .25s"
                 ]
 
             else
-                [ Element.htmlAttribute <| Html.Attributes.style "opacity" "0"
-                , Element.htmlAttribute <| Html.Attributes.style "transform" "scale(0.8)"
-                , Element.htmlAttribute <| Html.Attributes.style "transition" "opacity .25s, transform .25s .25s"
+                [ htmlAttribute <| Html.Attributes.style "opacity" "0"
+                , htmlAttribute <| Html.Attributes.style "transform" "scale(0.8)"
+                , htmlAttribute <| Html.Attributes.style "transition" "opacity .25s, transform .25s .25s"
                 ]
     in
-    Element.column
-        [ Element.htmlAttribute <| Html.Attributes.style "position" "fixed"
-        , Element.htmlAttribute <| Html.Attributes.style "width" "100%"
-        , Element.htmlAttribute <| Html.Attributes.style "height" "100%"
-        , Element.htmlAttribute <| Html.Attributes.style "top" "0"
-        , Element.htmlAttribute <| Html.Attributes.style "left" "0"
-        , Element.htmlAttribute <| Html.Attributes.style "pointer-events" "none"
-        , Element.padding 20
+    column
+        [ htmlAttribute <| Html.Attributes.style "position" "fixed"
+        , htmlAttribute <| Html.Attributes.style "width" "100%"
+        , htmlAttribute <| Html.Attributes.style "height" "100%"
+        , htmlAttribute <| Html.Attributes.style "top" "0"
+        , htmlAttribute <| Html.Attributes.style "left" "0"
+        , htmlAttribute <| Html.Attributes.style "pointer-events" "none"
+        , padding 20
         ]
-        [ Element.row
+        [ row
             ([ Element.height (px (calculateHeight (getText state.currentValue)))
-             , Element.width (shrink |> Element.minimum 344 |> Element.maximum internalConfig.maximumWidth)
-             , Element.alignBottom
-             , Element.centerX
+             , Element.width (shrink |> minimum 344 |> maximum internalConfig.maximumWidth)
+             , alignBottom
+             , centerX
              , Element.Background.color theme.colors.gray.dark
              , Element.Border.rounded 4
              , Element.Border.shadow { offset = ( 0, 3 ), size = 0, blur = 3, color = Element.rgba255 140 140 140 0.74 }
              , Element.Font.color white
              , Element.Font.family [ theme.font.main ]
              , Element.Font.size theme.font.smallSize
-             , Element.htmlAttribute <| Html.Attributes.style "pointer-events" "all"
+             , htmlAttribute <| Html.Attributes.style "pointer-events" "all"
              ]
                 ++ htmlAttributes
             )
-            [ Element.el
+            [ el
                 [ Element.width fill
-                , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
-                , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
-                , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
-                , Element.htmlAttribute <| Html.Attributes.style "line-height" "1.6"
-                , Element.paddingEach { left = 16, right = 8, top = 0, bottom = 0 }
+                , htmlAttribute <| Html.Attributes.style "display" "inline-block"
+                , htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                , htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
+                , htmlAttribute <| Html.Attributes.style "line-height" "1.6"
+                , paddingEach { left = 16, right = 8, top = 0, bottom = 0 }
                 ]
-                (Element.html <| Html.text (getText state.currentValue))
-            , Element.el [ Element.width shrink ] (getButton state.currentValue)
+                (html <| Html.text (getText state.currentValue))
+            , el [ Element.width shrink ] (getButton state.currentValue)
             ]
         ]
 

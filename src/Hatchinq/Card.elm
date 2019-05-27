@@ -12,9 +12,9 @@ module Hatchinq.Card exposing
 
 -}
 
-import Element exposing (Element, centerY, fill, px, shrink)
+import Element exposing (Element, centerX, centerY, column, el, fill, height, htmlAttribute, maximum, minimum, padding, paddingEach, paddingXY, px, rgba255, row, shrink, spacing, width)
 import Element.Background as Background
-import Element.Border
+import Element.Border as Border
 import Element.Font as Font
 import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Button as Button
@@ -152,25 +152,25 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                     roundImage url
 
                 Icon url ->
-                    Element.el
-                        [ Element.width (px 40)
-                        , Element.height (px 40)
-                        , Element.paddingXY 26 0
+                    el
+                        [ width (px 40)
+                        , height (px 40)
+                        , paddingXY 26 0
                         ]
-                        (Element.el [ Element.centerX, Element.centerY ] (icon url))
+                        (el [ centerX, centerY ] (icon url))
 
         headers =
-            Element.column
-                [ Element.paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
+            column
+                [ paddingEach { top = 2, bottom = 2, left = 0, right = 8 }
                 , Font.family [ theme.font.main ]
                 , Font.size theme.font.defaultSize
                 , Font.bold
-                , Element.width fill
-                , Element.height shrink
-                , Element.centerY
-                , Element.htmlAttribute <| Html.Attributes.style "display" "inline-block"
-                , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
-                , Element.htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
+                , width fill
+                , height shrink
+                , centerY
+                , htmlAttribute <| Html.Attributes.style "display" "inline-block"
+                , htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                , htmlAttribute <| Html.Attributes.style "text-overflow" "ellipsis"
                 ]
                 [ Element.html <|
                     Html.text
@@ -185,7 +185,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                         Element.none
 
                     Just subHead ->
-                        Element.el
+                        el
                             [ Font.size theme.font.smallerSize
                             , Font.color theme.colors.gray.dark
                             , Font.semiBold
@@ -194,34 +194,34 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                 ]
 
         mediaRow =
-            Element.row
-                [ Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
-                , Element.width fill
-                , Element.height (fill |> Element.maximum 194)
-                , Element.centerX
-                , Element.centerY
+            row
+                [ htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+                , width fill
+                , height (fill |> maximum 194)
+                , centerX
+                , centerY
                 ]
                 [ media ]
 
         contentRow =
-            Element.row
-                ([ Element.width fill
-                 , Element.htmlAttribute <| Html.Attributes.style "overflow" "auto"
-                 , Element.htmlAttribute <| Html.Attributes.style "will-change" "max-height, opacity, padding"
-                 , Element.htmlAttribute <| Html.Attributes.style "transition" "transform 0.25s, opacity 0.25s, max-height 0.25s, padding 0.25s"
+            row
+                ([ width fill
+                 , htmlAttribute <| Html.Attributes.style "overflow" "auto"
+                 , htmlAttribute <| Html.Attributes.style "will-change" "max-height, opacity, padding"
+                 , htmlAttribute <| Html.Attributes.style "transition" "transform 0.25s, opacity 0.25s, max-height 0.25s, padding 0.25s"
                  ]
                     ++ (if (internalConfig.expandable && state.contentExpanded) || not internalConfig.expandable then
-                            [ Element.htmlAttribute <| Html.Attributes.style "opacity" "1"
-                            , Element.height (shrink |> Element.maximum 194)
+                            [ htmlAttribute <| Html.Attributes.style "opacity" "1"
+                            , height (shrink |> maximum 194)
                             ]
 
                         else
-                            [ Element.htmlAttribute <| Html.Attributes.style "opacity" "0"
-                            , Element.height (shrink |> Element.maximum 0)
+                            [ htmlAttribute <| Html.Attributes.style "opacity" "0"
+                            , height (shrink |> maximum 0)
                             ]
                        )
                 )
-                [ Element.el [ Element.paddingEach { left = 0, right = 0, top = 8, bottom = 16 }, Element.width fill, Element.height fill ] content ]
+                [ el [ paddingEach { left = 0, right = 0, top = 8, bottom = 16 }, width fill, height fill ] content ]
 
         toggleContentButton =
             IconButton.configure { theme = theme }
@@ -245,52 +245,52 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                 Element.none
 
             else
-                Element.row
-                    [ Element.width fill
-                    , Element.height shrink
-                    , Element.spacing 8
-                    , Element.padding 8
-                    , Element.htmlAttribute <| Html.Attributes.style "overflow-x" "auto"
+                row
+                    [ width fill
+                    , height shrink
+                    , spacing 8
+                    , padding 8
+                    , htmlAttribute <| Html.Attributes.style "overflow-x" "auto"
                     ]
                     actionsButtons
     in
-    Element.column
-        ([ Element.centerX
-         , Element.centerY
+    column
+        ([ centerX
+         , centerY
          , Font.family [ theme.font.main ]
          , Font.size theme.font.defaultSize
-         , Element.width (fill |> Element.maximum defaultWidth)
-         , Element.height shrink
-         , Element.htmlAttribute <| Html.Attributes.style "overflow" "hidden"
-         , Element.Border.color theme.colors.gray.lightest
-         , Element.Border.shadow { offset = ( 0, 0 ), size = 0, blur = 3, color = Element.rgba255 140 140 140 0.58 }
-         , Element.mouseOver [ Background.color theme.colors.gray.lightest, Element.Border.shadow { offset = ( 0, 2 ), size = 2, blur = 4, color = Element.rgba255 140 140 140 0.58 } ]
-         , Element.Border.rounded 4
-         , Element.htmlAttribute <| Html.Attributes.style "transition" "box-shadow 0.1s"
+         , width (fill |> maximum defaultWidth)
+         , height shrink
+         , htmlAttribute <| Html.Attributes.style "overflow" "hidden"
+         , Border.color theme.colors.gray.lightest
+         , Border.shadow { offset = ( 0, 0 ), size = 0, blur = 3, color = rgba255 140 140 140 0.58 }
+         , Element.mouseOver [ Background.color theme.colors.gray.lightest, Border.shadow { offset = ( 0, 2 ), size = 2, blur = 4, color = rgba255 140 140 140 0.58 } ]
+         , Border.rounded 4
+         , htmlAttribute <| Html.Attributes.style "transition" "box-shadow 0.1s"
          ]
             ++ toElement attributes
         )
         (case internalConfig.layout of
             MediaCenter ->
-                [ Element.row
-                    [ Element.width (fill |> Element.minimum 344)
-                    , Element.height (shrink |> Element.maximum 80)
-                    , Element.paddingEach { left = 0, right = 0, top = 16, bottom = 16 }
-                    , Element.centerY
+                [ row
+                    [ width (fill |> minimum 344)
+                    , height (shrink |> maximum 80)
+                    , paddingEach { left = 0, right = 0, top = 16, bottom = 16 }
+                    , centerY
                     ]
                     [ imageOrIcon
                     , headers
                     ]
                 , mediaRow
-                , Element.row
-                    [ Element.width fill
-                    , Element.paddingEach { left = 16, right = 16, top = 8, bottom = 0 }
+                , row
+                    [ width fill
+                    , paddingEach { left = 16, right = 16, top = 8, bottom = 0 }
                     ]
                     [ contentRow ]
-                , Element.row [ Element.width fill ]
+                , row [ width fill ]
                     [ buttonsRow
                     , if internalConfig.expandable then
-                        Element.el [ Element.paddingXY 8 8, Element.alignRight ] toggleContentButton
+                        el [ paddingXY 8 8, Element.alignRight ] toggleContentButton
 
                       else
                         Element.none
@@ -299,23 +299,23 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
 
             MediaTop ->
                 [ mediaRow
-                , Element.row
-                    [ Element.width (fill |> Element.minimum 344)
-                    , Element.height (shrink |> Element.maximum 80)
-                    , Element.paddingEach { left = 0, right = 0, top = 8, bottom = 8 }
-                    , Element.centerY
+                , row
+                    [ width (fill |> minimum 344)
+                    , height (shrink |> maximum 80)
+                    , paddingEach { left = 0, right = 0, top = 8, bottom = 8 }
+                    , centerY
                     ]
                     [ imageOrIcon
                     , headers
                     , if internalConfig.expandable then
-                        Element.el [ Element.paddingXY 8 0 ] toggleContentButton
+                        el [ paddingXY 8 0 ] toggleContentButton
 
                       else
                         Element.none
                     ]
-                , Element.row
-                    [ Element.width fill
-                    , Element.paddingEach { left = 16, right = 16, top = 0, bottom = 0 }
+                , row
+                    [ width fill
+                    , paddingEach { left = 16, right = 16, top = 0, bottom = 0 }
                     ]
                     [ contentRow ]
                 , buttonsRow
