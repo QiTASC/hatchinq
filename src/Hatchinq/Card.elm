@@ -207,12 +207,12 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
             Element.row
                 ([ Element.width fill
                  , Element.htmlAttribute <| Html.Attributes.style "overflow" "auto"
-                 , Element.htmlAttribute <| Html.Attributes.style "transition" "transform 0.25s, opacity 0.25s, max-height 0.25s"
+                 , Element.htmlAttribute <| Html.Attributes.style "will-change" "max-height, opacity, padding"
+                 , Element.htmlAttribute <| Html.Attributes.style "transition" "transform 0.25s, opacity 0.25s, max-height 0.25s, padding 0.25s"
                  ]
                     ++ (if (internalConfig.expandable && state.contentExpanded) || not internalConfig.expandable then
                             [ Element.htmlAttribute <| Html.Attributes.style "opacity" "1"
                             , Element.height (shrink |> Element.maximum 194)
-                            , Element.paddingEach { left = 0, right = 0, top = 8, bottom = 0 }
                             ]
 
                         else
@@ -221,7 +221,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                             ]
                        )
                 )
-                [ content ]
+                [ Element.el [ Element.paddingEach { left = 0, right = 0, top = 8, bottom = 16 }, Element.width fill, Element.height fill ] content ]
 
         toggleContentButton =
             IconButton.configure { theme = theme }
@@ -247,10 +247,9 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
             else
                 Element.row
                     [ Element.width fill
-                    , Element.height (shrink |> Element.minimum 48)
+                    , Element.height shrink
                     , Element.spacing 8
-                    , Element.paddingEach { left = 8, right = 8, top = 8, bottom = 8 }
-                    , Element.htmlAttribute <| Html.Attributes.style "transition" "box-shadow 0.1s"
+                    , Element.padding 8
                     , Element.htmlAttribute <| Html.Attributes.style "overflow-x" "auto"
                     ]
                     actionsButtons
@@ -285,15 +284,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                 , mediaRow
                 , Element.row
                     [ Element.width fill
-                    , if internalConfig.expandable then
-                        if state.contentExpanded then
-                            Element.paddingEach { left = 16, right = 16, top = 8, bottom = 0 }
-
-                        else
-                            Element.paddingEach { left = 16, right = 16, top = 0, bottom = 0 }
-
-                      else
-                        Element.paddingEach { left = 16, right = 16, top = 8, bottom = 0 }
+                    , Element.paddingEach { left = 16, right = 16, top = 8, bottom = 0 }
                     ]
                     [ contentRow ]
                 , Element.row [ Element.width fill ]
@@ -311,15 +302,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                 , Element.row
                     [ Element.width (fill |> Element.minimum 344)
                     , Element.height (shrink |> Element.maximum 80)
-                    , if internalConfig.expandable then
-                        if state.contentExpanded then
-                            Element.paddingEach { left = 0, right = 0, top = 8, bottom = 8 }
-
-                        else
-                            Element.paddingEach { left = 0, right = 0, top = 8, bottom = 0 }
-
-                      else
-                        Element.paddingEach { left = 0, right = 0, top = 8, bottom = 8 }
+                    , Element.paddingEach { left = 0, right = 0, top = 8, bottom = 8 }
                     , Element.centerY
                     ]
                     [ imageOrIcon
@@ -332,11 +315,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
                     ]
                 , Element.row
                     [ Element.width fill
-                    , if buttonsRow == Element.none then
-                        Element.paddingEach { left = 16, right = 16, top = 0, bottom = 8 }
-
-                      else
-                        Element.paddingEach { left = 16, right = 16, top = 0, bottom = 0 }
+                    , Element.paddingEach { left = 16, right = 16, top = 0, bottom = 0 }
                     ]
                     [ contentRow ]
                 , buttonsRow

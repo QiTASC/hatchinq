@@ -1132,12 +1132,19 @@ mainContent model =
                     , thumbnail = Image "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png"
                     , content =
                         Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable, does not have buttons and uses an image as the thumbnail." ]
-                    , actions = []
+                    , actions =
+                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        , ( "Button 3", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 4", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        , ( "Button 5", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 6", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        ]
                     , state = model.cardState
                     }
                 )
             , Element.el [ Element.alignTop ]
-                (card [ Card.layout MediaTop ]
+                (card [ Card.layout MediaTop, Card.expandable ]
                     { media =
                         html
                             (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
