@@ -10,12 +10,15 @@ import Browser
 import Browser.Dom
 import Browser.Events
 import Delay exposing (TimeUnit(..))
-import Element exposing (Element, alignTop, fill, inFront, padding, px, shrink, spacing)
+import Element exposing (Element, alignRight, alignTop, centerX, centerY, fill, html, inFront, layout, padding, paddingXY, px, shrink, spacing)
+import Element.Background as Background
 import Element.Border
 import Element.Events
+import Element.Font as Font
 import Hatchinq.AppBar as AppBar
-import Hatchinq.Attribute exposing (Attribute, height, id, width, withAttributes)
+import Hatchinq.Attribute as Html exposing (Attribute, height, id, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
+import Hatchinq.Card as Card exposing (Layout(..), Thumbnail(..))
 import Hatchinq.Checkbox as Checkbox exposing (..)
 import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
@@ -30,7 +33,8 @@ import Hatchinq.TabBar as TabBar exposing (TabButtons(..))
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
 import Hatchinq.Tree as Tree
-import Html exposing (Html)
+import Html exposing (Html, img)
+import Html.Attributes exposing (src)
 import List
 import Set exposing (Set)
 import Task
@@ -131,6 +135,7 @@ type Msg
     | SnackbarAlert (Content Msg)
     | TabBarLift (TabBar.Message Msg)
     | TabBarSelect TabType
+    | CardLift (Card.Message Msg)
     | NoOp
 
 
@@ -254,6 +259,10 @@ tabBar =
     TabBar.configure { theme = theme, lift = TabBarLift }
 
 
+card =
+    Card.configure { theme = theme, lift = CardLift }
+
+
 type alias Model =
     { counter : Int
     , inputValue : String
@@ -289,6 +298,7 @@ type alias Model =
     , selectedTab : TabType
     , tabBarState : TabBar.State
     , windowSize : ( Int, Int )
+    , cardState : Card.State
     , progressIndicator1 : Progress
     , progressIndicatorVisiblity1 : Bool
     , progressIndicator2 : Progress
@@ -336,6 +346,7 @@ init _ =
       , selectedPerson = Nothing
       , filesTreeState = Tree.init
       , snackbarState = Snackbar.init
+      , cardState = Card.init
       , selectedTab = MainTab
       , tabBarState = TabBar.init
       , windowSize = ( 0, 0 )
@@ -612,6 +623,13 @@ update msg model =
 
         TabBarSelect tab ->
             ( { model | selectedTab = tab }, Cmd.none )
+
+        CardLift internalMsg ->
+            let
+                ( state, cmd ) =
+                    Card.update CardLift internalMsg model.cardState
+            in
+            ( { model | cardState = state }, cmd )
 
         NoOp ->
             ( model, Cmd.none )
@@ -1086,6 +1104,71 @@ mainContent model =
                         , state = model.list1State
                         }
                     )
+                )
+            ]
+        , Element.row
+            [ Element.spacing 24 ]
+            [ Element.el [ Element.alignTop ]
+                (card []
+                    { media =
+                        html
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
+                    , titles = { head = "MediaCenter With Header and Subheader", subHead = Just "Here is a very long subtitle that does not fit within the allotted space. The overflow of this is handled by an ellipsis." }
+                    , thumbnail = Image "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png"
+                    , content = Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is not expandable and it uses an image as the Thumbnail. It has some simple text content in a paragraph which does not require scrollbars to view in its entirety." ]
+                    , actions =
+                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        ]
+                    , state = model.cardState
+                    }
+                )
+            , Element.el [ Element.alignTop ]
+                (card [ Card.expandable ]
+                    { media =
+                        html
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
+                    , titles = { head = "Header Only", subHead = Nothing }
+                    , thumbnail = Image "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png"
+                    , content =
+                        Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable and uses an image as the thumbnail. It has a horizontal scrollbar because all of the buttons do not fit within the card width." ]
+                    , actions =
+                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        , ( "Button 3", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 4", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        , ( "Button 5", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 6", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        ]
+                    , state = model.cardState
+                    }
+                )
+            , Element.el [ Element.alignTop ]
+                (card [ Card.layout MediaTop, Card.expandable ]
+                    { media =
+                        html
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
+                    , titles = { head = "MediaTop", subHead = Just "With Subheader" }
+                    , thumbnail = Icon "location_city"
+                    , content = Element.el [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] (Element.text "This card has the following:\n\n- Header\n\n- Subheader\n\n- Buttons\n\n- Content\n\nIt uses a different icon as the Thumbnail and has both a Header and Subheader.\nThe content of this card is too large for the provided display area. Therefore, horizontal and vertical scrollbars are present.")
+                    , actions =
+                        [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
+                        , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
+                        ]
+                    , state = model.cardState
+                    }
+                )
+            , Element.el [ Element.alignTop ]
+                (card [ Card.layout MediaTop, Card.expandable ]
+                    { media =
+                        html
+                            (Html.img [ Html.Attributes.style "width" "100%", Html.Attributes.style "height" "100%", Html.Attributes.style "object-fit" "cover", Html.Attributes.src "https://homepages.cae.wisc.edu/~ece533/images/goldhill.bmp" ] [])
+                    , titles = { head = "MediaTop Header Only", subHead = Nothing }
+                    , thumbnail = Icon "settings"
+                    , content = Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable and does not have buttons." ]
+                    , actions = []
+                    , state = model.cardState
+                    }
                 )
             ]
         , Element.row [ Element.width fill, spacing 16 ]
