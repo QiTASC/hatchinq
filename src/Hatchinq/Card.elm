@@ -1,14 +1,11 @@
-module Hatchinq.Card exposing
-    ( Config, Layout(..), Message(..), State, Thumbnail(..), View, configure, expandable, init, layout, update
-    , Title
-    )
+module Hatchinq.Card exposing (Config, Layout(..), Message(..), State, Thumbnail(..), Title, View, configure, expandable, init, layout, update)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Layout, Message, State, Thumbnail, View, configure, expandable, init, layout, update
+@docs Config, Layout, Message, State, Thumbnail, Title, View, configure, expandable, init, layout, update
 
 -}
 
@@ -18,8 +15,8 @@ import Element.Border as Border
 import Element.Font as Font
 import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Button as Button
+import Hatchinq.Common exposing (roundImage)
 import Hatchinq.IconButton as IconButton
-import Hatchinq.List exposing (roundImage)
 import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
 import Hatchinq.Util exposing (takeFirstNLines)
 import Html

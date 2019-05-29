@@ -1,7 +1,4 @@
-module Hatchinq.List exposing
-    ( Config, Message, State, View, configure, control, imageSrc, init, itemsCount, secondaryText, update
-    , roundImage
-    )
+module Hatchinq.List exposing (Config, Message, State, View, configure, control, imageSrc, init, itemsCount, secondaryText, update)
 
 {-|
 
@@ -17,6 +14,7 @@ import Element.Background as Background
 import Element.Events as Events
 import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
+import Hatchinq.Common exposing (roundImage)
 import Hatchinq.Theme exposing (Theme, textWithEllipsis)
 import Html
 import Html.Attributes
@@ -278,21 +276,4 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
         (itemAttributes ++ controlAttributes)
         (Element.el textAttributes (data.toPrimaryText item |> textWithEllipsis)
             :: secondaryTextElements
-        )
-
-
-roundImage : String -> Element msg
-roundImage src =
-    Element.el [ centerY, paddingXY 16 0 ]
-        (html
-            (Html.img
-                [ Html.Attributes.src src
-                , Html.Attributes.alt ""
-                , Html.Attributes.width 40
-                , Html.Attributes.height 40
-                , Html.Attributes.style "border-radius" "50%"
-                , Html.Attributes.style "object-fit" "cover"
-                ]
-                []
-            )
         )
