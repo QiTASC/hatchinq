@@ -10,7 +10,7 @@ import Browser
 import Browser.Dom
 import Browser.Events
 import Delay exposing (TimeUnit(..))
-import Element exposing (Element, alignRight, alignTop, centerX, centerY, fill, html, inFront, layout, padding, paddingXY, px, shrink, spacing)
+import Element exposing (Element, alignTop, fill, html, inFront, padding, paddingXY, px, shrink, spacing)
 import Element.Background as Background
 import Element.Border
 import Element.Events
@@ -18,8 +18,10 @@ import Element.Font as Font
 import Hatchinq.AppBar as AppBar
 import Hatchinq.Attribute as Html exposing (Attribute, height, id, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
-import Hatchinq.Card as Card exposing (Layout(..), Thumbnail(..))
+import Hatchinq.Card as Card exposing (Layout(..))
 import Hatchinq.Checkbox as Checkbox exposing (..)
+import Hatchinq.Chip as Chip
+import Hatchinq.Common exposing (Thumbnail(..))
 import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton exposing (..)
@@ -58,7 +60,8 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
-        , Time.every 10 Tick
+
+        --        , Time.every 10 Tick
         ]
 
 
@@ -136,6 +139,7 @@ type Msg
     | TabBarLift (TabBar.Message Msg)
     | TabBarSelect TabType
     | CardLift (Card.Message Msg)
+    | ChipLift (Chip.Message Msg)
     | NoOp
 
 
@@ -263,6 +267,10 @@ card =
     Card.configure { theme = theme, lift = CardLift }
 
 
+chip =
+    Chip.configure { theme = theme, lift = ChipLift }
+
+
 type alias Model =
     { counter : Int
     , inputValue : String
@@ -299,6 +307,7 @@ type alias Model =
     , tabBarState : TabBar.State
     , windowSize : ( Int, Int )
     , cardState : Card.State
+    , chipState : Chip.State
     , progressIndicator1 : Progress
     , progressIndicatorVisiblity1 : Bool
     , progressIndicator2 : Progress
@@ -347,6 +356,7 @@ init _ =
       , filesTreeState = Tree.init
       , snackbarState = Snackbar.init
       , cardState = Card.init
+      , chipState = Chip.init
       , selectedTab = MainTab
       , tabBarState = TabBar.init
       , windowSize = ( 0, 0 )
@@ -630,6 +640,13 @@ update msg model =
                     Card.update CardLift internalMsg model.cardState
             in
             ( { model | cardState = state }, cmd )
+
+        ChipLift internalMsg ->
+            let
+                ( state, cmd ) =
+                    Chip.update ChipLift internalMsg model.chipState
+            in
+            ( { model | chipState = state }, cmd )
 
         NoOp ->
             ( model, Cmd.none )
@@ -1131,7 +1148,31 @@ mainContent model =
                     , titles = { head = "Header Only", subHead = Nothing }
                     , thumbnail = Image "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png"
                     , content =
-                        Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable and uses an image as the thumbnail. It has a horizontal scrollbar because all of the buttons do not fit within the card width." ]
+                        Element.column [ Element.spacing 8 ]
+                            [ Element.row []
+                                [ chip [ Chip.dismissible ]
+                                    { image = Icon "settings"
+                                    , text = "Some Text"
+                                    , state = model.chipState
+                                    }
+                                ]
+                            , Element.row []
+                                [ chip [ Chip.dismissible ]
+                                    { image = Image "https://upload.wikimedia.org/wikipedia/commons/3/39/Lichtenstein_img_processing_test.png"
+                                    , text = "Some Text"
+                                    , state = model.chipState
+                                    }
+                                ]
+                            , Element.row []
+                                [ chip []
+                                    { image = Icon "whatshot"
+                                    , text = "Some Text"
+                                    , state = model.chipState
+                                    }
+                                ]
+                            ]
+
+                    --                        Element.paragraph [ Element.paddingEach { left = 4, right = 4, top = 4, bottom = 4 } ] [ Element.text "This card is expandable and uses an image as the thumbnail. It has a horizontal scrollbar because all of the buttons do not fit within the card width." ]
                     , actions =
                         [ ( "Button 1", SnackbarAlert (Plain "Snackbar message") )
                         , ( "Button 2", SnackbarAlert (WithAction "Snackbar message with action" "Repeat" (SnackbarAlert (Plain "Snackbar message"))) )
@@ -1171,14 +1212,15 @@ mainContent model =
                     }
                 )
             ]
-        , Element.row [ Element.width fill, spacing 16 ]
-            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular ] { progress = model.progressIndicator1 }
-            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear BottomUp ] { progress = model.progressIndicator1 }
-            ]
-        , Element.row [ Element.width fill, spacing 16 ]
-            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
-            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
-            ]
+
+        --        , Element.row [ Element.width fill, spacing 16 ]
+        --            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular ] { progress = model.progressIndicator1 }
+        --            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear BottomUp ] { progress = model.progressIndicator1 }
+        --            ]
+        --        , Element.row [ Element.width fill, spacing 16 ]
+        --            [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
+        --            , progressIndicator [ visibility model.progressIndicatorVisiblity1, linear TopDown, startDelaySeconds 0.5 ] { progress = model.progressIndicator2 }
+        --            ]
         , Element.row [ spacing 16 ]
             [ button [] { label = "Snackbar", onPress = Just (SnackbarAlert (Plain "Snackbar message")) }
             , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Alert Again" (SnackbarAlert (Plain "Tried again but failed")))) }

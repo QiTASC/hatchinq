@@ -1,4 +1,4 @@
-module Hatchinq.Card exposing (Config, Layout(..), Message(..), State, Thumbnail(..), Title, View, configure, expandable, init, layout, update)
+module Hatchinq.Card exposing (Config, Layout(..), Message(..), State, Title, View, configure, expandable, init, layout, update)
 
 {-|
 
@@ -15,7 +15,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Button as Button
-import Hatchinq.Common exposing (roundImage)
+import Hatchinq.Common exposing (Thumbnail(..), roundImage)
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
 import Hatchinq.Util exposing (takeFirstNLines)
@@ -60,12 +60,6 @@ type alias Title =
 
 
 {-| -}
-type Thumbnail
-    = Icon String
-    | Image String
-
-
-{-| -}
 init : State
 init =
     { contentExpanded = False
@@ -99,7 +93,7 @@ type Message msg
 
 {-| -}
 update : (Message msg -> msg) -> Message msg -> State -> ( State, Cmd msg )
-update lift message state =
+update _ message state =
     case message of
         ToggleExpanded ->
             ( { state | contentExpanded = not state.contentExpanded }, Cmd.none )

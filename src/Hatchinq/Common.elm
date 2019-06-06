@@ -1,4 +1,4 @@
-module Hatchinq.Common exposing (roundImage)
+module Hatchinq.Common exposing (Thumbnail(..), roundImage)
 
 import Element exposing (Element, centerY, html, paddingXY)
 import Html
@@ -20,3 +20,9 @@ roundImage src =
                 []
             )
         )
+
+
+{-| -}
+type Thumbnail
+    = Icon String
+    | Image String

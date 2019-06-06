@@ -1,4 +1,7 @@
-module Hatchinq.IconButton exposing (Config, View, configure, filled, stopPropagation, withTextColor, white)
+module Hatchinq.IconButton exposing
+    ( Config, View, configure, filled, stopPropagation, withTextColor, white
+    , fontSize
+    )
 
 {-|
 
@@ -9,12 +12,14 @@ module Hatchinq.IconButton exposing (Config, View, configure, filled, stopPropag
 
 -}
 
-import Element exposing (Color, Element, centerX, centerY, focused, height, mouseOver, px, width)
+import Debug exposing (toString)
+import Element exposing (Color, Element, centerX, centerY, focused, height, html, mouseOver, px, width)
 import Element.Background as Background
 import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Color as Color
 import Hatchinq.Theme as Theme exposing (Theme, black, icon)
+import Html
 import Html.Attributes
 import Html.Events
 import Json.Decode as Decode
@@ -34,6 +39,7 @@ type alias InternalConfig =
     { iconButtonType : IconButtonType
     , stopPropagation : Bool
     , textColor : Maybe Color
+    , fontSize : Int
     }
 
 
@@ -79,6 +85,12 @@ white =
 
 
 {-| -}
+fontSize : Int -> Attribute InternalConfig
+fontSize size =
+    custom (\v -> { v | fontSize = size })
+
+
+{-| -}
 withTextColor : Color -> Attribute InternalConfig
 withTextColor color =
     custom (\v -> { v | textColor = Just color })
@@ -91,6 +103,7 @@ view { theme } source data =
             { iconButtonType = Default
             , stopPropagation = False
             , textColor = Nothing
+            , fontSize = 24
             }
 
         internalConfig =
@@ -157,7 +170,6 @@ view { theme } source data =
              , width (px (theme.sizes.minRowHeight - 8))
              , Element.htmlAttribute (Html.Attributes.style "border-radius" "50%")
              , Font.family [ theme.font.main ]
-             , Font.size 24
              , Font.bold
              , Font.center
              ]
@@ -165,7 +177,7 @@ view { theme } source data =
                 ++ attributes
                 ++ onClickMsg
             )
-            (Element.el [ centerX, centerY ] (icon data.icon))
+            (Element.el [ centerX, centerY ] (Html.i [ Html.Attributes.class "material-icons", Html.Attributes.style "user-select" "none", Html.Attributes.style "font-size" (toString internalConfig.fontSize ++ "px") ] [ Html.text data.icon ] |> html))
         )
 
 
