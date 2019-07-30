@@ -1,4 +1,12 @@
-module Hatchinq.Divider exposing (Config, InternalConfig, configure, view, withColor)
+module Hatchinq.Divider exposing (Config, configure, view, withColor)
+
+{-|
+
+# Exposed
+
+@docs Config, configure, view, withColor
+
+-}
 
 import Element exposing (Color, Element, el, fill, height, none, padding, px, width)
 import Element.Background as Background
