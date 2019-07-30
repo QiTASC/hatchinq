@@ -183,7 +183,7 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
             , Background.color transparent
             , Border.width 0
             , focused []
-            , Element.htmlAttribute <| Attr.disabled isDisabled
+            , htmlAttribute <| Attr.disabled isDisabled
             , paddingEach
                 { left = 12
                 , top =
@@ -191,9 +191,9 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
                         3
 
                     else
-                        0
+                        6
                 , right = 12
-                , bottom = 0
+                , bottom = 10
                 }
             ]
     in
@@ -237,7 +237,7 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
         )
         (if internalConfig.multiline then
             Input.multiline
-                ([ htmlAttribute <| Attr.attribute "rows" "1", htmlAttribute <| Attr.value value ] ++ inputAttributes)
+                ([ htmlAttribute <| Attr.attribute "rows" "1" ] ++ inputAttributes)
                 { onChange = onChange |> Maybe.withDefault (lift << Impossible)
                 , text = value
                 , placeholder = Nothing
@@ -247,7 +247,7 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
 
          else
             Input.text
-                ([ htmlAttribute <| Attr.value value ] ++ inputAttributes)
+                inputAttributes
                 { onChange = onChange |> Maybe.withDefault (lift << Impossible)
                 , text = value
                 , placeholder = Nothing

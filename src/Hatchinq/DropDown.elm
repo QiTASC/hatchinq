@@ -98,7 +98,7 @@ update msg model =
         CloseSelect ->
             ( { model | uiState = Closed, focusedItem = Nothing }, Cmd.none )
 
-        Select value onSelect ->
+        Select _ onSelect ->
             ( { model | uiState = Closed, focusedItem = Nothing }
             , case onSelect of
                 Just onSelectMsg ->
@@ -252,7 +252,7 @@ view config attributes data =
                     , if q == "" then
                         Maybe.map
                             (\t ->
-                                Input.placeholder [] (el [ width fill, height fill, paddingEach { left = 0, top = 5, right = 0, bottom = 0 } ] (textWithEllipsis <| converter t))
+                                Input.placeholder [] (el [ width fill, height fill ] (textWithEllipsis <| converter t))
                             )
                             data.value
 
@@ -418,7 +418,7 @@ view config attributes data =
                 :: (htmlAttribute <| Attr.style "display" "inline-block")
                 :: (htmlAttribute <| Attr.style "overflow" "hidden")
                 :: (htmlAttribute <| Attr.style "text-overflow" "ellipsis")
-                :: paddingEach { left = 12, top = 20, right = 32, bottom = 4 }
+                :: paddingEach { left = 12, top = 32, right = 32, bottom = 4 }
                 :: inFront labelElement
                 :: Events.onClick (lift <| OpenSelect selectedItemIndex)
                 :: (Events.onLoseFocus <|
@@ -456,7 +456,7 @@ view config attributes data =
             :: elementAttributes
         )
         (Input.text
-            (inputStyledAttributes ++ inputAttributes ++ inputHoverAttributes ++ elementAttributes ++ [ htmlAttribute <| Attr.value text ])
+            (inputStyledAttributes ++ inputAttributes ++ inputHoverAttributes ++ elementAttributes)
             { onChange = \newQuery -> lift <| SearchInput (Query newQuery)
             , text = text
             , placeholder = placeholder

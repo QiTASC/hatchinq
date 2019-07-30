@@ -58,7 +58,7 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
-        , Time.every 10 Tick
+        --, Time.every 10 Tick
         ]
 
 
@@ -366,6 +366,9 @@ init _ =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    let
+        a = Debug.log "" msg
+    in
     case msg of
         PressMinus ->
             ( { model | counter = model.counter - 1 }, Cmd.none )
@@ -450,7 +453,7 @@ update msg model =
             in
             ( { model | dataTable = newState }, cmd )
 
-        DataTableSortChange columnIndex sortOrder ->
+        DataTableSortChange _ sortOrder ->
             let
                 newPersons =
                     case sortOrder of
@@ -638,10 +641,14 @@ update msg model =
 
 -- todo open navigation
 
+noOutline = Element.focusStyle { borderColor = Nothing
+                                , backgroundColor = Nothing
+                                , shadow = Nothing
+                                }
 
 view : Model -> Html Msg
 view model =
-    Element.layout
+    Element.layoutWith { options = [ noOutline ]}
         [ inFront
             (appBar [ AppBar.navigate ToggleNavigation, AppBar.elevate True ]
                 { title = Element.text "Hatchinq Examples"
