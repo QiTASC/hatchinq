@@ -10,17 +10,16 @@ import Browser
 import Browser.Dom
 import Browser.Events
 import Delay exposing (TimeUnit(..))
-import Element exposing (Element, alignRight, alignTop, centerX, centerY, fill, html, inFront, layout, padding, paddingXY, px, shrink, spacing)
-import Element.Background as Background
+import Element exposing (Element, alignTop, fill, html, inFront, padding, px, shrink, spacing)
 import Element.Border
 import Element.Events
-import Element.Font as Font
 import Hatchinq.AppBar as AppBar
 import Hatchinq.Attribute as Html exposing (Attribute, height, id, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
 import Hatchinq.Card as Card exposing (Layout(..), Thumbnail(..))
 import Hatchinq.Checkbox as Checkbox exposing (..)
 import Hatchinq.DataTable as DataTable exposing (..)
+import Hatchinq.Divider as Divider exposing (withColor)
 import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.List as MaterialList exposing (..)
@@ -33,8 +32,8 @@ import Hatchinq.TabBar as TabBar exposing (TabButtons(..))
 import Hatchinq.TextField as TextField exposing (..)
 import Hatchinq.Theme as Theme exposing (..)
 import Hatchinq.Tree as Tree
-import Html exposing (Html, img)
-import Html.Attributes exposing (src)
+import Html exposing (Html)
+import Html.Attributes
 import List
 import Set exposing (Set)
 import Task
@@ -58,6 +57,7 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
+
         --, Time.every 10 Tick
         ]
 
@@ -263,6 +263,10 @@ card =
     Card.configure { theme = theme, lift = CardLift }
 
 
+divider =
+    Divider.configure { theme = theme }
+
+
 type alias Model =
     { counter : Int
     , inputValue : String
@@ -367,7 +371,8 @@ init _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        a = Debug.log "" msg
+        a =
+            Debug.log "" msg
     in
     case msg of
         PressMinus ->
@@ -641,14 +646,18 @@ update msg model =
 
 -- todo open navigation
 
-noOutline = Element.focusStyle { borderColor = Nothing
-                                , backgroundColor = Nothing
-                                , shadow = Nothing
-                                }
+
+noOutline =
+    Element.focusStyle
+        { borderColor = Nothing
+        , backgroundColor = Nothing
+        , shadow = Nothing
+        }
+
 
 view : Model -> Html Msg
 view model =
-    Element.layoutWith { options = [ noOutline ]}
+    Element.layoutWith { options = [ noOutline ] }
         [ inFront
             (appBar [ AppBar.navigate ToggleNavigation, AppBar.elevate True ]
                 { title = Element.text "Hatchinq Examples"
@@ -1195,4 +1204,6 @@ mainContent model =
                 { state = model.snackbarState
                 }
             )
+        , divider [ withColor theme.colors.primary.color ]
+        , divider []
         ]
