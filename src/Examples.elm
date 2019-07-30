@@ -370,10 +370,6 @@ init _ =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let
-        a =
-            Debug.log "" msg
-    in
     case msg of
         PressMinus ->
             ( { model | counter = model.counter - 1 }, Cmd.none )
