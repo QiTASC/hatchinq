@@ -3,7 +3,7 @@
     "name": "QiTASC/hatchinq",
     "summary": "An experimental library for UI elements. Not for production use.",
     "license": "Apache-2.0",
-    "version": "11.5.0",
+    "version": "12.0.0",
     "exposed-modules": [
         "Examples",
         "Hatchinq.AppBar",
@@ -17,6 +17,7 @@
         "Hatchinq.DropDown",
         "Hatchinq.IconButton",
         "Hatchinq.List",
+        "Hatchinq.Menu",
         "Hatchinq.Paginator",
         "Hatchinq.ProgressIndicator",
         "Hatchinq.RadioButton",
