@@ -61,6 +61,7 @@ type alias AppBarButton msg =
     { id : Maybe String
     , icon : String
     , message : msg
+    , attributes : List (Element.Attribute msg)
     }
 
 
@@ -140,7 +141,7 @@ view { theme } source data =
         (Element.row [ width fill, Element.spacing 16 ]
             [ case internalView.navigation of
                 Just message ->
-                    iconButton theme { id = Nothing, icon = "menu", message = message }
+                    iconButton theme { id = Nothing, icon = "menu", message = message, attributes = [] }
 
                 Nothing ->
                     Element.none
@@ -171,10 +172,11 @@ iconButton theme a =
                , width (px 40)
                , height (px 40)
                , Element.htmlAttribute
-                    (Html.Attributes.class "button focusWhiteRipple")
+                    (Html.Attributes.class "button appbar focusWhiteRipple")
                , mouseOver
                     [ Background.color theme.colors.gray.light ]
                , pointer
                ]
+            ++ a.attributes
         )
         (Element.el [ centerX, centerY ] (icon a.icon))

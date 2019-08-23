@@ -332,6 +332,14 @@ stylesheet theme =
                             transition: transform .25s, opacity 1s;
                         }
 
+                        .button.appbar {
+                            overflow: visible;
+                        }
+
+                        .button.appbar:after {
+                            transform: scale(7, 7);
+                        }
+
                         .button:active:after {
                             transform: scale(0, 0);
                             opacity: 1;
