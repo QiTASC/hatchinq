@@ -13,11 +13,11 @@ import Element exposing (Element, centerX, centerY, column, el, fill, height, ht
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toInternalConfig)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Button as Button
-import Hatchinq.Common exposing (roundImage)
 import Hatchinq.IconButton as IconButton
-import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
+import Hatchinq.RoundImage exposing (roundImage)
+import Hatchinq.Theme exposing (Theme, icon, textWithEllipsis)
 import Hatchinq.Util exposing (takeFirstNLines)
 import Html
 import Html.Attributes
@@ -146,7 +146,7 @@ view { theme, lift } attributes { media, titles, thumbnail, content, actions, st
         imageOrIcon =
             case thumbnail of
                 Image url ->
-                    roundImage url
+                    roundImage 40 40 [ centerY, paddingXY 16 0 ] url
 
                 Icon url ->
                     el
