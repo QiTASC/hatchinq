@@ -1,10 +1,11 @@
-module Hatchinq.Menu exposing (MenuItem(..), Message(..), State, View, configure, init, update)
+module Hatchinq.Menu exposing (MenuItem(..), Message(..), State, View, configure, init, subscriptions, update)
 
+import Browser.Events
 import Element exposing (Element, Length, centerY, column, el, fill, height, htmlAttribute, minimum, mouseOver, paddingXY, pointer, px, scale, spacing, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Hatchinq.Attribute exposing (Attribute, toElement)
+import Hatchinq.Attribute exposing (Attribute, id, toElement)
 import Hatchinq.Divider as Divider exposing (withColor)
 import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
 import Html.Attributes as Attr
@@ -27,6 +28,58 @@ type alias Config msg =
 type alias State =
     { isOpen : Bool
     }
+
+
+subscriptions : Config msg -> State -> (Message msg -> msg) -> Sub msg
+subscriptions config state lift =
+    if state.isOpen then
+        Browser.Events.onMouseDown (outsideTarget "menu")
+            |> Sub.map lift
+
+    else
+        Sub.none
+
+
+
+-- Todo move to utils
+
+
+outsideTarget : String -> Decode.Decoder (Message msg)
+outsideTarget menuId =
+    Decode.field "target" (isOutsideDropdown menuId)
+        |> Decode.andThen
+            (\isOutside ->
+                if isOutside then
+                    Decode.succeed (CloseMenu Nothing)
+
+                else
+                    Decode.fail "Inside menu"
+            )
+
+
+
+-- Todo move to utils
+
+
+isOutsideDropdown : String -> Decode.Decoder Bool
+isOutsideDropdown dropdownId =
+    Decode.oneOf
+        [ Decode.field "id" Decode.string
+            |> Decode.andThen
+                (\id ->
+                    if dropdownId == id then
+                        -- found match by id
+                        Decode.succeed False
+
+                    else
+                        -- try next decoder
+                        Decode.fail "continue"
+                )
+        , Decode.lazy (\_ -> isOutsideDropdown dropdownId |> Decode.field "parentNode")
+
+        -- fallback if all previous decoders failed
+        , Decode.succeed True
+        ]
 
 
 init : State
@@ -93,7 +146,8 @@ menuBody : Config msg -> List (Element.Attribute msg) -> View msg -> Element msg
 menuBody config attributes { items, state } =
     let
         standardBodyAttributes =
-            [ Border.rounded 4
+            [ Element.htmlAttribute <| Attr.id "menu"
+            , Border.rounded 4
             , Background.color Theme.white
             , paddingXY 0 8
             , width (minimum 112 fill)
@@ -105,7 +159,6 @@ menuBody config attributes { items, state } =
                 True ->
                     htmlAttribute (Attr.style "opacity" "1")
                         :: scale 1
-                        :: (htmlAttribute <| Html.Events.on "focusout" <| Decode.succeed (config.lift <| CloseMenu Nothing))
                         :: standardBodyAttributes
 
                 False ->

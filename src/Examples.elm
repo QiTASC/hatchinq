@@ -58,6 +58,7 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
+        , Menu.subscriptions menuConfig model.menuState MenuLift
 
         --, Time.every 10 Tick
         ]
@@ -178,6 +179,12 @@ menu =
         { theme = theme
         , lift = MenuLift
         }
+
+
+menuConfig =
+    { theme = theme
+    , lift = MenuLift
+    }
 
 
 textField =
@@ -680,26 +687,8 @@ view model =
                     , { id = Just "appbar-button-2", icon = "person", message = NoOp, attributes = [] }
                     , { id = Just "appbar-menu"
                       , icon = "more_vert"
-                      , message = MenuLift Menu.OpenMenu
-                      , attributes =
-                            [ below
-                                (Element.el
-                                    [ Element.moveRight 36
-                                    , onLeft
-                                        (menu []
-                                            { state = model.menuState
-                                            , items =
-                                                [ TextItem "Projects" (SnackbarAlert (Plain "You clicked on Projects"))
-                                                , DividerItem
-                                                , IconItem "people" "Users" (SnackbarAlert (Plain "You clicked on Users"))
-                                                , IconItem "settings" "Settings" (SnackbarAlert (Plain "You clicked on Settings"))
-                                                ]
-                                            }
-                                        )
-                                    ]
-                                    Element.none
-                                )
-                            ]
+                      , message = menuToggle model
+                      , attributes = menuContent model
                       }
                     ]
                 }
@@ -732,6 +721,39 @@ view model =
                     }
                 ]
             ]
+
+
+menuToggle : Model -> Msg
+menuToggle model =
+    MenuLift
+        (if model.menuState.isOpen then
+            Menu.CloseMenu Nothing
+
+         else
+            Menu.OpenMenu
+        )
+
+
+menuContent : Model -> List (Element.Attribute Msg)
+menuContent model =
+    [ below
+        (Element.el
+            [ Element.moveRight 36
+            , onLeft
+                (menu []
+                    { state = model.menuState
+                    , items =
+                        [ TextItem "Projects" (SnackbarAlert (Plain "You clicked on Projects"))
+                        , DividerItem
+                        , IconItem "people" "Users" (SnackbarAlert (Plain "You clicked on Users"))
+                        , IconItem "settings" "Settings" (SnackbarAlert (Plain "You clicked on Settings"))
+                        ]
+                    }
+                )
+            ]
+            Element.none
+        )
+    ]
 
 
 filesContent : Model -> () -> Element Msg
