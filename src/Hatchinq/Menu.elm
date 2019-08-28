@@ -5,11 +5,11 @@ import Element exposing (Element, Length, centerY, column, el, fill, height, htm
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import Hatchinq.Attribute exposing (Attribute, id, toElement)
+import Hatchinq.Attribute exposing (Attribute, toElement)
 import Hatchinq.Divider as Divider exposing (withColor)
 import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
+import Hatchinq.Util exposing (onClickPropagation)
 import Html.Attributes as Attr
-import Html.Events
 import Json.Decode as Decode
 import Task
 
@@ -33,9 +33,13 @@ type alias State =
 subscriptions : Config msg -> State -> (Message msg -> msg) -> Sub msg
 subscriptions config state lift =
     if state.isOpen then
-        Browser.Events.onMouseDown (outsideTarget "menu")
-            |> Sub.map lift
-
+        Browser.Events.onMouseDown (outsideTarget "menu"
+                                    |> Decode.andThen
+                                     (\isOutside->
+                                      if isOutside
+                                       then Decode.succeed (CloseMenu Nothing)
+                                        else Decode.fail "menu item clicked"))
+        |> Sub.map lift
     else
         Sub.none
 
@@ -80,7 +84,6 @@ isOutsideDropdown dropdownId =
         -- fallback if all previous decoders failed
         , Decode.succeed True
         ]
-
 
 init : State
 init =
@@ -202,14 +205,13 @@ menuItem { theme, lift } item =
 
 textItem : List (Element.Attribute msg) -> String -> msg -> Element msg
 textItem attr label action =
-    -- Todo extract as function; also for IconButton
-    Element.el (attr ++ [ Element.htmlAttribute <| Html.Events.custom "click" (Decode.succeed { message = action, stopPropagation = True, preventDefault = True }) ])
+    Element.el (attr ++ [onClickPropagation True action])
         (el [ centerY ] (textWithEllipsis <| label))
 
 
 iconItem : List (Element.Attribute msg) -> String -> String -> msg -> Element msg
 iconItem attr iconSource label action =
-    Element.el (attr ++ [ Element.htmlAttribute <| Html.Events.custom "click" (Decode.succeed { message = action, stopPropagation = True, preventDefault = True }) ])
+    Element.el (attr ++ [onClickPropagation True action])
         (Element.row [ spacing 16, centerY ]
             [ column [] [ icon iconSource ]
             , column [] [ textWithEllipsis <| label ]

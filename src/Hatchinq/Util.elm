@@ -1,9 +1,9 @@
-module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, takeFirstNLines)
+module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, takeFirstNLines, onClickPropagation)
 
 import Dict exposing (Dict)
 import Element
 import Html.Events
-import Json.Decode
+import Json.Decode as Decode
 
 
 enterKeyCode =
@@ -40,12 +40,12 @@ keysDownAttribute keyCodes =
             in
             case maybeMessage of
                 Just message ->
-                    Json.Decode.succeed message
+                    Decode.succeed message
 
                 Nothing ->
-                    Json.Decode.fail "no keyCode found"
+                    Decode.fail "no keyCode found"
     in
-    Element.htmlAttribute <| Html.Events.on "keydown" (Json.Decode.andThen isKey Html.Events.keyCode)
+    Element.htmlAttribute <| Html.Events.on "keydown" (Decode.andThen isKey Html.Events.keyCode)
 
 
 keyDownAttribute : Int -> msg -> Element.Attribute msg
@@ -53,14 +53,20 @@ keyDownAttribute keyCode message =
     let
         isKey code =
             if code == keyCode then
-                Json.Decode.succeed message
+                Decode.succeed message
 
             else
-                Json.Decode.fail ("not keyCode " ++ String.fromInt keyCode)
+                Decode.fail ("not keyCode " ++ String.fromInt keyCode)
     in
-    Element.htmlAttribute <| Html.Events.on "keydown" (Json.Decode.andThen isKey Html.Events.keyCode)
+    Element.htmlAttribute <| Html.Events.on "keydown" (Decode.andThen isKey Html.Events.keyCode)
 
 
 takeFirstNLines : String -> Int -> String
 takeFirstNLines text numLines =
     String.join "\n" (List.take numLines (String.split "\n" text))
+
+
+onClickPropagation : Bool -> msg -> Element.Attribute msg
+onClickPropagation noPropagation message =
+    Element.htmlAttribute <| Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = noPropagation, preventDefault = True })
+
