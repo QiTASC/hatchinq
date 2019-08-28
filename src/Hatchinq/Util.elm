@@ -1,4 +1,4 @@
-module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, takeFirstNLines, onClickPropagation, outsideTarget)
+module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, onClickPropagation, outsideTarget, takeFirstNLines)
 
 import Dict exposing (Dict)
 import Element
@@ -79,12 +79,14 @@ isOutsideTarget targetId =
                 (\id ->
                     if targetId == id then
                         Decode.succeed False
+
                     else
                         Decode.fail "continue"
                 )
         , Decode.lazy (\_ -> isOutsideTarget targetId |> Decode.field "parentNode")
         , Decode.succeed True
         ]
+
 
 outsideTarget : String -> Decode.Decoder Bool
 outsideTarget targetId =

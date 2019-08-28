@@ -58,7 +58,7 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
-        , Menu.subscriptions model.menuState MenuLift
+        , Menu.subscriptions "appbar-menu" model.menuState MenuLift
 
         --, Time.every 10 Tick
         ]
@@ -679,10 +679,10 @@ view model =
                 , buttons =
                     [ { id = Just "appbar-button-1", icon = "search", message = SearchPage, attributes = [] }
                     , { id = Just "appbar-button-2", icon = "person", message = NoOp, attributes = [] }
-                    , { id = Just "appbar-menu"
+                    , { id = Just "appbar-menu-button"
                       , icon = "more_vert"
                       , message = menuToggle model
-                      , attributes = menuContent model
+                      , attributes = menuContent "appbar-menu" model
                       }
                     ]
                 }
@@ -728,14 +728,15 @@ menuToggle model =
         )
 
 
-menuContent : Model -> List (Element.Attribute Msg)
-menuContent model =
+menuContent : String -> Model -> List (Element.Attribute Msg)
+menuContent menuId model =
     [ below
         (Element.el
             [ Element.moveRight 36
             , onLeft
                 (menu []
-                    { state = model.menuState
+                    { id = menuId
+                    , state = model.menuState
                     , items =
                         [ TextItem "Projects" (SnackbarAlert (Plain "You clicked on Projects"))
                         , DividerItem

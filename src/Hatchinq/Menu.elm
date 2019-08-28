@@ -14,6 +14,7 @@ import Json.Decode as Decode
 import Task
 
 
+
 -- TYPES
 
 
@@ -29,16 +30,22 @@ type alias State =
     }
 
 
-subscriptions : State -> (Message msg -> msg) -> Sub msg
-subscriptions state lift =
+subscriptions : String -> State -> (Message msg -> msg) -> Sub msg
+subscriptions id state lift =
     if state.isOpen then
-        Browser.Events.onMouseDown (outsideTarget "menu"
-                                    |> Decode.andThen
-                                     (\isOutside->
-                                      if isOutside
-                                       then Decode.succeed (CloseMenu Nothing)
-                                        else Decode.fail "menu item clicked"))
-        |> Sub.map lift
+        Browser.Events.onMouseDown
+            (outsideTarget id
+                |> Decode.andThen
+                    (\isOutside ->
+                        if isOutside then
+                            Decode.succeed (CloseMenu Nothing)
+
+                        else
+                            Decode.fail "menu item clicked"
+                    )
+            )
+            |> Sub.map lift
+
     else
         Sub.none
 
@@ -76,7 +83,8 @@ update message state =
 
 
 type alias View msg =
-    { items : List (MenuItem msg)
+    { id : String
+    , items : List (MenuItem msg)
     , state : State
     }
 
@@ -103,10 +111,10 @@ view config attributes data =
 
 
 menuBody : Config msg -> List (Element.Attribute msg) -> View msg -> Element msg
-menuBody config attributes { items, state } =
+menuBody config attributes { id, items, state } =
     let
         standardBodyAttributes =
-            [ Element.htmlAttribute <| Attr.id "menu"
+            [ Element.htmlAttribute <| Attr.id id
             , Border.rounded 4
             , Background.color Theme.white
             , paddingXY 0 8
