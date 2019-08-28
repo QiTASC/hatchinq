@@ -1,5 +1,14 @@
 module Hatchinq.Menu exposing (MenuItem(..), Message(..), State, View, configure, init, subscriptions, update)
 
+{-|
+
+
+# Exposed
+
+@docs MenuItem, Message, State, View, configure, init, subscriptions, update
+
+-}
+
 import Browser.Events
 import Element exposing (Element, Length, centerY, column, el, fill, height, htmlAttribute, minimum, mouseOver, paddingXY, pointer, px, scale, spacing, width)
 import Element.Background as Background
@@ -25,11 +34,13 @@ type alias Config msg =
     }
 
 
+{-| -}
 type alias State =
     { isOpen : Bool
     }
 
 
+{-| -}
 subscriptions : String -> State -> (Message msg -> msg) -> Sub msg
 subscriptions id state lift =
     if state.isOpen then
@@ -50,6 +61,7 @@ subscriptions id state lift =
         Sub.none
 
 
+{-| -}
 init : State
 init =
     { isOpen = False
@@ -66,6 +78,7 @@ type Message msg
     | CloseMenu (Maybe msg)
 
 
+{-| -}
 update : Message msg -> State -> ( State, Cmd msg )
 update message state =
     case message of
@@ -83,6 +96,7 @@ update message state =
 -- VIEW
 
 
+{-| -}
 type alias View msg =
     { id : String
     , items : List (MenuItem msg)
@@ -90,6 +104,7 @@ type alias View msg =
     }
 
 
+{-| -}
 type MenuItem msg
     = TextItem String msg
     | IconItem String String msg
@@ -102,6 +117,7 @@ configure config =
     view config
 
 
+{-| -}
 view : Config msg -> List (Attribute msg) -> View msg -> Element msg
 view config attributes data =
     let
