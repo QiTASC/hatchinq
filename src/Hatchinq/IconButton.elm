@@ -15,8 +15,9 @@ import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Color as Color
 import Hatchinq.Theme as Theme exposing (Theme, black, icon)
-import Hatchinq.Util exposing (onClickPropagation)
+import Hatchinq.Util exposing (onClickWithoutPropagation)
 import Html.Attributes
+
 
 
 -- CONFIG
@@ -147,7 +148,7 @@ view { theme } source data =
                     []
 
                 Just msg ->
-                    [ onClickPropagation internalConfig.stopPropagation msg ]
+                    [ onClickWithoutPropagation internalConfig.stopPropagation msg ]
     in
     Element.el attributes
         (Element.el
@@ -165,5 +166,3 @@ view { theme } source data =
             )
             (Element.el [ centerX, centerY ] (icon data.icon))
         )
-
-

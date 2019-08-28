@@ -1,4 +1,4 @@
-module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, onClickPropagation, outsideTarget, takeFirstNLines)
+module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, onClickWithoutPropagation, outsideTarget, takeFirstNLines)
 
 import Dict exposing (Dict)
 import Element
@@ -66,8 +66,8 @@ takeFirstNLines text numLines =
     String.join "\n" (List.take numLines (String.split "\n" text))
 
 
-onClickPropagation : Bool -> msg -> Element.Attribute msg
-onClickPropagation noPropagation message =
+onClickWithoutPropagation : Bool -> msg -> Element.Attribute msg
+onClickWithoutPropagation noPropagation message =
     Element.htmlAttribute <| Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = noPropagation, preventDefault = True })
 
 

@@ -8,7 +8,7 @@ import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, toElement)
 import Hatchinq.Divider as Divider exposing (withColor)
 import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
-import Hatchinq.Util exposing (onClickPropagation, outsideTarget)
+import Hatchinq.Util exposing (onClickWithoutPropagation, outsideTarget)
 import Html.Attributes as Attr
 import Json.Decode as Decode
 import Task
@@ -54,6 +54,7 @@ init : State
 init =
     { isOpen = False
     }
+
 
 
 -- MESSAGES
@@ -170,13 +171,13 @@ menuItem { theme, lift } item =
 
 textItem : List (Element.Attribute msg) -> String -> msg -> Element msg
 textItem attr label action =
-    Element.el (attr ++ [onClickPropagation True action])
+    Element.el (attr ++ [ onClickWithoutPropagation True action ])
         (el [ centerY ] (textWithEllipsis <| label))
 
 
 iconItem : List (Element.Attribute msg) -> String -> String -> msg -> Element msg
 iconItem attr iconSource label action =
-    Element.el (attr ++ [onClickPropagation True action])
+    Element.el (attr ++ [ onClickWithoutPropagation True action ])
         (Element.row [ spacing 16, centerY ]
             [ column [] [ icon iconSource ]
             , column [] [ textWithEllipsis <| label ]
