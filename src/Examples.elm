@@ -58,7 +58,7 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
-        , Menu.subscriptions menuConfig model.menuState MenuLift
+        , Menu.subscriptions model.menuState MenuLift
 
         --, Time.every 10 Tick
         ]
@@ -179,12 +179,6 @@ menu =
         { theme = theme
         , lift = MenuLift
         }
-
-
-menuConfig =
-    { theme = theme
-    , lift = MenuLift
-    }
 
 
 textField =

@@ -8,11 +8,10 @@ import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, toElement)
 import Hatchinq.Divider as Divider exposing (withColor)
 import Hatchinq.Theme as Theme exposing (Theme, icon, textWithEllipsis)
-import Hatchinq.Util exposing (onClickPropagation)
+import Hatchinq.Util exposing (onClickPropagation, outsideTarget)
 import Html.Attributes as Attr
 import Json.Decode as Decode
 import Task
-
 
 
 -- TYPES
@@ -30,8 +29,8 @@ type alias State =
     }
 
 
-subscriptions : Config msg -> State -> (Message msg -> msg) -> Sub msg
-subscriptions config state lift =
+subscriptions : State -> (Message msg -> msg) -> Sub msg
+subscriptions state lift =
     if state.isOpen then
         Browser.Events.onMouseDown (outsideTarget "menu"
                                     |> Decode.andThen
@@ -44,52 +43,10 @@ subscriptions config state lift =
         Sub.none
 
 
-
--- Todo move to utils
-
-
-outsideTarget : String -> Decode.Decoder (Message msg)
-outsideTarget menuId =
-    Decode.field "target" (isOutsideDropdown menuId)
-        |> Decode.andThen
-            (\isOutside ->
-                if isOutside then
-                    Decode.succeed (CloseMenu Nothing)
-
-                else
-                    Decode.fail "Inside menu"
-            )
-
-
-
--- Todo move to utils
-
-
-isOutsideDropdown : String -> Decode.Decoder Bool
-isOutsideDropdown dropdownId =
-    Decode.oneOf
-        [ Decode.field "id" Decode.string
-            |> Decode.andThen
-                (\id ->
-                    if dropdownId == id then
-                        -- found match by id
-                        Decode.succeed False
-
-                    else
-                        -- try next decoder
-                        Decode.fail "continue"
-                )
-        , Decode.lazy (\_ -> isOutsideDropdown dropdownId |> Decode.field "parentNode")
-
-        -- fallback if all previous decoders failed
-        , Decode.succeed True
-        ]
-
 init : State
 init =
     { isOpen = False
     }
-
 
 
 -- MESSAGES

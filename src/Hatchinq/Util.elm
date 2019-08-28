@@ -1,4 +1,4 @@
-module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, takeFirstNLines, onClickPropagation)
+module Hatchinq.Util exposing (arrowDownKeyCode, arrowLeftKeyCode, arrowRightKeyCode, arrowUpKeyCode, enterKeyCode, escapeKeyCode, keyDownAttribute, keysDownAttribute, takeFirstNLines, onClickPropagation, outsideTarget)
 
 import Dict exposing (Dict)
 import Element
@@ -70,3 +70,30 @@ onClickPropagation : Bool -> msg -> Element.Attribute msg
 onClickPropagation noPropagation message =
     Element.htmlAttribute <| Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = noPropagation, preventDefault = True })
 
+
+isOutsideTarget : String -> Decode.Decoder Bool
+isOutsideTarget targetId =
+    Decode.oneOf
+        [ Decode.field "id" Decode.string
+            |> Decode.andThen
+                (\id ->
+                    if targetId == id then
+                        Decode.succeed False
+                    else
+                        Decode.fail "continue"
+                )
+        , Decode.lazy (\_ -> isOutsideTarget targetId |> Decode.field "parentNode")
+        , Decode.succeed True
+        ]
+
+outsideTarget : String -> Decode.Decoder Bool
+outsideTarget targetId =
+    Decode.field "target" (isOutsideTarget targetId)
+        |> Decode.andThen
+            (\isOutside ->
+                if isOutside then
+                    Decode.succeed True
+
+                else
+                    Decode.fail ("inside" ++ targetId)
+            )
