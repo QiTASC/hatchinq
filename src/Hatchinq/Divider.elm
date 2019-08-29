@@ -2,13 +2,14 @@ module Hatchinq.Divider exposing (Config, configure, view, withColor)
 
 {-|
 
+
 # Exposed
 
 @docs Config, configure, view, withColor
 
 -}
 
-import Element exposing (Color, Element, el, fill, height, none, padding, px, width)
+import Element exposing (Color, Element, el, fill, height, none, px, width)
 import Element.Background as Background
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Theme exposing (Theme)
@@ -30,7 +31,7 @@ type alias InternalConfig =
 
 
 {-| -}
-configure : Config -> (List (Attribute InternalConfig) -> Element msg)
+configure : Config -> List (Attribute InternalConfig) -> Element msg
 configure config =
     view config
 
@@ -55,4 +56,4 @@ view { theme } source =
         attributes =
             toElement source
     in
-    el [ padding 8, width fill ] <| el ([ height <| px 2, width fill, Background.color internalConfig.color ] ++ attributes) none
+    el ([ height <| px 1, width fill, Background.color internalConfig.color ] ++ attributes) none

@@ -277,7 +277,6 @@ sidebarButtons config v =
             [ pointer
             , htmlAttribute <| style "user-select" "none"
             , width <| Element.maximum sideBarHeight shrink
-            , Element.clip
             , htmlAttribute <| style "transform-origin" "0% 100%"
             , htmlAttribute <| style "transform" "translateY(-100%) rotate(90deg)"
             ]

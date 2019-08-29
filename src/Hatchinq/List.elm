@@ -9,14 +9,13 @@ module Hatchinq.List exposing (Config, Message, State, View, configure, control,
 
 -}
 
-import Element exposing (Element, centerY, fill, height, html, htmlAttribute, inFront, mouseOver, paddingEach, paddingXY, px, scrollbarY, width)
+import Element exposing (Element, centerY, fill, height, htmlAttribute, inFront, mouseOver, paddingEach, paddingXY, px, scrollbarY, width)
 import Element.Background as Background
 import Element.Events as Events
 import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
-import Hatchinq.Common exposing (roundImage)
+import Hatchinq.RoundImage exposing (roundImage)
 import Hatchinq.Theme exposing (Theme, textWithEllipsis)
-import Html
 import Html.Attributes
 import Task
 
@@ -196,7 +195,7 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
                 Just toImageSrc ->
                     ( 72
                     , [ height (px itemHeightPx)
-                      , inFront (roundImage (toImageSrc item))
+                      , inFront (roundImage 40 40 [ centerY, paddingXY 16 0 ] (toImageSrc item))
                       ]
                     )
 

@@ -15,9 +15,8 @@ import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.Color as Color
 import Hatchinq.Theme as Theme exposing (Theme, black, icon)
+import Hatchinq.Util exposing (onClickWithoutPropagation)
 import Html.Attributes
-import Html.Events
-import Json.Decode as Decode
 
 
 
@@ -149,7 +148,7 @@ view { theme } source data =
                     []
 
                 Just msg ->
-                    [ onClickNoBubble internalConfig.stopPropagation msg ]
+                    [ onClickWithoutPropagation internalConfig.stopPropagation msg ]
     in
     Element.el attributes
         (Element.el
@@ -167,8 +166,3 @@ view { theme } source data =
             )
             (Element.el [ centerX, centerY ] (icon data.icon))
         )
-
-
-onClickNoBubble : Bool -> msg -> Element.Attribute msg
-onClickNoBubble noPropagation message =
-    Element.htmlAttribute <| Html.Events.custom "click" (Decode.succeed { message = message, stopPropagation = noPropagation, preventDefault = True })

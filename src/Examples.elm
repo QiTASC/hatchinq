@@ -10,7 +10,7 @@ import Browser
 import Browser.Dom
 import Browser.Events
 import Delay exposing (TimeUnit(..))
-import Element exposing (Element, alignTop, fill, html, inFront, padding, px, shrink, spacing)
+import Element exposing (Element, alignTop, below, fill, html, inFront, onLeft, padding, px, shrink, spacing)
 import Element.Border
 import Element.Events
 import Hatchinq.AppBar as AppBar
@@ -23,6 +23,7 @@ import Hatchinq.Divider as Divider exposing (withColor)
 import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.List as MaterialList exposing (..)
+import Hatchinq.Menu as Menu exposing (MenuItem(..))
 import Hatchinq.Paginator as Paginator
 import Hatchinq.ProgressIndicator as ProgressIndicator exposing (GrowthDirection(..), Progress(..), circular, linear, startDelaySeconds, visibility)
 import Hatchinq.RadioButton as RadioButton
@@ -57,6 +58,7 @@ subscriptions model =
         [ SidePanel.subscriptions leftPanelConfig model.leftSidePanelState
         , SidePanel.subscriptions rightPanelConfig model.rightSidePanelState
         , Browser.Events.onResize (\width height -> WindowSizeChanged width height)
+        , Menu.subscriptions "appbar-menu" model.menuState MenuLift
 
         --, Time.every 10 Tick
         ]
@@ -109,6 +111,7 @@ persons =
 type Msg
     = PressMinus
     | PressPlus
+    | MenuLift (Menu.Message Msg)
     | InputChange InputField String
     | InputStateChange (TextField.Message InputField)
     | DataTableChange (DataTable.Message Person Msg)
@@ -169,6 +172,13 @@ textButton =
 
 containedButton =
     button |> withAttributes [ Button.contained ]
+
+
+menu =
+    Menu.configure
+        { theme = theme
+        , lift = MenuLift
+        }
 
 
 textField =
@@ -307,6 +317,7 @@ type alias Model =
     , progressIndicatorVisiblity1 : Bool
     , progressIndicator2 : Progress
     , progressIndicatorVisiblity2 : Bool
+    , menuState : Menu.State
     }
 
 
@@ -358,6 +369,7 @@ init _ =
       , progressIndicatorVisiblity1 = True
       , progressIndicator2 = Indeterminate
       , progressIndicatorVisiblity2 = True
+      , menuState = Menu.init
       }
     , Cmd.batch
         [ leftPanelCmd
@@ -376,6 +388,13 @@ update msg model =
 
         PressPlus ->
             ( { model | counter = model.counter + 1 }, Cmd.none )
+
+        MenuLift message ->
+            let
+                ( newMenuState, cmd ) =
+                    Menu.update message model.menuState
+            in
+            ( { model | menuState = newMenuState }, cmd )
 
         InputChange fieldId newValue ->
             case fieldId of
@@ -658,9 +677,13 @@ view model =
             (appBar [ AppBar.navigate ToggleNavigation, AppBar.elevate True ]
                 { title = Element.text "Hatchinq Examples"
                 , buttons =
-                    [ { id = Just "appbar-button-1", icon = "search", message = SearchPage }
-                    , { id = Just "appbar-button-2", icon = "person", message = OpenUserOptions }
-                    , { id = Nothing, icon = "more_vert", message = OpenUserOptions }
+                    [ { id = Just "appbar-button-1", icon = "search", message = SearchPage, attributes = [] }
+                    , { id = Just "appbar-button-2", icon = "person", message = NoOp, attributes = [] }
+                    , { id = Just "appbar-menu-button"
+                      , icon = "more_vert"
+                      , message = menuToggle model
+                      , attributes = menuContent "appbar-menu" model
+                      }
                     ]
                 }
             )
@@ -692,6 +715,40 @@ view model =
                     }
                 ]
             ]
+
+
+menuToggle : Model -> Msg
+menuToggle model =
+    MenuLift
+        (if model.menuState.isOpen then
+            Menu.CloseMenu Nothing
+
+         else
+            Menu.OpenMenu
+        )
+
+
+menuContent : String -> Model -> List (Element.Attribute Msg)
+menuContent menuId model =
+    [ below
+        (Element.el
+            [ Element.moveRight 36
+            , onLeft
+                (menu []
+                    { id = menuId
+                    , state = model.menuState
+                    , items =
+                        [ TextItem "Projects" (SnackbarAlert (Plain "You clicked on Projects"))
+                        , DividerItem
+                        , IconItem "people" "Users" (SnackbarAlert (Plain "You clicked on Users"))
+                        , IconItem "settings" "Settings" (SnackbarAlert (Plain "You clicked on Settings"))
+                        ]
+                    }
+                )
+            ]
+            Element.none
+        )
+    ]
 
 
 filesContent : Model -> () -> Element Msg
