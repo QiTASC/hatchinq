@@ -10,11 +10,12 @@ module Hatchinq.Tree exposing (Config, Message, State, TreeNode, View, configure
 -}
 
 import Dict exposing (Dict)
-import Element exposing (Element, Length, centerX, centerY, fill, height, htmlAttribute, px, text, width)
-import Hatchinq.Attribute as Attribute exposing (Attribute, toElement)
+import Element exposing (Element, Length, centerX, centerY, fill, height, htmlAttribute, pointer, px, text, width)
+import Element.Events exposing (onClick)
+import Hatchinq.Attribute exposing (Attribute, toElement)
 import Hatchinq.IconButton as IconButton
-import Hatchinq.Theme as Theme exposing (Theme, arrowTransition)
-import Html.Attributes
+import Hatchinq.Theme exposing (Theme, arrowTransition)
+import Html.Attributes exposing (style)
 
 
 
@@ -51,6 +52,7 @@ init =
 type TreeNode
     = TreeNode
         { text : String
+        , data : Dict String String
         , children : List TreeNode
         }
 
@@ -60,9 +62,9 @@ type alias TreePath =
 
 
 {-| -}
-node : { text : String, children : List TreeNode } -> TreeNode
-node { text, children } =
-    TreeNode { text = text, children = children }
+node : { text : String, data : Dict String String, children : List TreeNode } -> TreeNode
+node { text, data, children } =
+    TreeNode { text = text, data = data, children = children }
 
 
 
@@ -72,6 +74,7 @@ node { text, children } =
 {-| -}
 type Message
     = Toggle TreePath
+    | Click (Dict String String)
 
 
 
@@ -84,6 +87,9 @@ update message state =
     case message of
         Toggle path ->
             { state | rootExpandedNode = toggleTreeNodeAtPath state.rootExpandedNode path }
+
+        Click _ ->
+            state
 
 
 toggleTreeNodeAtPath : ExpandedNode -> TreePath -> ExpandedNode
@@ -149,7 +155,7 @@ view { theme, lift } attributes { state, data } =
 
 
 renderTreeNode : Theme -> TreePath -> Maybe ExpandedNode -> TreeNode -> Element Message
-renderTreeNode theme path maybeExpandedNode (TreeNode { text, children }) =
+renderTreeNode theme path maybeExpandedNode (TreeNode { text, data, children }) =
     let
         itemRowHeight =
             theme.sizes.minRowHeight
@@ -170,6 +176,7 @@ renderTreeNode theme path maybeExpandedNode (TreeNode { text, children }) =
                     ([ width (px itemRowHeight)
                      , htmlAttribute <| Html.Attributes.style "will-change" "transform"
                      , htmlAttribute arrowTransition
+                     , pointer
                      ]
                         ++ (case maybeExpandedNode of
                                 Just _ ->
@@ -213,7 +220,10 @@ renderTreeNode theme path maybeExpandedNode (TreeNode { text, children }) =
             [ height (px itemRowHeight) ]
             [ toggleButton
             , Element.el
-                [ Element.paddingEach { top = 0, right = 4, bottom = 0, left = 0 } ]
+                [ Element.paddingEach { top = 0, right = 4, bottom = 0, left = 0 }
+                , onClick <| Click data
+                , htmlAttribute <| style "cursor" "default"
+                ]
                 (Element.text <| text)
             ]
         , childrenElements

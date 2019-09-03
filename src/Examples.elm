@@ -10,6 +10,7 @@ import Browser
 import Browser.Dom
 import Browser.Events
 import Delay exposing (TimeUnit(..))
+import Dict
 import Element exposing (Element, alignTop, below, fill, html, inFront, onLeft, padding, px, shrink, spacing)
 import Element.Border
 import Element.Events
@@ -757,20 +758,25 @@ filesContent model _ =
         data =
             [ Tree.node
                 { text = "Documents"
+                , data = Dict.fromList [ ( "id", "1" ) ]
                 , children = []
                 }
             , Tree.node
                 { text = "Videos"
+                , data = Dict.fromList [ ( "id", "2" ) ]
                 , children =
                     [ Tree.node
                         { text = "qitasc.mp4"
+                        , data = Dict.fromList [ ( "id", "3" ) ]
                         , children = []
                         }
                     , Tree.node
                         { text = "Tutorials"
+                        , data = Dict.fromList [ ( "id", "4" ) ]
                         , children =
                             [ Tree.node
                                 { text = "intro.mp4"
+                                , data = Dict.fromList [ ( "id", "5" ) ]
                                 , children = []
                                 }
                             ]
@@ -779,6 +785,7 @@ filesContent model _ =
                 }
             , Tree.node
                 { text = "Projects"
+                , data = Dict.fromList [ ( "id", "6" ) ]
                 , children = []
                 }
             ]
