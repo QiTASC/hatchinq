@@ -758,25 +758,25 @@ filesContent model _ =
         data =
             [ Tree.node
                 { text = "Documents"
-                , data = Dict.fromList [ ( "id", "1" ) ]
+                , onClick = NoOp
                 , children = []
                 }
             , Tree.node
                 { text = "Videos"
-                , data = Dict.fromList [ ( "id", "2" ) ]
+                , onClick = NoOp
                 , children =
                     [ Tree.node
                         { text = "qitasc.mp4"
-                        , data = Dict.fromList [ ( "id", "3" ) ]
+                        , onClick = NoOp
                         , children = []
                         }
                     , Tree.node
                         { text = "Tutorials"
-                        , data = Dict.fromList [ ( "id", "4" ) ]
+                        , onClick = NoOp
                         , children =
                             [ Tree.node
                                 { text = "intro.mp4"
-                                , data = Dict.fromList [ ( "id", "5" ) ]
+                                , onClick = NoOp
                                 , children = []
                                 }
                             ]
@@ -785,7 +785,7 @@ filesContent model _ =
                 }
             , Tree.node
                 { text = "Projects"
-                , data = Dict.fromList [ ( "id", "6" ) ]
+                , onClick = NoOp
                 , children = []
                 }
             ]

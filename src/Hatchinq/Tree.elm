@@ -49,11 +49,11 @@ init =
 
 
 {-| -}
-type TreeNode
+type TreeNode msg
     = TreeNode
         { text : String
-        , data : Dict String String
-        , children : List TreeNode
+        , onClick : msg
+        , children : List (TreeNode msg)
         }
 
 
@@ -62,9 +62,9 @@ type alias TreePath =
 
 
 {-| -}
-node : { text : String, data : Dict String String, children : List TreeNode } -> TreeNode
-node { text, data, children } =
-    TreeNode { text = text, data = data, children = children }
+node : { text : String, onClick : msg, children : List (TreeNode msg) } -> TreeNode msg
+node { text, onClick, children } =
+    TreeNode { text = text, onClick = onClick, children = children }
 
 
 
@@ -74,7 +74,6 @@ node { text, data, children } =
 {-| -}
 type Message
     = Toggle TreePath
-    | Click (Dict String String)
 
 
 
@@ -87,9 +86,6 @@ update message state =
     case message of
         Toggle path ->
             { state | rootExpandedNode = toggleTreeNodeAtPath state.rootExpandedNode path }
-
-        Click _ ->
-            state
 
 
 toggleTreeNodeAtPath : ExpandedNode -> TreePath -> ExpandedNode
@@ -124,20 +120,20 @@ toggleTreeNodeAtPath expandedNode path =
 
 
 {-| -}
-type alias View =
+type alias View msg =
     { state : State
-    , data : List TreeNode
+    , data : List (TreeNode msg)
     }
 
 
 {-| -}
-configure : Config msg -> List (Attribute v) -> View -> Element msg
+configure : Config msg -> List (Attribute v) -> View msg -> Element msg
 configure config =
     view config
 
 
-view : Config msg -> List (Attribute v) -> View -> Element msg
-view { theme, lift } attributes { state, data } =
+view : Config msg -> List (Attribute v) -> View msg -> Element msg
+view config attributes { state, data } =
     let
         elementAttributes =
             toElement attributes
@@ -149,19 +145,14 @@ view { theme, lift } attributes { state, data } =
         (width fill
             :: elementAttributes
         )
-        (List.indexedMap (\index treeNode -> renderTreeNode theme [ index ] (Dict.get index expandedNodes) treeNode) data
-            |> List.map (Element.map lift)
-        )
+        (List.indexedMap (\index treeNode -> renderTreeNode config [ index ] (Dict.get index expandedNodes) treeNode) data)
 
 
-renderTreeNode : Theme -> TreePath -> Maybe ExpandedNode -> TreeNode -> Element Message
-renderTreeNode theme path maybeExpandedNode (TreeNode { text, data, children }) =
+renderTreeNode : Config msg -> TreePath -> Maybe ExpandedNode -> TreeNode msg -> Element msg
+renderTreeNode config path maybeExpandedNode (TreeNode { text, onClick, children }) =
     let
         itemRowHeight =
-            theme.sizes.minRowHeight
-
-        toggleButtonWidth =
-            theme.sizes.minRowHeight - 8
+            config.theme.sizes.minRowHeight
 
         toggleButton =
             if List.isEmpty children then
@@ -187,9 +178,9 @@ renderTreeNode theme path maybeExpandedNode (TreeNode { text, data, children }) 
                            )
                     )
                     (Element.el [ centerX, centerY ]
-                        (IconButton.configure { theme = theme }
+                        (IconButton.configure { theme = config.theme }
                             []
-                            { icon = "arrow_right", onPress = Just (Toggle path) }
+                            { icon = "arrow_right", onPress = Just (config.lift <| Toggle path) }
                         )
                     )
 
@@ -209,7 +200,7 @@ renderTreeNode theme path maybeExpandedNode (TreeNode { text, data, children }) 
                             ]
                             (List.indexedMap
                                 (\nodeIndex childNode ->
-                                    renderTreeNode theme (path ++ [ nodeIndex ]) (Dict.get nodeIndex expandedNodes) childNode
+                                    renderTreeNode config (path ++ [ nodeIndex ]) (Dict.get nodeIndex expandedNodes) childNode
                                 )
                                 children
                             )
@@ -221,7 +212,7 @@ renderTreeNode theme path maybeExpandedNode (TreeNode { text, data, children }) 
             [ toggleButton
             , Element.el
                 [ Element.paddingEach { top = 0, right = 4, bottom = 0, left = 0 }
-                , onClick <| Click data
+                , Element.Events.onClick <| onClick
                 , htmlAttribute <| style "cursor" "default"
                 ]
                 (Element.text <| text)
