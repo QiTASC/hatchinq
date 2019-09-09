@@ -1,11 +1,11 @@
-module Hatchinq.TextField exposing (Config, Message, State, View, configure, init, multiline, update)
+module Hatchinq.TextField exposing (Config, Message, State, View, configure, init, multiline, password, update)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, State, View, configure, init, multiline, update
+@docs Config, Message, State, View, configure, init, multiline, password, update
 
 -}
 
@@ -38,6 +38,7 @@ type State id
 
 type alias InternalConfig =
     { multiline : Bool
+    , password : Bool
     }
 
 
@@ -56,6 +57,12 @@ configure config =
 multiline : Attribute InternalConfig
 multiline =
     custom (\v -> { v | multiline = True })
+
+
+{-| -}
+password : Attribute InternalConfig
+password =
+    custom (\v -> { v | password = True })
 
 
 {-| -}
@@ -118,6 +125,7 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
     let
         defaultInternalConfig =
             { multiline = False
+            , password = False
             }
 
         internalConfig =
@@ -176,6 +184,13 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
         labelElement =
             Element.el labelAttributes (Element.text label)
 
+        passwordAttribute =
+            if internalConfig.password then
+                [ htmlAttribute <| Attr.type_ "password" ]
+
+            else
+                []
+
         inputAttributes =
             [ Events.onFocus <| lift <| Focus id
             , Events.onLoseFocus <| lift <| Blur id
@@ -196,6 +211,7 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
                 , bottom = 10
                 }
             ]
+                ++ passwordAttribute
     in
     Element.el
         ([ Background.color theme.colors.gray.lighter

@@ -74,6 +74,7 @@ type TabType
 type InputField
     = FirstInputField
     | SecondInputField
+    | ThirdInputField
     | FirstMultiline
     | SecondMultiline
 
@@ -282,6 +283,7 @@ type alias Model =
     { counter : Int
     , inputValue : String
     , secondInputValue : String
+    , thirdInputValue : String
     , multilineValue : String
     , secondMultilineValue : String
     , inputField : TextField.State InputField
@@ -335,6 +337,7 @@ init _ =
       , inputValue = ""
       , secondInputValue = "Some text"
       , multilineValue = ""
+      , thirdInputValue = ""
       , secondMultilineValue = "Some text\nOn multiple lines"
       , inputField = TextField.init
       , defaultDropdownValue = Nothing
@@ -404,6 +407,9 @@ update msg model =
 
                 SecondInputField ->
                     ( { model | secondInputValue = newValue }, Cmd.none )
+
+                ThirdInputField ->
+                    ( { model | thirdInputValue = newValue }, Cmd.none )
 
                 FirstMultiline ->
                     ( { model | multilineValue = newValue }, Cmd.none )
@@ -946,6 +952,13 @@ mainContent model =
 
                     else
                         Just (InputChange SecondInputField)
+                }
+            , textField [ password ]
+                { id = ThirdInputField
+                , label = "My password field"
+                , value = model.thirdInputValue
+                , state = model.inputField
+                , onChange = Just (InputChange ThirdInputField)
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
