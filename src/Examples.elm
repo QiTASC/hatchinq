@@ -10,7 +10,6 @@ import Browser
 import Browser.Dom
 import Browser.Events
 import Delay exposing (TimeUnit(..))
-import Dict
 import Element exposing (Element, alignTop, below, fill, html, inFront, onLeft, padding, px, shrink, spacing)
 import Element.Border
 import Element.Events
@@ -1083,6 +1082,17 @@ mainContent model =
                         , width fill
                         , infinite { loadingBottom = model.loadingBottom, loadingTop = model.loadingTop, loadExtraItems = \direction -> Just { loadCount = List.length persons, excessCount = 0, loadMsg = LoadPeople direction } }
                         , id "infinite-data-table"
+                        , DataTable.rowColor
+                            (\p ->
+                                if p.age > 30 then
+                                    Just (Element.rgb255 255 204 203)
+
+                                else if p.age == 29 then
+                                    Just (Element.rgb255 144 238 144)
+
+                                else
+                                    Nothing
+                            )
                         ]
                         { columns =
                             [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
