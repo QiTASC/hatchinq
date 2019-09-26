@@ -10,7 +10,7 @@ module Hatchinq.Attribute exposing
 # Exposed
 
 @docs Attribute
-@docs custom, height, id, none, toElement, toInternalConfig, toId, toWidth, width, withAttributes
+@docs custom, height, id, none, toElement, toInternalConfig, toId, toWidth, width, withAttributes, toHeight
 
 -}
 
