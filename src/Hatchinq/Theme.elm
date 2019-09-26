@@ -1,6 +1,6 @@
 module Hatchinq.Theme exposing
     ( ColorTheme, ColorType, FontTheme, Theme
-    , arrowTransition, black, default, dense, font, icon, stylesheet, textWithEllipsis, transition, transparent, white, withColors
+    , arrowTransition, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, transition, transparent, white, withColors
     )
 
 {-|
@@ -9,10 +9,11 @@ module Hatchinq.Theme exposing
 # Exposed
 
 @docs ColorTheme, ColorType, FontTheme, Theme
-@docs arrowTransition, black, default, dense, font, icon, stylesheet, textWithEllipsis, transition, transparent, white, withColors
+@docs arrowTransition, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, transition, transparent, white, withColors
 
 -}
 
+import Color
 import Element exposing (Attribute, Color, Element, Length, el, fill, height, html, htmlAttribute, paddingXY, width)
 import Element.Font exposing (Font)
 import Hatchinq.Color as QColor exposing (alpha, blue, green, isBrighter, red, rgba, toElement, withAlpha)
@@ -745,5 +746,25 @@ textWithEllipsis text =
         , htmlAttribute <| Attr.style "display" "inline-block"
         , htmlAttribute <| Attr.style "overflow" "hidden"
         , htmlAttribute <| Attr.style "text-overflow" "ellipsis"
+        , htmlAttribute <| Attr.title text
         ]
         (html <| Html.text text)
+
+
+{-| -}
+lightenOrDarken : Element.Color -> Float -> Element.Color
+lightenOrDarken color amount =
+    let
+        rgb =
+            Element.toRgb color
+
+        hsl =
+            Color.toHsla <| Color.fromRgba { red = rgb.red, green = rgb.green, blue = rgb.blue, alpha = rgb.alpha }
+
+        newHsl =
+            { hsl | lightness = hsl.lightness + amount }
+
+        newColor =
+            Color.toRgba <| Color.fromHsla newHsl
+    in
+    Element.fromRgb { red = newColor.red, green = newColor.green, blue = newColor.blue, alpha = newColor.alpha }

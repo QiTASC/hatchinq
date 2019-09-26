@@ -1,7 +1,6 @@
 module Hatchinq.DataTable exposing
     ( Config, InfiniteView, LoadingDirection(..), Message, State, View
-    , column, configure, expansion, infinite, init, plain, selection, sortableColumn, externalSortableColumn, update
-    , rowColor
+    , column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update
     )
 
 {-|
@@ -10,12 +9,11 @@ module Hatchinq.DataTable exposing
 # Exposed
 
 @docs Config, InfiniteView, LoadingDirection, Message, State, View
-@docs column, configure, expansion, infinite, init, plain, selection, sortableColumn, externalSortableColumn, update
+@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update
 
 -}
 
 import Browser.Dom as Dom
-import Color exposing (Color)
 import Element exposing (Color, Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarY, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -24,7 +22,7 @@ import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toId, toInternalConfig)
 import Hatchinq.Checkbox as Checkbox
 import Hatchinq.IconButton as IconButton exposing (..)
-import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon)
+import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon, lightenOrDarken)
 import Html.Attributes
 import Html.Events
 import Json.Decode as Decode
@@ -44,7 +42,8 @@ type alias InternalConfig item msg =
     { dataTableType : DataTableType msg
     , selection : Maybe ( item -> Bool, item -> Bool -> msg, Bool -> msg )
     , expansion : Maybe ( item -> Bool, item -> Bool -> msg, item -> Element msg )
-    , rowColoring : Maybe (item -> Maybe Element.Color)
+    , rowColoring : Maybe (item -> Maybe Color)
+    , lighterOrDarkerAmountOnHover : Float -- for colored rows
     }
 
 
@@ -314,6 +313,12 @@ rowColor coloring =
     custom (\v -> { v | rowColoring = Just coloring })
 
 
+{-| -}
+lightenOrDarkenOnHover : Float -> Attribute (InternalConfig item msg)
+lightenOrDarkenOnHover amount =
+    custom (\v -> { v | lighterOrDarkerAmountOnHover = amount })
+
+
 view : Config item msg -> List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg
 view { theme, lift } attributes data =
     let
@@ -325,6 +330,7 @@ view { theme, lift } attributes data =
             , selection = Nothing
             , expansion = Nothing
             , rowColoring = Nothing
+            , lighterOrDarkerAmountOnHover = -0.05
             }
 
         internalConfig =
@@ -504,20 +510,7 @@ view { theme, lift } attributes data =
                         Just rowColoring ->
                             case rowColoring it of
                                 Just color ->
-                                    let
-                                        rgb =
-                                            Element.toRgb color
-
-                                        hsl =
-                                            Color.toHsla <| Color.fromRgba { red = rgb.red, green = rgb.green, blue = rgb.blue, alpha = rgb.alpha }
-
-                                        newHsl =
-                                            { hsl | lightness = hsl.lightness - 0.05 }
-
-                                        c =
-                                            Color.toRgba <| Color.fromHsla newHsl
-                                    in
-                                    ( [ Background.color color ], Element.fromRgb { red = c.red, green = c.green, blue = c.blue, alpha = c.alpha } )
+                                    ( [ Background.color color ], lightenOrDarken color internalConfig.lighterOrDarkerAmountOnHover )
 
                                 _ ->
                                     ( [], theme.colors.gray.lightest )
