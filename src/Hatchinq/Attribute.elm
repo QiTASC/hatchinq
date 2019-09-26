@@ -1,6 +1,7 @@
 module Hatchinq.Attribute exposing
     ( Attribute
     , custom, height, id, none, toElement, toInternalConfig, toId, toWidth, width, withAttributes
+    , toHeight
     )
 
 {-|
@@ -103,6 +104,25 @@ toWidth source =
                     (\i ->
                         case i of
                             Width l ->
+                                Just <| l
+
+                            _ ->
+                                Nothing
+                    )
+            )
+        )
+
+
+{-| -}
+toHeight : List (Attribute v) -> Maybe Length
+toHeight source =
+    List.head
+        (List.reverse
+            (source
+                |> List.filterMap
+                    (\i ->
+                        case i of
+                            Height l ->
                                 Just <| l
 
                             _ ->

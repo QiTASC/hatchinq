@@ -1,6 +1,6 @@
 module Hatchinq.DataTable exposing
     ( Config, InfiniteView, LoadingDirection(..), Message, State, View
-    , column, configure, expansion, infinite, init, plain, selection, sortableColumn, externalSortableColumn, update
+    , column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update
     )
 
 {-|
@@ -9,20 +9,20 @@ module Hatchinq.DataTable exposing
 # Exposed
 
 @docs Config, InfiniteView, LoadingDirection, Message, State, View
-@docs column, configure, expansion, infinite, init, plain, selection, sortableColumn, externalSortableColumn, update
+@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update
 
 -}
 
 import Browser.Dom as Dom
-import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarY, width)
+import Element exposing (Color, Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarY, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
-import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toElement, toId, toInternalConfig)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toId, toInternalConfig)
 import Hatchinq.Checkbox as Checkbox
 import Hatchinq.IconButton as IconButton exposing (..)
-import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon)
+import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon, lightenOrDarken)
 import Html.Attributes
 import Html.Events
 import Json.Decode as Decode
@@ -42,6 +42,8 @@ type alias InternalConfig item msg =
     { dataTableType : DataTableType msg
     , selection : Maybe ( item -> Bool, item -> Bool -> msg, Bool -> msg )
     , expansion : Maybe ( item -> Bool, item -> Bool -> msg, item -> Element msg )
+    , rowColoring : Maybe (item -> Maybe Color)
+    , lighterOrDarkerAmountOnHover : Float -- for colored rows
     }
 
 
@@ -305,6 +307,18 @@ expansion expandable expand expandedContent =
     custom (\v -> { v | expansion = Just ( expandable, expand, expandedContent ) })
 
 
+{-| -}
+rowColor : (item -> Maybe Element.Color) -> Attribute (InternalConfig item msg)
+rowColor coloring =
+    custom (\v -> { v | rowColoring = Just coloring })
+
+
+{-| -}
+lightenOrDarkenOnHover : Float -> Attribute (InternalConfig item msg)
+lightenOrDarkenOnHover amount =
+    custom (\v -> { v | lighterOrDarkerAmountOnHover = amount })
+
+
 view : Config item msg -> List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg
 view { theme, lift } attributes data =
     let
@@ -315,6 +329,8 @@ view { theme, lift } attributes data =
             { dataTableType = Plain
             , selection = Nothing
             , expansion = Nothing
+            , rowColoring = Nothing
+            , lighterOrDarkerAmountOnHover = -0.05
             }
 
         internalConfig =
@@ -488,11 +504,25 @@ view { theme, lift } attributes data =
                             [ pointer
                             , Events.onClick (onExpansion it (not (expanded it)))
                             ]
+
+                ( rowColorAttr, mouseOverColor ) =
+                    case internalConfig.rowColoring of
+                        Just rowColoring ->
+                            case rowColoring it of
+                                Just color ->
+                                    ( [ Background.color color ], lightenOrDarken color internalConfig.lighterOrDarkerAmountOnHover )
+
+                                _ ->
+                                    ( [], theme.colors.gray.lightest )
+
+                        _ ->
+                            ( [], theme.colors.gray.lightest )
             in
             expansionAttr
+                ++ rowColorAttr
                 ++ (case internalConfig.selection of
                         Nothing ->
-                            [ mouseOver [ Background.color theme.colors.gray.lightest ] ]
+                            [ mouseOver [ Background.color mouseOverColor ] ]
 
                         Just ( selected, onSelected, _ ) ->
                             [ mouseDown [ Background.color theme.colors.secondary.lighter ] ]
@@ -500,7 +530,7 @@ view { theme, lift } attributes data =
                                         [ Background.color theme.colors.secondary.lightest ]
 
                                     else
-                                        [ mouseOver [ Background.color theme.colors.gray.lightest ] ]
+                                        [ mouseOver [ Background.color mouseOverColor ] ]
                                    )
                    )
                 ++ rowAttributes

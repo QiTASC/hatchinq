@@ -15,7 +15,7 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
-import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
+import Hatchinq.Attribute exposing (Attribute, custom, toHeight, toInternalConfig, toWidth)
 import Hatchinq.Theme as Theme exposing (Theme, transparent)
 import Html.Attributes as Attr
 
@@ -194,8 +194,8 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
         inputAttributes =
             [ Events.onFocus <| lift <| Focus id
             , Events.onLoseFocus <| lift <| Blur id
-            , Element.height fill
             , Background.color transparent
+            , Element.scrollbarY
             , Border.width 0
             , focused []
             , htmlAttribute <| Attr.disabled isDisabled
@@ -203,17 +203,17 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
                 { left = 12
                 , top =
                     if internalConfig.multiline then
-                        3
+                        0
 
                     else
                         6
                 , right = 12
-                , bottom = 10
+                , bottom = 4
                 }
             ]
                 ++ passwordAttribute
     in
-    Element.el
+    Element.column
         ([ Background.color theme.colors.gray.lighter
          , Border.roundEach { topLeft = 4, topRight = 4, bottomLeft = 0, bottomRight = 0 }
          , Border.widthEach { left = 0, top = 0, right = 0, bottom = 2 }
@@ -233,8 +233,8 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
                 Theme.black
             )
          , Font.size 16
-         , width (px 280)
-         , height (px 56)
+         , htmlAttribute <| Attr.style "word-break" "break-word"
+         , width <| Maybe.withDefault (px 280) (toWidth attributes)
          , mouseOver
             (if isDisabled || state == InternalState (Just id) then
                 []
@@ -244,29 +244,39 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
                     :: Border.color theme.colors.gray.color
                     :: []
             )
-         , inFront labelElement
          , Element.htmlAttribute <| Attr.disabled isDisabled
-         , paddingEach { left = 0, top = 20, right = 0, bottom = 4 }
+         , paddingEach
+            { left = 0
+            , top = 0
+            , right = 0
+            , bottom =
+                if internalConfig.multiline then
+                    8
+
+                else
+                    0
+            }
          ]
             ++ focusedAttributes
-            ++ toElement attributes
         )
-        (if internalConfig.multiline then
-            Input.multiline
-                ([ htmlAttribute <| Attr.attribute "rows" "1" ] ++ inputAttributes)
-                { onChange = onChange |> Maybe.withDefault (lift << Impossible)
-                , text = value
-                , placeholder = Nothing
-                , label = Input.labelAbove [] Element.none
-                , spellcheck = False
-                }
+        [ Element.el [ height (px 16), inFront labelElement ] Element.none
+        , if internalConfig.multiline then
+            Element.el [ height (Maybe.withDefault fill (toHeight attributes)), width fill ] <|
+                Input.multiline
+                    ([ htmlAttribute <| Attr.attribute "rows" "1", height (Maybe.withDefault fill (toHeight attributes)) ] ++ inputAttributes)
+                    { onChange = onChange |> Maybe.withDefault (lift << Impossible)
+                    , text = value
+                    , placeholder = Nothing
+                    , label = Input.labelAbove [] Element.none
+                    , spellcheck = False
+                    }
 
-         else
+          else
             Input.text
-                inputAttributes
+                (inputAttributes ++ [ height (px 32) ])
                 { onChange = onChange |> Maybe.withDefault (lift << Impossible)
                 , text = value
                 , placeholder = Nothing
                 , label = Input.labelHidden label
                 }
-        )
+        ]
