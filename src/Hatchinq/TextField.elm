@@ -39,7 +39,6 @@ type State id
 type alias InternalConfig =
     { multiline : Bool
     , password : Bool
-    , scrollbarY : Bool
     }
 
 
@@ -64,12 +63,6 @@ multiline =
 password : Attribute InternalConfig
 password =
     custom (\v -> { v | password = True })
-
-
-{-| -}
-scrollbarY : Attribute InternalConfig
-scrollbarY =
-    custom (\v -> { v | scrollbarY = True })
 
 
 {-| -}
@@ -133,7 +126,6 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
         defaultInternalConfig =
             { multiline = False
             , password = False
-            , scrollbarY = False
             }
 
         internalConfig =
