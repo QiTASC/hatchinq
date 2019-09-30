@@ -170,9 +170,6 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
                 [ Background.color theme.colors.gray.lighter
                 , Border.color <| colorIfError theme.colors.secondary.color
                 ]
-
-            else if not isDisabled then
-                [Border.color <| colorIfError theme.colors.secondary.color]
             else
                 []
 
@@ -187,7 +184,7 @@ view { theme, lift } attributes { id, label, value, state, onChange } =
                             theme.colors.gray.color
 
                          else
-                            theme.colors.gray.dark
+                            colorIfError theme.colors.gray.dark
                         )
                     :: htmlAttribute (Attr.style "transform" "scale(0.75)")
                     :: standardLabelAttributes
