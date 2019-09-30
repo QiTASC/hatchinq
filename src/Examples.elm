@@ -76,6 +76,7 @@ type InputField
     | ThirdInputField
     | FirstMultiline
     | SecondMultiline
+    | ErrorInputField
 
 
 type DropDownComponent
@@ -285,6 +286,7 @@ type alias Model =
     , thirdInputValue : String
     , multilineValue : String
     , secondMultilineValue : String
+    , errorInputValue: String
     , inputField : TextField.State InputField
     , defaultDropdownValue : Maybe String
     , defaultDropdown : DropDown.State
@@ -338,6 +340,7 @@ init _ =
       , multilineValue = ""
       , thirdInputValue = ""
       , secondMultilineValue = "Some text\nOn multiple lines"
+      , errorInputValue = "abcd"
       , inputField = TextField.init
       , defaultDropdownValue = Nothing
       , defaultDropdown = DropDown.init
@@ -415,6 +418,9 @@ update msg model =
 
                 SecondMultiline ->
                     ( { model | secondMultilineValue = newValue }, Cmd.none )
+
+                ErrorInputField ->
+                    ( { model | errorInputValue = newValue }, Cmd.none )
 
         InputStateChange inputMessage ->
             let
@@ -933,32 +939,47 @@ mainContent model =
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
-            [ textField []
-                { id = FirstInputField
-                , label = "My input field"
-                , value = model.inputValue
-                , state = model.inputField
-                , onChange = Just (InputChange FirstInputField)
-                }
-            , textField [ width fill ]
-                { id = SecondInputField
-                , label = "Second field"
-                , value = model.secondInputValue
-                , state = model.inputField
-                , onChange =
-                    if model.checkboxValue == Nothing || model.checkboxValue == Just False then
-                        Nothing
+            [ Element.el [alignTop] <|
+                textField []
+                    { id = FirstInputField
+                    , label = "My input field"
+                    , value = model.inputValue
+                    , state = model.inputField
+                    , onChange = Just (InputChange FirstInputField)
+                    }
+            , Element.el [alignTop, Element.width fill] <|
+                textField [ width fill ]
+                    { id = SecondInputField
+                    , label = "Second field"
+                    , value = model.secondInputValue
+                    , state = model.inputField
+                    , onChange =
+                        if model.checkboxValue == Nothing || model.checkboxValue == Just False then
+                            Nothing
 
-                    else
-                        Just (InputChange SecondInputField)
-                }
-            , textField [ password ]
-                { id = ThirdInputField
-                , label = "My password field"
-                , value = model.thirdInputValue
-                , state = model.inputField
-                , onChange = Just (InputChange ThirdInputField)
-                }
+                        else
+                            Just (InputChange SecondInputField)
+                    }
+            , Element.el [alignTop] <|
+                textField [ password ]
+                    { id = ThirdInputField
+                    , label = "My password field"
+                    , value = model.thirdInputValue
+                    , state = model.inputField
+                    , onChange = Just (InputChange ThirdInputField)
+                    }
+            , textField
+                  [ withError
+                    { default = "*Required"
+                    , error = if String.length model.errorInputValue < 4 then Just "At least 4 characters are needed" else Nothing
+                    }
+                  ]
+                  { id = ErrorInputField
+                  , label = "Error input field"
+                  , value = model.errorInputValue
+                  , state = model.inputField
+                  , onChange = Just (InputChange ErrorInputField)
+                  }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ textField [ multiline, height (px 100) ]
