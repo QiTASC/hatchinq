@@ -35,6 +35,7 @@ import Hatchinq.Theme as Theme exposing (..)
 import Hatchinq.Tree as Tree
 import Html exposing (Html)
 import Html.Attributes
+import Json.Decode as Json exposing (string)
 import List
 import Set exposing (Set)
 import Task
@@ -116,6 +117,7 @@ type Msg
     | MenuLift (Menu.Message Msg)
     | InputChange InputField String
     | InputStateChange (TextField.Message InputField)
+    | InputKeyDown String
     | DataTableChange (DataTable.Message Person Msg)
     | DataTableSortChange Int (Maybe Bool)
     | DataTableSelectionChange (Maybe Person) Bool
@@ -286,7 +288,7 @@ type alias Model =
     , thirdInputValue : String
     , multilineValue : String
     , secondMultilineValue : String
-    , errorInputValue: String
+    , errorInputValue : String
     , inputField : TextField.State InputField
     , defaultDropdownValue : Maybe String
     , defaultDropdown : DropDown.State
@@ -428,6 +430,9 @@ update msg model =
                     TextField.update inputMessage model.inputField
             in
             ( { model | inputField = newInputField }, Cmd.none )
+
+        InputKeyDown _ ->
+            ( model, Cmd.none )
 
         SearchPage ->
             ( model, Cmd.none )
@@ -939,15 +944,16 @@ mainContent model =
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
-            [ Element.el [alignTop] <|
+            [ Element.el [ alignTop ] <|
                 textField []
                     { id = FirstInputField
                     , label = "My input field"
                     , value = model.inputValue
                     , state = model.inputField
                     , onChange = Just (InputChange FirstInputField)
+                    , onKeyDown = Just (Json.map InputKeyDown <| Json.field "key" string)
                     }
-            , Element.el [alignTop, Element.width fill] <|
+            , Element.el [ alignTop, Element.width fill ] <|
                 textField [ width fill ]
                     { id = SecondInputField
                     , label = "Second field"
@@ -959,27 +965,35 @@ mainContent model =
 
                         else
                             Just (InputChange SecondInputField)
+                    , onKeyDown = Nothing
                     }
-            , Element.el [alignTop] <|
+            , Element.el [ alignTop ] <|
                 textField [ password ]
                     { id = ThirdInputField
                     , label = "My password field"
                     , value = model.thirdInputValue
                     , state = model.inputField
                     , onChange = Just (InputChange ThirdInputField)
+                    , onKeyDown = Nothing
                     }
             , textField
-                  [ withError
+                [ withError
                     { default = "*Required"
-                    , error = if String.length model.errorInputValue < 4 then Just "At least 4 characters are needed" else Nothing
+                    , error =
+                        if String.length model.errorInputValue < 4 then
+                            Just "At least 4 characters are needed"
+
+                        else
+                            Nothing
                     }
-                  ]
-                  { id = ErrorInputField
-                  , label = "Error input field"
-                  , value = model.errorInputValue
-                  , state = model.inputField
-                  , onChange = Just (InputChange ErrorInputField)
-                  }
+                ]
+                { id = ErrorInputField
+                , label = "Error input field"
+                , value = model.errorInputValue
+                , state = model.inputField
+                , onChange = Just (InputChange ErrorInputField)
+                , onKeyDown = Nothing
+                }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ textField [ multiline, height (px 100) ]
@@ -988,6 +1002,7 @@ mainContent model =
                 , value = model.multilineValue
                 , state = model.inputField
                 , onChange = Just (InputChange FirstMultiline)
+                , onKeyDown = Nothing
                 }
             , textField [ multiline, height (px 100), width fill ]
                 { id = SecondMultiline
@@ -1000,6 +1015,7 @@ mainContent model =
 
                     else
                         Just (InputChange SecondMultiline)
+                , onKeyDown = Nothing
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
