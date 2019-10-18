@@ -431,8 +431,14 @@ update msg model =
             in
             ( { model | inputField = newInputField }, Cmd.none )
 
-        InputKeyDown _ ->
-            ( model, Cmd.none )
+        InputKeyDown key ->
+            ( model
+            , if key == "Enter" then
+                Snackbar.alert SnackbarLift (Plain "Enter key was pressed")
+
+              else
+                Cmd.none
+            )
 
         SearchPage ->
             ( model, Cmd.none )
