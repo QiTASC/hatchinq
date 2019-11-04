@@ -14,7 +14,7 @@ module Hatchinq.DataTable exposing
 -}
 
 import Browser.Dom as Dom
-import Element exposing (Color, Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarY, width)
+import Element exposing (Color, Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, px, scrollbarX, scrollbarY, scrollbars, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
@@ -69,6 +69,7 @@ type Sort item
 type alias State item =
     { hoveredHeader : Maybe Int
     , sort : Sort item
+    , scrollPos : ScrollPos
     }
 
 
@@ -91,6 +92,7 @@ init : State item
 init =
     { hoveredHeader = Nothing
     , sort = NoSort
+    , scrollPos = { scrollTop = 0, contentHeight = 0, containerHeight = 0 }
     }
 
 
@@ -190,63 +192,67 @@ update msg model =
                         ( { model | sort = Increasing columnIndex sorterFunc }, command (Just True) )
 
         TableScroll noOp rowHeight elementId infiniteView scrollPos ->
-            if infiniteView.loadingBottom == Nothing && scrolledToBottom 0 scrollPos then
-                let
-                    loadExtraItems =
-                        infiniteView.loadExtraItems Down
+            if model.scrollPos.scrollTop /= scrollPos.scrollTop then
+                if infiniteView.loadingBottom == Nothing && scrolledToBottom 0 scrollPos then
+                    let
+                        loadExtraItems =
+                            infiniteView.loadExtraItems Down
 
-                    cmd =
-                        case loadExtraItems of
-                            Just { loadCount, excessCount, loadMsg } ->
-                                Cmd.batch
-                                    [ Task.perform identity <| Task.succeed loadMsg
-                                    , if excessCount > 0 then
-                                        Dom.setViewportOf elementId 0 (toFloat (round scrollPos.scrollTop - excessCount * rowHeight))
-                                            |> Task.attempt (\_ -> noOp)
+                        cmd =
+                            case loadExtraItems of
+                                Just { loadCount, excessCount, loadMsg } ->
+                                    Cmd.batch
+                                        [ Task.perform identity <| Task.succeed loadMsg
+                                        , if excessCount > 0 then
+                                            Dom.setViewportOf elementId 0 (toFloat (round scrollPos.scrollTop - excessCount * rowHeight))
+                                                |> Task.attempt (\_ -> noOp)
 
-                                      else
-                                        Cmd.none
-                                    ]
+                                          else
+                                            Cmd.none
+                                        ]
 
-                            Nothing ->
-                                Cmd.none
-                in
-                ( model, cmd )
+                                Nothing ->
+                                    Cmd.none
+                    in
+                    ( { model | scrollPos = scrollPos }, cmd )
 
-            else if infiniteView.loadingTop == Nothing && scrolledToTop 0 scrollPos then
-                let
-                    loadExtraItems =
-                        infiniteView.loadExtraItems Up
+                else if infiniteView.loadingTop == Nothing && scrolledToTop 0 scrollPos then
+                    let
+                        loadExtraItems =
+                            infiniteView.loadExtraItems Up
 
-                    cmd =
-                        case loadExtraItems of
-                            Just { loadCount, excessCount, loadMsg } ->
-                                Cmd.batch
-                                    [ Task.perform identity <| Task.succeed loadMsg
-                                    , if loadCount > 0 then
-                                        Dom.setViewportOf elementId 0 (toFloat (round scrollPos.scrollTop + loadCount * rowHeight))
-                                            |> Task.attempt (\_ -> noOp)
+                        cmd =
+                            case loadExtraItems of
+                                Just { loadCount, excessCount, loadMsg } ->
+                                    Cmd.batch
+                                        [ Task.perform identity <| Task.succeed loadMsg
+                                        , if loadCount > 0 then
+                                            Dom.setViewportOf elementId 0 (toFloat (round scrollPos.scrollTop + loadCount * rowHeight))
+                                                |> Task.attempt (\_ -> noOp)
 
-                                      else
-                                        Cmd.none
-                                    ]
+                                          else
+                                            Cmd.none
+                                        ]
 
-                            Nothing ->
-                                Cmd.none
-                in
-                ( model, cmd )
+                                Nothing ->
+                                    Cmd.none
+                    in
+                    ( { model | scrollPos = scrollPos }, cmd )
 
-            else if infiniteView.loadingBottom /= Nothing && scrolledToBottom 1 scrollPos then
-                ( model
-                , Dom.setViewportOf elementId 0 (toFloat (scrollPos.contentHeight - scrollPos.containerHeight - 1))
-                    |> Task.attempt (\_ -> noOp)
-                )
+                else if infiniteView.loadingBottom /= Nothing && scrolledToBottom 1 scrollPos then
+                    ( { model | scrollPos = scrollPos }
+                    , Dom.setViewportOf elementId 0 (toFloat (scrollPos.contentHeight - scrollPos.containerHeight - 1))
+                        |> Task.attempt (\_ -> noOp)
+                    )
 
-            else if infiniteView.loadingTop /= Nothing && scrolledToTop 1 scrollPos then
-                ( model
-                , Dom.setViewportOf elementId 0 (toFloat 1)
-                    |> Task.attempt (\_ -> noOp)
-                )
+                else if infiniteView.loadingTop /= Nothing && scrolledToTop 1 scrollPos then
+                    ( { model | scrollPos = scrollPos }
+                    , Dom.setViewportOf elementId 0 (toFloat 1)
+                        |> Task.attempt (\_ -> noOp)
+                    )
+
+                else
+                    ( model, Cmd.none )
 
             else
                 ( model, Cmd.none )
@@ -572,7 +578,7 @@ view { theme, lift } attributes data =
                         ]
             in
             Element.row
-                (itemAttributes it ++ borderAttributes)
+                (itemAttributes it ++ borderAttributes ++ [ width fill ])
                 (expansionColumn it
                     ++ selectionColumn it
                     ++ List.indexedMap (\columnIndex (Column { header, width, viewFunc, sorter }) -> Element.el ([ Element.width width ] ++ cellAttributes) (viewFunc rowIndex it)) data.columns
@@ -607,17 +613,18 @@ view { theme, lift } attributes data =
                     []
     in
     Element.column
-        (tableAttributes ++ elementAttributes)
+        (tableAttributes
+            ++ elementAttributes
+            ++ scrollingAttribute
+            ++ [ scrollbars ]
+        )
         [ Element.row rowHeaderAttributes
             (expansionHeader
                 ++ selectionHeader
                 ++ List.indexedMap (\columnIndex headerColumn -> createHeader headerColumn columnIndex) data.columns
             )
-        , Element.el
-            (scrollingAttribute
-                ++ [ scrollbarY, height fill, width fill, Html.Attributes.id elementId |> htmlAttribute ]
-            )
-            (Element.column [ height fill, width fill ]
+        , Element.el [ height fill, width fill ]
+            (Element.column [ height fill, width fill, Html.Attributes.id elementId |> htmlAttribute ]
                 (extraItemsTop
                     ++ List.indexedMap
                         itemDisplay
