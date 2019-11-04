@@ -607,7 +607,10 @@ view { theme, lift } attributes data =
                     []
     in
     Element.column
-        (tableAttributes ++ elementAttributes)
+        (tableAttributes
+                    ++ elementAttributes
+                    ++ scrollingAttribute
+                )
         [ Element.row rowHeaderAttributes
             (expansionHeader
                 ++ selectionHeader
