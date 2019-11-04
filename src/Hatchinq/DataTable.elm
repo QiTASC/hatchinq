@@ -572,7 +572,7 @@ view { theme, lift } attributes data =
                         ]
             in
             Element.row
-                (itemAttributes it ++ borderAttributes ++ [ width fill ])
+                (width fill :: itemAttributes it ++ borderAttributes)
                 (expansionColumn it
                     ++ selectionColumn it
                     ++ List.indexedMap (\columnIndex (Column { header, width, viewFunc, sorter }) -> Element.el ([ Element.width width ] ++ cellAttributes) (viewFunc rowIndex it)) data.columns
@@ -607,17 +607,17 @@ view { theme, lift } attributes data =
                     []
     in
     Element.column
-        (tableAttributes
-                    ++ elementAttributes
-                    ++ scrollingAttribute
-                )
+        (tableAttributes ++ elementAttributes)
         [ Element.row rowHeaderAttributes
             (expansionHeader
                 ++ selectionHeader
                 ++ List.indexedMap (\columnIndex headerColumn -> createHeader headerColumn columnIndex) data.columns
             )
-        , Element.el [ height fill, width fill ]
-            (Element.column [ height fill, width fill, Html.Attributes.id elementId |> htmlAttribute ]
+        , Element.el
+            (scrollingAttribute
+                ++ [ scrollbarY, height fill, width fill, Html.Attributes.id elementId |> htmlAttribute ]
+            )
+            (Element.column [ height fill, width fill ]
                 (extraItemsTop
                     ++ List.indexedMap
                         itemDisplay
