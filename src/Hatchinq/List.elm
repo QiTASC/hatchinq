@@ -230,9 +230,9 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
             [ width fill
             , Font.family [ theme.font.main ]
             , Font.size theme.font.defaultSize
+            , htmlAttribute <| Html.Attributes.style "overflow" "hidden"
             , Events.onClick (lift <| Select (Just item) (Maybe.map (\onSelect -> onSelect item) data.onSelect))
             ]
-                ++ colorAttributes
                 ++ additionalItemAttributes
 
         textAttributes =
@@ -259,8 +259,7 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
             case internalConfig.toControl of
                 Just toControl ->
                     Element.el
-                        [ Element.alignRight
-                        , centerY
+                        [ centerY
                         , paddingEach { top = 0, right = 16, bottom = 0, left = 0 }
                         ]
                         (toControl item)
@@ -268,7 +267,10 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
                 Nothing ->
                     Element.none
     in
-    Element.row [ width fill ]
+    Element.row
+        ([ width fill, height fill ]
+            ++ colorAttributes
+        )
         [ Element.column
             itemAttributes
             (Element.el textAttributes (data.toPrimaryText item |> textWithEllipsis)
