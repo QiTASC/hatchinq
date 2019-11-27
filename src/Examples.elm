@@ -1092,7 +1092,7 @@ mainContent model =
                         ]
                         { columns =
                             [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
-                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (List.sortBy (\p -> p.lastName))
+                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> textWithEllipsis person.lastName) (List.sortBy (\p -> p.lastName))
                             , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
                             ]
                         , items =
@@ -1109,7 +1109,7 @@ mainContent model =
                         ]
                         { columns =
                             [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
-                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> Element.text person.lastName) (List.sortBy (\p -> p.lastName))
+                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> textWithEllipsis person.lastName) (List.sortBy (\p -> p.lastName))
                             , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
                             ]
                         , items =
@@ -1139,7 +1139,7 @@ mainContent model =
                         ]
                         { columns =
                             [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
-                            , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> Element.text person.lastName)
+                            , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> textWithEllipsis person.lastName)
                             , DataTable.externalSortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) DataTableSortChange
                             ]
                         , items =
@@ -1158,7 +1158,7 @@ mainContent model =
                         ]
                         { columns =
                             [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
-                            , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> Element.text person.lastName)
+                            , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> textWithEllipsis person.lastName)
                             , DataTable.externalSortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) DataTableSortChange
                             ]
                         , items =
@@ -1172,7 +1172,7 @@ mainContent model =
                     [ height (px 240), width fill ]
                     { columns =
                         [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
-                        , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> Element.text person.lastName)
+                        , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> textWithEllipsis person.lastName)
                         , DataTable.externalSortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) DataTableSortChange
                         ]
                     , items =
