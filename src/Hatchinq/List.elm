@@ -204,22 +204,6 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
                     , [ height (px itemHeightPx) ]
                     )
 
-        controlAttributes =
-            case internalConfig.toControl of
-                Just toControl ->
-                    [ inFront
-                        (Element.el
-                            [ Element.alignRight
-                            , centerY
-                            , paddingEach { top = 0, right = 16, bottom = 0, left = 16 }
-                            ]
-                            (toControl item)
-                        )
-                    ]
-
-                Nothing ->
-                    []
-
         colorAttributes =
             if data.activated == Just item then
                 Font.color theme.colors.primary.dark
@@ -270,9 +254,25 @@ listItem { theme, lift } internalConfig data item itemHeightPx =
 
                 Nothing ->
                     []
+
+        controlElement =
+            case internalConfig.toControl of
+                Just toControl ->
+                    Element.el
+                        [ Element.alignRight
+                        , centerY
+                        , paddingEach { top = 0, right = 16, bottom = 0, left = 0 }
+                        ]
+                        (toControl item)
+
+                Nothing ->
+                    Element.none
     in
-    Element.column
-        (itemAttributes ++ controlAttributes)
-        (Element.el textAttributes (data.toPrimaryText item |> textWithEllipsis)
-            :: secondaryTextElements
-        )
+    Element.row [ width fill ]
+        [ Element.column
+            itemAttributes
+            (Element.el textAttributes (data.toPrimaryText item |> textWithEllipsis)
+                :: secondaryTextElements
+            )
+        , controlElement
+        ]
