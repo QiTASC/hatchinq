@@ -10,7 +10,7 @@ module Hatchinq.Tree exposing (Config, Message, State, TreeNode, View, configure
 -}
 
 import Dict exposing (Dict)
-import Element exposing (Element, Length, centerX, centerY, fill, height, htmlAttribute, pointer, px, text, width)
+import Element exposing (Element, Length, centerX, centerY, fill, height, htmlAttribute, pointer, px, width)
 import Element.Events exposing (onClick)
 import Hatchinq.Attribute exposing (Attribute, toElement)
 import Hatchinq.IconButton as IconButton
@@ -51,7 +51,7 @@ init =
 {-| -}
 type TreeNode msg
     = TreeNode
-        { text : String
+        { element : Element msg
         , onClick : msg
         , children : List (TreeNode msg)
         }
@@ -62,9 +62,9 @@ type alias TreePath =
 
 
 {-| -}
-node : { text : String, onClick : msg, children : List (TreeNode msg) } -> TreeNode msg
-node { text, onClick, children } =
-    TreeNode { text = text, onClick = onClick, children = children }
+node : { element : Element msg, onClick : msg, children : List (TreeNode msg) } -> TreeNode msg
+node { element, onClick, children } =
+    TreeNode { element = element, onClick = onClick, children = children }
 
 
 
@@ -149,7 +149,7 @@ view config attributes { state, data } =
 
 
 renderTreeNode : Config msg -> TreePath -> Maybe ExpandedNode -> TreeNode msg -> Element msg
-renderTreeNode config path maybeExpandedNode (TreeNode { text, onClick, children }) =
+renderTreeNode config path maybeExpandedNode (TreeNode { element, onClick, children }) =
     let
         itemRowHeight =
             config.theme.sizes.minRowHeight
@@ -215,7 +215,7 @@ renderTreeNode config path maybeExpandedNode (TreeNode { text, onClick, children
                 , Element.Events.onClick <| onClick
                 , htmlAttribute <| style "cursor" "default"
                 ]
-                (Element.text <| text)
+                element
             ]
         , childrenElements
         ]
