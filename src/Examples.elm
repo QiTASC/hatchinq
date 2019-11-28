@@ -779,25 +779,25 @@ filesContent model _ =
     let
         data =
             [ Tree.node
-                { text = "Documents"
+                { element = Element.text "Documents"
                 , onClick = NoOp
                 , children = []
                 }
             , Tree.node
-                { text = "Videos"
+                { element = Element.text "Videos"
                 , onClick = NoOp
                 , children =
                     [ Tree.node
-                        { text = "qitasc.mp4"
+                        { element = Element.row [] [ Theme.icon "music_note", Element.text "qitasc.mp4" ]
                         , onClick = NoOp
                         , children = []
                         }
                     , Tree.node
-                        { text = "Tutorials"
+                        { element = Element.text "Tutorials"
                         , onClick = NoOp
                         , children =
                             [ Tree.node
-                                { text = "intro.mp4"
+                                { element = Element.text "intro.mp4"
                                 , onClick = NoOp
                                 , children = []
                                 }
@@ -806,7 +806,7 @@ filesContent model _ =
                     ]
                 }
             , Tree.node
-                { text = "Projects"
+                { element = Element.text "Projects"
                 , onClick = NoOp
                 , children = []
                 }
