@@ -101,7 +101,6 @@ view { theme } source data =
         dynamicAttributes =
             if disabled then
                 Font.color theme.colors.gray.color
-                    :: focused []
                     :: Element.htmlAttribute (Html.Attributes.style "cursor" "default")
                     :: (case internalConfig.iconButtonType of
                             Default ->

@@ -223,7 +223,6 @@ view { theme, lift } attributes { id, label, value, state, onChange, onKeyDown }
             , Background.color transparent
             , Element.scrollbarY
             , Border.width 0
-            , focused []
             , htmlAttribute <| Attr.disabled isDisabled
             , paddingEach
                 { left = 12

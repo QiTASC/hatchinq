@@ -132,8 +132,7 @@ view { theme } attributes data =
                 []
 
             else
-                [ focused [ Background.color (accentColorType.withAlpha 0.08) ]
-                , mouseOver [ Background.color (accentColorType.withAlpha 0.04) ]
+                [ mouseOver [ Background.color (accentColorType.withAlpha 0.04) ]
                 , htmlAttribute <| Html.Attributes.attribute "tabindex" "0"
                 , pointer
                 ]
