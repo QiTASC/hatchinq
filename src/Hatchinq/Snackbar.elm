@@ -17,7 +17,7 @@ import Element.Font
 import Hatchinq.Attribute as Attribute exposing (Attribute, custom, toInternalConfig, width)
 import Hatchinq.Button as Button
 import Hatchinq.IconButton as IconButton
-import Hatchinq.Theme as Theme exposing (Theme, white)
+import Hatchinq.Theme exposing (Theme, white)
 import Hatchinq.Util exposing (takeFirstNLines)
 import Html
 import Html.Attributes
@@ -237,6 +237,7 @@ view { theme, lift } attributes { state } =
                 [ htmlAttribute <| Html.Attributes.style "opacity" "0"
                 , htmlAttribute <| Html.Attributes.style "transform" "scale(0.8)"
                 , htmlAttribute <| Html.Attributes.style "transition" "opacity .25s, transform .25s .25s"
+                , htmlAttribute <| Html.Attributes.style "pointer-events" "none"
                 ]
     in
     column

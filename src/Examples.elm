@@ -237,7 +237,8 @@ leftPanelConfig =
     { theme = theme
     , lift = LeftPanelMessage
     , orientation = LeftHand
-    , maxWidthFraction = 0.33
+    , resizeMaxWidthFraction = Just 0.33
+    , initialWidthFraction = 0.2
     }
 
 
@@ -249,7 +250,8 @@ rightPanelConfig =
     { theme = theme
     , lift = RightPanelMessage
     , orientation = RightHand
-    , maxWidthFraction = 0.33
+    , resizeMaxWidthFraction = Just 0.33
+    , initialWidthFraction = 0.2
     }
 
 
@@ -331,10 +333,10 @@ init : {} -> ( Model, Cmd Msg )
 init _ =
     let
         ( leftPanelState, leftPanelCmd ) =
-            SidePanel.init LeftPanelMessage
+            SidePanel.init 0 leftPanelConfig
 
         ( rightPanelState, rightPanelCmd ) =
-            SidePanel.init RightPanelMessage
+            SidePanel.init -1 rightPanelConfig
     in
     ( { counter = 0
       , inputValue = ""
