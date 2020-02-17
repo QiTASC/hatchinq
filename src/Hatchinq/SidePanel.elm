@@ -10,7 +10,7 @@ module Hatchinq.SidePanel exposing (Config, SidePanelOrientation(..), State, Vie
 -}
 
 import Array
-import Browser.Dom as Dom
+import Browser.Dom as Dom exposing (Viewport)
 import Browser.Events
 import Dict exposing (Dict)
 import Element exposing (Element, Length, alignTop, centerX, centerY, column, fill, height, html, htmlAttribute, paddingXY, pointer, px, row, shrink, text, width)
@@ -33,7 +33,8 @@ type alias Config msg =
     { theme : Theme
     , lift : State -> msg
     , orientation : SidePanelOrientation
-    , maxWidthFraction : Float
+    , resizeMaxWidthFraction : Maybe Float
+    , initialWidthFraction : Float
     }
 
 
@@ -88,8 +89,8 @@ type alias SidePanelButton msg =
     { id : Maybe String, icon : String, title : String, containerContent : () -> Element msg }
 
 
-initialOpenPanelWidth =
-    300
+initialOpenPanelWidth defaultWidthFraction maxWidthFraction windowSize =
+    round <| min defaultWidthFraction (Maybe.withDefault 0.2 maxWidthFraction) * toFloat windowSize.width
 
 
 closedSidePanelWidth =
@@ -103,27 +104,28 @@ dragHandleWidth =
 {-| -}
 subscriptions : Config msg -> State -> Sub msg
 subscriptions config state =
-    if state.beingDragged then
-        Sub.batch
-            [ positionDecoder
-                |> Decode.map (\pos -> stateFromDrag config state pos)
-                |> Decode.map config.lift
-                |> Browser.Events.onMouseMove
-            , Decode.succeed { state | beingDragged = False }
-                |> Decode.map config.lift
-                |> Browser.Events.onMouseUp
-            ]
+    case ( state.beingDragged, config.resizeMaxWidthFraction ) of
+        ( True, Just maxWidthFraction ) ->
+            Sub.batch
+                [ positionDecoder
+                    |> Decode.map (\pos -> stateFromDrag config maxWidthFraction state pos)
+                    |> Decode.map config.lift
+                    |> Browser.Events.onMouseMove
+                , Decode.succeed { state | beingDragged = False }
+                    |> Decode.map config.lift
+                    |> Browser.Events.onMouseUp
+                ]
 
-    else
-        Sub.batch
-            [ Browser.Events.onResize (\width height -> config.lift { state | windowSize = WindowSize width height }) ]
+        _ ->
+            Sub.batch
+                [ Browser.Events.onResize (\width height -> config.lift { state | windowSize = WindowSize width height }) ]
 
 
-stateFromDrag : Config msg -> State -> MousePosition -> State
-stateFromDrag config state pos =
+stateFromDrag : Config msg -> Float -> State -> MousePosition -> State
+stateFromDrag config maxWidthFraction state pos =
     let
         maxWidth =
-            round <| config.maxWidthFraction * (toFloat <| state.windowSize.width)
+            round <| maxWidthFraction * (toFloat <| state.windowSize.width)
 
         newWidth =
             if config.orientation == LeftHand then
@@ -148,17 +150,36 @@ stateFromDrag config state pos =
 
 
 {-| -}
-init : (State -> msg) -> ( State, Cmd msg )
-init lift =
+init : Int -> Config msg -> ( State, Cmd msg )
+init openedContainerId config =
     let
         state =
             State -1 0 Dict.empty False (WindowSize 0 0)
     in
     ( state
     , Dom.getViewport
-        |> Task.perform (\v -> { state | windowSize = WindowSize (round v.viewport.width) (round v.viewport.height) })
-        |> Cmd.map lift
+        |> Task.perform (\v -> initState state openedContainerId config v)
+        |> Cmd.map config.lift
     )
+
+
+initState : State -> Int -> Config msg -> Viewport -> State
+initState state openedContainerId { lift, resizeMaxWidthFraction, initialWidthFraction } viewport =
+    let
+        windowSize =
+            WindowSize (round viewport.viewport.width) (round viewport.viewport.height)
+
+        defaultContainerWidth =
+            initialOpenPanelWidth initialWidthFraction resizeMaxWidthFraction windowSize
+
+        ( containerWidth, containerWidths ) =
+            if openedContainerId /= -1 then
+                ( defaultContainerWidth, Dict.fromList [ ( openedContainerId, defaultContainerWidth ) ] )
+
+            else
+                ( 0, Dict.empty )
+    in
+    { state | windowSize = windowSize, openedContainerId = openedContainerId, containerWidth = containerWidth, containerWidths = containerWidths }
 
 
 {-| -}
@@ -305,7 +326,7 @@ toSidePanelButton index btn state config =
     in
     row
         ([ Element.paddingEach { top = 4, right = 12, bottom = 4, left = 4 }
-         , Events.onClick <| stateFromSelectionChanged index state
+         , Events.onClick <| stateFromSelectionChanged index state config
          , Background.color backgroundColor
          , if config.orientation == LeftHand then
             Element.rotate pi
@@ -327,14 +348,14 @@ toSidePanelButton index btn state config =
         ]
 
 
-stateFromSelectionChanged : Int -> State -> State
-stateFromSelectionChanged index state =
+stateFromSelectionChanged : Int -> State -> Config msg -> State
+stateFromSelectionChanged index state { initialWidthFraction, resizeMaxWidthFraction } =
     let
         newContainerWidths =
             Dict.insert state.openedContainerId state.containerWidth state.containerWidths
 
         containerWidth =
-            Maybe.withDefault initialOpenPanelWidth (Dict.get index state.containerWidths)
+            Maybe.withDefault (initialOpenPanelWidth initialWidthFraction resizeMaxWidthFraction state.windowSize) (Dict.get index state.containerWidths)
     in
     if index == state.openedContainerId then
         { state
@@ -358,15 +379,19 @@ dragHandle config state =
             100
 
         handleOverlay =
-            Element.el
-                [ htmlAttribute <| onMouseDownNoBubble { state | beingDragged = True }
-                , height fill
-                , width <| px <| dragHandleWidth
-                , htmlAttribute <| style "cursor" "col-resize"
-                , htmlAttribute <| style "z-index" "900"
-                , Element.inFront activeDragOverlay
-                , centerX
-                ]
+            if config.resizeMaxWidthFraction /= Nothing then
+                Element.el
+                    [ htmlAttribute <| onMouseDownNoBubble { state | beingDragged = True }
+                    , height fill
+                    , width <| px <| dragHandleWidth
+                    , htmlAttribute <| style "cursor" "col-resize"
+                    , htmlAttribute <| style "z-index" "900"
+                    , Element.inFront activeDragOverlay
+                    , centerX
+                    ]
+                    Element.none
+
+            else
                 Element.none
 
         activeDragOverlay =
