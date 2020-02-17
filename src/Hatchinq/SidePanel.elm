@@ -90,7 +90,7 @@ type alias SidePanelButton msg =
 
 
 initialOpenPanelWidth defaultWidthFraction maxWidthFraction windowSize =
-    round <| min defaultWidthFraction (Maybe.withDefault 0.2 maxWidthFraction) * toFloat windowSize.width
+    round <| min defaultWidthFraction (Maybe.withDefault defaultWidthFraction maxWidthFraction) * toFloat windowSize.width
 
 
 closedSidePanelWidth =
