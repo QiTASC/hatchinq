@@ -237,8 +237,8 @@ leftPanelConfig =
     { theme = theme
     , lift = LeftPanelMessage
     , orientation = LeftHand
-    , resizeMaxWidthFraction = Just 0.33
-    , initialWidthFraction = 0.2
+    , resizeMaxWidth = Just 400
+    , initialWidth = 300
     }
 
 
@@ -250,8 +250,8 @@ rightPanelConfig =
     { theme = theme
     , lift = RightPanelMessage
     , orientation = RightHand
-    , resizeMaxWidthFraction = Just 0.33
-    , initialWidthFraction = 0.2
+    , resizeMaxWidth = Just 400
+    , initialWidth = 300
     }
 
 

@@ -33,8 +33,8 @@ type alias Config msg =
     { theme : Theme
     , lift : State -> msg
     , orientation : SidePanelOrientation
-    , resizeMaxWidthFraction : Maybe Float
-    , initialWidthFraction : Float
+    , resizeMaxWidth : Maybe Int
+    , initialWidth : Int
     }
 
 
@@ -89,10 +89,6 @@ type alias SidePanelButton msg =
     { id : Maybe String, icon : String, title : String, containerContent : () -> Element msg }
 
 
-initialOpenPanelWidth defaultWidthFraction maxWidthFraction windowSize =
-    round <| min defaultWidthFraction (Maybe.withDefault defaultWidthFraction maxWidthFraction) * toFloat windowSize.width
-
-
 closedSidePanelWidth =
     33
 
@@ -104,11 +100,11 @@ dragHandleWidth =
 {-| -}
 subscriptions : Config msg -> State -> Sub msg
 subscriptions config state =
-    case ( state.beingDragged, config.resizeMaxWidthFraction ) of
-        ( True, Just maxWidthFraction ) ->
+    case ( state.beingDragged, config.resizeMaxWidth ) of
+        ( True, Just resizeMaxWidth ) ->
             Sub.batch
                 [ positionDecoder
-                    |> Decode.map (\pos -> stateFromDrag config maxWidthFraction state pos)
+                    |> Decode.map (\pos -> stateFromDrag config resizeMaxWidth state pos)
                     |> Decode.map config.lift
                     |> Browser.Events.onMouseMove
                 , Decode.succeed { state | beingDragged = False }
@@ -121,11 +117,11 @@ subscriptions config state =
                 [ Browser.Events.onResize (\width height -> config.lift { state | windowSize = WindowSize width height }) ]
 
 
-stateFromDrag : Config msg -> Float -> State -> MousePosition -> State
-stateFromDrag config maxWidthFraction state pos =
+stateFromDrag : Config msg -> Int -> State -> MousePosition -> State
+stateFromDrag config resizeMaxWidth state pos =
     let
         maxWidth =
-            round <| maxWidthFraction * (toFloat <| state.windowSize.width)
+            min resizeMaxWidth state.windowSize.width
 
         newWidth =
             if config.orientation == LeftHand then
@@ -164,17 +160,14 @@ init openedContainerId config =
 
 
 initState : State -> Int -> Config msg -> Viewport -> State
-initState state openedContainerId { lift, resizeMaxWidthFraction, initialWidthFraction } viewport =
+initState state openedContainerId { lift, initialWidth } viewport =
     let
         windowSize =
             WindowSize (round viewport.viewport.width) (round viewport.viewport.height)
 
-        defaultContainerWidth =
-            initialOpenPanelWidth initialWidthFraction resizeMaxWidthFraction windowSize
-
         ( containerWidth, containerWidths ) =
             if openedContainerId /= -1 then
-                ( defaultContainerWidth, Dict.fromList [ ( openedContainerId, defaultContainerWidth ) ] )
+                ( initialWidth, Dict.fromList [ ( openedContainerId, initialWidth ) ] )
 
             else
                 ( 0, Dict.empty )
@@ -349,13 +342,13 @@ toSidePanelButton index btn state config =
 
 
 stateFromSelectionChanged : Int -> State -> Config msg -> State
-stateFromSelectionChanged index state { initialWidthFraction, resizeMaxWidthFraction } =
+stateFromSelectionChanged index state { initialWidth } =
     let
         newContainerWidths =
             Dict.insert state.openedContainerId state.containerWidth state.containerWidths
 
         containerWidth =
-            Maybe.withDefault (initialOpenPanelWidth initialWidthFraction resizeMaxWidthFraction state.windowSize) (Dict.get index state.containerWidths)
+            Maybe.withDefault initialWidth (Dict.get index state.containerWidths)
     in
     if index == state.openedContainerId then
         { state
@@ -379,7 +372,7 @@ dragHandle config state =
             100
 
         handleOverlay =
-            if config.resizeMaxWidthFraction /= Nothing then
+            if config.resizeMaxWidth /= Nothing then
                 Element.el
                     [ htmlAttribute <| onMouseDownNoBubble { state | beingDragged = True }
                     , height fill
