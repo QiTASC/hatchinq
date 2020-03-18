@@ -1,7 +1,7 @@
 module Hatchinq.Theme exposing
     ( ColorTheme, ColorType, FontTheme, Theme
     , arrowTransition, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, transition, transparent, white, withColors
-    )
+    , IconsResource(..), withIcons)
 
 {-|
 
@@ -9,7 +9,7 @@ module Hatchinq.Theme exposing
 # Exposed
 
 @docs ColorTheme, ColorType, FontTheme, Theme
-@docs arrowTransition, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, transition, transparent, white, withColors
+@docs arrowTransition, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, transition, transparent, white, withColors, withIcons
 
 -}
 
@@ -65,12 +65,16 @@ type alias Sizes =
     , table : Table
     }
 
+{-| -}
+type IconsResource =
+    External String | Css String
 
 {-| -}
 type alias Theme =
     { font : FontTheme
     , colors : ColorTheme
     , sizes : Sizes
+    , icons : IconsResource
     }
 
 
@@ -204,6 +208,11 @@ withColors : QColor.Color -> QColor.Color -> Theme -> Theme
 withColors primaryColor secondaryColor theme =
     { theme | colors = colors primaryColor secondaryColor }
 
+{-| -}
+withIcons : IconsResource -> Theme -> Theme
+withIcons iconsResource theme =
+    { theme | icons = iconsResource }
+
 
 {-| -}
 dense : Theme -> Theme
@@ -248,6 +257,7 @@ default =
             , cellPadding = { top = 0, bottom = 0, left = 8, right = 8 }
             }
         }
+    , icons = External "https://fonts.googleapis.com/icon?family=Material+Icons"
     }
 
 
@@ -260,11 +270,13 @@ stylesheet : Theme -> Element msg
 stylesheet theme =
     Element.html <|
         Html.div []
-            [ Html.node "link"
-                [ Attr.rel "stylesheet"
-                , Attr.href "https://fonts.googleapis.com/icon?family=Material+Icons"
-                ]
-                []
+            [ case theme.icons of
+                External link ->
+                    Html.node "link" [ Attr.rel "stylesheet", Attr.href link ] []
+
+                Css css ->
+                    Html.node "style" [] [ Html.text css ]
+
             , Html.node "style"
                 []
                 [ Html.text
