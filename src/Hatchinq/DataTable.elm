@@ -588,7 +588,7 @@ view { theme, lift } attributes data =
                     if expanded it then
                         Element.column [ width fill ]
                             [ rowDisplay rowIndex it
-                            , Element.row [ paddingEach theme.sizes.table.expansionPadding ]
+                            , Element.row [ paddingEach theme.sizes.table.expansionPadding, width fill ]
                                 [ Element.el [ width expansionWidth ] none
                                 , expansionContent it
                                 ]
