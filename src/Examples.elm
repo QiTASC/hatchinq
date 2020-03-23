@@ -821,7 +821,7 @@ filesContent model _ =
         , Element.spacing 8
         ]
         [ Element.el [ Element.width fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
-            (tree []
+            (tree [Tree.expandableCollapsibleOnNodeClick]
                 { state = model.filesTreeState
                 , data = data
                 }
