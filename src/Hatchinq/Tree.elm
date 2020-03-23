@@ -16,7 +16,6 @@ import Element.Events exposing (onClick)
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme exposing (Theme, arrowTransition)
-import Hatchinq.Util exposing (onClickWithoutPropagation)
 import Html.Attributes exposing (style)
 
 
@@ -227,16 +226,16 @@ renderTreeNode internalConfig config path maybeExpandedNode (TreeNode { element,
                 (True, True) ->
                     [ pointer
                     , mouseOver [Background.color config.theme.colors.gray.lightest]
-                    , onClickWithoutPropagation True onClick
+                    , Element.Events.onClick onClick
                     ]
                 (False, True) ->
                     [ pointer
                     , mouseOver [Background.color config.theme.colors.gray.lightest]
-                    , onClickWithoutPropagation True (config.lift <| Toggle path)
+                    , Element.Events.onClick (config.lift <| Toggle path)
                     ]
                 _ ->
                     [ htmlAttribute <| style "cursor" "default"
-                    , onClickWithoutPropagation True onClick
+                    , Element.Events.onClick onClick
                     ]
 
         elementAttributes =
