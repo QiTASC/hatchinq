@@ -1,26 +1,31 @@
-module Hatchinq.Tree exposing (Config, Message, State, TreeNode, View, configure, init, node, update)
+module Hatchinq.Tree exposing (Config, Message, State, TreeNode, View, configure, init, node, update, expandableCollapsibleOnNodeClick)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, State, TreeNode, View, configure, init, node, update
+@docs Config, Message, State, TreeNode, View, configure, expandableCollapsibleOnNodeClick, init, node, update
 
 -}
 
 import Dict exposing (Dict)
-import Element exposing (Element, Length, centerX, centerY, fill, height, htmlAttribute, pointer, px, width)
+import Element exposing (Element, Length, centerX, centerY, fill, height, htmlAttribute, mouseOver, pointer, px, width)
+import Element.Background as Background
 import Element.Events exposing (onClick)
-import Hatchinq.Attribute exposing (Attribute, toElement)
+import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme exposing (Theme, arrowTransition)
+import Hatchinq.Util exposing (onClickWithoutPropagation)
 import Html.Attributes exposing (style)
 
 
 
 -- TYPES
 
+type alias InternalConfig =
+    { expandableCollapsibleOnNodeClick: Bool
+    }
 
 {-| -}
 type alias Config msg =
@@ -127,14 +132,26 @@ type alias View msg =
 
 
 {-| -}
-configure : Config msg -> List (Attribute v) -> View msg -> Element msg
+configure : Config msg -> List (Attribute InternalConfig) -> View msg -> Element msg
 configure config =
     view config
 
 
-view : Config msg -> List (Attribute v) -> View msg -> Element msg
+{-| -}
+expandableCollapsibleOnNodeClick : Attribute InternalConfig
+expandableCollapsibleOnNodeClick =
+    custom (\v -> { v | expandableCollapsibleOnNodeClick = True })
+
+
+view : Config msg -> List (Attribute InternalConfig) -> View msg -> Element msg
 view config attributes { state, data } =
     let
+        defaultInternalConfig =
+            { expandableCollapsibleOnNodeClick = False }
+
+        internalConfig =
+            toInternalConfig attributes defaultInternalConfig
+
         elementAttributes =
             toElement attributes
 
@@ -145,11 +162,11 @@ view config attributes { state, data } =
         (width fill
             :: elementAttributes
         )
-        (List.indexedMap (\index treeNode -> renderTreeNode config [ index ] (Dict.get index expandedNodes) treeNode) data)
+        (List.indexedMap (\index treeNode -> renderTreeNode internalConfig config [ index ] (Dict.get index expandedNodes) treeNode) data)
 
 
-renderTreeNode : Config msg -> TreePath -> Maybe ExpandedNode -> TreeNode msg -> Element msg
-renderTreeNode config path maybeExpandedNode (TreeNode { element, onClick, children }) =
+renderTreeNode : InternalConfig -> Config msg -> TreePath -> Maybe ExpandedNode -> TreeNode msg -> Element msg
+renderTreeNode internalConfig config path maybeExpandedNode (TreeNode { element, onClick, children }) =
     let
         itemRowHeight =
             config.theme.sizes.minRowHeight
@@ -179,7 +196,7 @@ renderTreeNode config path maybeExpandedNode (TreeNode { element, onClick, child
                     )
                     (Element.el [ centerX, centerY ]
                         (IconButton.configure { theme = config.theme }
-                            []
+                            [IconButton.stopPropagation]
                             { icon = "arrow_right", onPress = Just (config.lift <| Toggle path) }
                         )
                     )
@@ -200,21 +217,42 @@ renderTreeNode config path maybeExpandedNode (TreeNode { element, onClick, child
                             ]
                             (List.indexedMap
                                 (\nodeIndex childNode ->
-                                    renderTreeNode config (path ++ [ nodeIndex ]) (Dict.get nodeIndex expandedNodes) childNode
+                                    renderTreeNode internalConfig config (path ++ [ nodeIndex ]) (Dict.get nodeIndex expandedNodes) childNode
                                 )
                                 children
                             )
+
+        rowAttributes =
+            case (List.isEmpty children, internalConfig.expandableCollapsibleOnNodeClick) of
+                (True, True) ->
+                    [ pointer
+                    , mouseOver [Background.color config.theme.colors.gray.lightest]
+                    , onClickWithoutPropagation True onClick
+                    ]
+                (False, True) ->
+                    [ pointer
+                    , mouseOver [Background.color config.theme.colors.gray.lightest]
+                    , onClickWithoutPropagation True (config.lift <| Toggle path)
+                    ]
+                _ ->
+                    [ htmlAttribute <| style "cursor" "default"
+                    , onClickWithoutPropagation True onClick
+                    ]
+
+        elementAttributes =
+            case (List.isEmpty children, internalConfig.expandableCollapsibleOnNodeClick) of
+                (False, True) ->
+                    [Element.Events.onClick onClick]
+                _ ->
+                    []
     in
     Element.column
         [ width fill ]
         [ Element.row
-            [ height (px itemRowHeight) ]
+            ([ height (px itemRowHeight), width fill] ++ rowAttributes)
             [ toggleButton
             , Element.el
-                [ Element.paddingEach { top = 0, right = 4, bottom = 0, left = 0 }
-                , Element.Events.onClick <| onClick
-                , htmlAttribute <| style "cursor" "default"
-                ]
+                ([ Element.paddingEach { top = 0, right = 4, bottom = 0, left = 0 }, width fill] ++ elementAttributes)
                 element
             ]
         , childrenElements
