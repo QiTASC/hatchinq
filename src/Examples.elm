@@ -13,7 +13,7 @@ import Delay exposing (TimeUnit(..))
 import Element exposing (Element, alignTop, below, fill, html, inFront, onLeft, padding, px, shrink, spacing)
 import Element.Border
 import Element.Events
-import Hatchinq.AppBar as AppBar
+import Hatchinq.AppBar as AppBar exposing (AppBarIcon(..))
 import Hatchinq.Attribute as Html exposing (Attribute, height, id, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
 import Hatchinq.Card as Card exposing (Layout(..), Thumbnail(..))
@@ -702,10 +702,10 @@ view model =
             (appBar [ AppBar.navigate ToggleNavigation, AppBar.elevate True ]
                 { title = Element.text "Hatchinq Examples"
                 , buttons =
-                    [ { id = Just "appbar-button-1", icon = "search", message = SearchPage, attributes = [] }
-                    , { id = Just "appbar-button-2", icon = "person", message = NoOp, attributes = [] }
+                    [ { id = Just "appbar-button-1", icon = MaterialIcon "search", message = SearchPage, attributes = [] }
+                    , { id = Just "appbar-button-2", icon = MaterialIcon "person", message = NoOp, attributes = [] }
                     , { id = Just "appbar-menu-button"
-                      , icon = "more_vert"
+                      , icon = Avatar "https://qph.fs.quoracdn.net/main-qimg-9a1a3120354b2b345c5e5c6a1647fb6a" "Morty Smith"
                       , message = menuToggle model
                       , attributes = menuContent "appbar-menu" model
                       }

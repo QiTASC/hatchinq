@@ -1,5 +1,5 @@
 module Hatchinq.AppBar exposing
-    ( AppBarButton, Config, Message, State, View
+    ( AppBarButton, AppBarIcon(..), Config, Message, State, View
     , appBarHeight, configure, elevate, init, navigate, placeholder, update
     )
 
@@ -8,19 +8,20 @@ module Hatchinq.AppBar exposing
 
 # Exposed
 
-@docs AppBarButton, Config, Message, State, View
+@docs AppBarButton, AppBarIcon, Config, Message, State, View
 @docs appBarHeight, configure, elevate, init, navigate, placeholder, update
 
 -}
 
-import Element exposing (Element, centerX, centerY, fill, height, mouseOver, padding, paddingXY, pointer, px, width)
+import Element exposing (Element, centerX, centerY, fill, height, htmlAttribute, mouseOver, padding, paddingXY, pointer, px, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
+import Hatchinq.RoundImage exposing (roundImage)
 import Hatchinq.Theme as Theme exposing (Theme, icon)
-import Html.Attributes
+import Html.Attributes exposing (title)
 
 
 {-| -}
@@ -57,9 +58,15 @@ type alias View msg =
 
 
 {-| -}
+type AppBarIcon
+    = MaterialIcon String
+    | Avatar String String
+
+
+{-| -}
 type alias AppBarButton msg =
     { id : Maybe String
-    , icon : String
+    , icon : AppBarIcon
     , message : msg
     , attributes : List (Element.Attribute msg)
     }
@@ -141,7 +148,7 @@ view { theme } source data =
         (Element.row [ width fill, Element.spacing 16 ]
             [ case internalView.navigation of
                 Just message ->
-                    iconButton theme { id = Nothing, icon = "menu", message = message, attributes = [] }
+                    iconButton theme { id = Nothing, icon = MaterialIcon "menu", message = message, attributes = [] }
 
                 Nothing ->
                     Element.none
@@ -179,4 +186,10 @@ iconButton theme a =
                ]
             ++ a.attributes
         )
-        (Element.el [ centerX, centerY ] (icon a.icon))
+    <|
+        case a.icon of
+            MaterialIcon ic ->
+                Element.el [ centerX, centerY ] (icon ic)
+
+            Avatar source tooltip ->
+                roundImage 40 40 [ htmlAttribute <| title tooltip, centerX, centerY ] source
