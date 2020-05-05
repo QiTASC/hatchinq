@@ -69,6 +69,9 @@ type Sort item
 type alias State item =
     { hoveredHeader : Maybe Int
     , sort : Sort item
+    , scrollPos : ScrollPos
+    , firstVisible : Maybe Int
+    , lastVisible : Maybe Int
     }
 
 
@@ -91,6 +94,9 @@ init : State item
 init =
     { hoveredHeader = Nothing
     , sort = NoSort
+    , scrollPos = ScrollPos 0 0 0
+    , firstVisible = Nothing
+    , lastVisible = Nothing
     }
 
 
@@ -146,7 +152,7 @@ externalSortableColumn header width toElement sorter =
 {-| -}
 type Message item msg
     = Sort Int (SortMethod item msg)
-    | TableScroll msg Int String (InfiniteView msg) ScrollPos
+    | TableScroll msg Int String (DataTableType msg) ScrollPos
     | NoOp
 
 
@@ -189,67 +195,72 @@ update msg model =
                     else
                         ( { model | sort = Increasing columnIndex sorterFunc }, command (Just True) )
 
-        TableScroll noOp rowHeight elementId infiniteView scrollPos ->
-            if infiniteView.loadingBottom == Nothing && scrolledToBottom 0 scrollPos then
-                let
-                    loadExtraItems =
-                        infiniteView.loadExtraItems Down
+        TableScroll noOp rowHeight elementId dataTableType scrollPos ->
+            let
+                cmd =
+                    case dataTableType of
+                        Infinite infiniteView ->
+                            if infiniteView.loadingBottom == Nothing && scrolledToBottom 0 scrollPos then
+                                let
+                                    loadExtraItems =
+                                        infiniteView.loadExtraItems Down
+                                in
+                                case loadExtraItems of
+                                    Just { loadCount, excessCount, loadMsg } ->
+                                        Cmd.batch
+                                            [ Task.perform identity <| Task.succeed loadMsg
+                                            , if excessCount > 0 then
+                                                Dom.setViewportOf elementId 0 (toFloat (round scrollPos.scrollTop - excessCount * rowHeight))
+                                                    |> Task.attempt (\_ -> noOp)
 
-                    cmd =
-                        case loadExtraItems of
-                            Just { loadCount, excessCount, loadMsg } ->
-                                Cmd.batch
-                                    [ Task.perform identity <| Task.succeed loadMsg
-                                    , if excessCount > 0 then
-                                        Dom.setViewportOf elementId 0 (toFloat (round scrollPos.scrollTop - excessCount * rowHeight))
-                                            |> Task.attempt (\_ -> noOp)
+                                              else
+                                                Cmd.none
+                                            ]
 
-                                      else
+                                    Nothing ->
                                         Cmd.none
-                                    ]
 
-                            Nothing ->
-                                Cmd.none
-                in
-                ( model, cmd )
+                            else if infiniteView.loadingTop == Nothing && scrolledToTop 0 scrollPos then
+                                let
+                                    loadExtraItems =
+                                        infiniteView.loadExtraItems Up
+                                in
+                                case loadExtraItems of
+                                    Just { loadCount, excessCount, loadMsg } ->
+                                        Cmd.batch
+                                            [ Task.perform identity <| Task.succeed loadMsg
+                                            , if loadCount > 0 then
+                                                Dom.setViewportOf elementId 0 (toFloat (round scrollPos.scrollTop + loadCount * rowHeight))
+                                                    |> Task.attempt (\_ -> noOp)
 
-            else if infiniteView.loadingTop == Nothing && scrolledToTop 0 scrollPos then
-                let
-                    loadExtraItems =
-                        infiniteView.loadExtraItems Up
+                                              else
+                                                Cmd.none
+                                            ]
 
-                    cmd =
-                        case loadExtraItems of
-                            Just { loadCount, excessCount, loadMsg } ->
-                                Cmd.batch
-                                    [ Task.perform identity <| Task.succeed loadMsg
-                                    , if loadCount > 0 then
-                                        Dom.setViewportOf elementId 0 (toFloat (round scrollPos.scrollTop + loadCount * rowHeight))
-                                            |> Task.attempt (\_ -> noOp)
-
-                                      else
+                                    Nothing ->
                                         Cmd.none
-                                    ]
 
-                            Nothing ->
+                            else if infiniteView.loadingBottom /= Nothing && scrolledToBottom 1 scrollPos then
+                                Dom.setViewportOf elementId 0 (toFloat (scrollPos.contentHeight - scrollPos.containerHeight - 1))
+                                    |> Task.attempt (\_ -> noOp)
+
+                            else if infiniteView.loadingTop /= Nothing && scrolledToTop 1 scrollPos then
+                                Dom.setViewportOf elementId 0 (toFloat 1)
+                                    |> Task.attempt (\_ -> noOp)
+
+                            else
                                 Cmd.none
-                in
-                ( model, cmd )
 
-            else if infiniteView.loadingBottom /= Nothing && scrolledToBottom 1 scrollPos then
-                ( model
-                , Dom.setViewportOf elementId 0 (toFloat (scrollPos.contentHeight - scrollPos.containerHeight - 1))
-                    |> Task.attempt (\_ -> noOp)
-                )
+                        _ ->
+                            Cmd.none
 
-            else if infiniteView.loadingTop /= Nothing && scrolledToTop 1 scrollPos then
-                ( model
-                , Dom.setViewportOf elementId 0 (toFloat 1)
-                    |> Task.attempt (\_ -> noOp)
-                )
+                firstVisible =
+                    round (scrollPos.scrollTop / toFloat rowHeight)
 
-            else
-                ( model, Cmd.none )
+                lastVisible =
+                    firstVisible + (scrollPos.containerHeight // rowHeight)
+            in
+            ( { model | scrollPos = scrollPos, firstVisible = Just firstVisible, lastVisible = Just lastVisible }, cmd )
 
         NoOp ->
             ( model, Cmd.none )
@@ -578,33 +589,38 @@ view { theme, lift } attributes data =
                     ++ List.indexedMap (\columnIndex (Column { header, width, viewFunc, sorter }) -> Element.el ([ Element.width width ] ++ cellAttributes) (viewFunc rowIndex it)) data.columns
                 )
 
-        itemDisplay : Int -> item -> Element msg
-        itemDisplay rowIndex it =
-            case internalConfig.expansion of
-                Nothing ->
-                    rowDisplay rowIndex it
+        rowsTolerance =
+            50
 
-                Just ( expanded, onExpansion, expansionContent ) ->
-                    if expanded it then
-                        Element.column [ width fill ]
-                            [ rowDisplay rowIndex it
-                            , Element.row [ paddingEach theme.sizes.table.expansionPadding, width fill ]
-                                [ Element.el [ width expansionWidth ] none
-                                , expansionContent it
+        itemDisplay : State item -> Int -> item -> Element msg
+        itemDisplay state rowIndex it =
+            if rowIndex + rowsTolerance >= Maybe.withDefault 0 state.firstVisible && rowIndex - rowsTolerance <= Maybe.withDefault (List.length items) state.lastVisible then
+                case internalConfig.expansion of
+                    Nothing ->
+                        rowDisplay rowIndex it
+
+                    Just ( expanded, onExpansion, expansionContent ) ->
+                        if expanded it then
+                            Element.column [ width fill ]
+                                [ rowDisplay rowIndex it
+                                , Element.row [ paddingEach theme.sizes.table.expansionPadding, width fill ]
+                                    [ Element.el [ width expansionWidth ] none
+                                    , expansionContent it
+                                    ]
                                 ]
-                            ]
 
-                    else
-                        Element.column [ width fill ]
-                            [ rowDisplay rowIndex it ]
+                        else
+                            Element.column [ width fill ]
+                                [ rowDisplay rowIndex it ]
 
-        scrollingAttribute =
-            case internalConfig.dataTableType of
-                Infinite infiniteView ->
-                    [ Html.Events.on "scroll" (Decode.map (lift << TableScroll (lift NoOp) theme.sizes.table.rowHeight elementId infiniteView) decodeScrollPos) |> htmlAttribute ]
-
-                _ ->
-                    []
+            else
+                Element.el
+                    [ Element.height (Element.px theme.sizes.table.rowHeight)
+                    , width fill
+                    , Border.widthEach { bottom = 0, top = 1, left = 0, right = 0 }
+                    , Border.color theme.colors.gray.lighter
+                    ]
+                    Element.none
     in
     Element.column
         (tableAttributes ++ elementAttributes)
@@ -614,13 +630,16 @@ view { theme, lift } attributes data =
                 ++ List.indexedMap (\columnIndex headerColumn -> createHeader headerColumn columnIndex) data.columns
             )
         , Element.el
-            (scrollingAttribute
-                ++ [ scrollbarY, height fill, width fill, Html.Attributes.id elementId |> htmlAttribute ]
-            )
+            [ Html.Events.on "scroll" (Decode.map (lift << TableScroll (lift NoOp) theme.sizes.table.rowHeight elementId internalConfig.dataTableType) decodeScrollPos) |> htmlAttribute
+            , scrollbarY
+            , height fill
+            , width fill
+            , Html.Attributes.id elementId |> htmlAttribute
+            ]
             (Element.column [ height fill, width fill ]
                 (extraItemsTop
                     ++ List.indexedMap
-                        itemDisplay
+                        (itemDisplay data.state)
                         items
                     ++ extraItemsBottom
                 )
