@@ -1,6 +1,7 @@
 module Hatchinq.DataTable exposing
     ( Config, InfiniteView, LoadingDirection(..), Message, State, View
     , column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update
+    , calculateRowHeight
     )
 
 {-|
@@ -9,11 +10,12 @@ module Hatchinq.DataTable exposing
 # Exposed
 
 @docs Config, InfiniteView, LoadingDirection, Message, State, View
-@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update
+@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight
 
 -}
 
-import Browser.Dom as Dom
+import Browser.Dom as Dom exposing (Error(..), getElement)
+import Dict exposing (Dict)
 import Element exposing (Color, Element, centerX, centerY, fill, height, htmlAttribute, mouseDown, mouseOver, none, paddingEach, pointer, scrollbarY, width)
 import Element.Background as Background
 import Element.Border as Border
@@ -23,7 +25,7 @@ import Hatchinq.Attribute exposing (Attribute, custom, toElement, toId, toIntern
 import Hatchinq.Checkbox as Checkbox
 import Hatchinq.IconButton as IconButton exposing (..)
 import Hatchinq.Theme exposing (Theme, arrowTransition, black, icon, lightenOrDarken)
-import Html.Attributes
+import Html.Attributes exposing (id)
 import Html.Events
 import Json.Decode as Decode
 import Task
@@ -72,6 +74,7 @@ type alias State item =
     , scrollPos : ScrollPos
     , firstVisible : Maybe Int
     , lastVisible : Maybe Int
+    , rowHeights : Dict String Int
     }
 
 
@@ -97,6 +100,7 @@ init =
     , scrollPos = ScrollPos 0 0 0
     , firstVisible = Nothing
     , lastVisible = Nothing
+    , rowHeights = Dict.empty
     }
 
 
@@ -152,7 +156,8 @@ externalSortableColumn header width toElement sorter =
 {-| -}
 type Message item msg
     = Sort Int (SortMethod item msg)
-    | TableScroll msg Int String (DataTableType msg) ScrollPos
+    | TableScroll msg Int (Maybe String) String (DataTableType msg) ScrollPos
+    | CalculatedRowHeight Int Int String
     | NoOp
 
 
@@ -195,7 +200,7 @@ update msg model =
                     else
                         ( { model | sort = Increasing columnIndex sorterFunc }, command (Just True) )
 
-        TableScroll noOp rowHeight elementId dataTableType scrollPos ->
+        TableScroll noOp rowHeight maybeTableId elementId dataTableType scrollPos ->
             let
                 cmd =
                     case dataTableType of
@@ -254,16 +259,47 @@ update msg model =
                         _ ->
                             Cmd.none
 
-                firstVisible =
-                    round (scrollPos.scrollTop / toFloat rowHeight)
+                findRowIndex : Int -> Int -> Int -> String -> Int
+                findRowIndex maxHeight acc rowIndex tableId =
+                    if acc >= maxHeight then
+                        rowIndex
 
-                lastVisible =
-                    firstVisible + (scrollPos.containerHeight // rowHeight)
+                    else
+                        findRowIndex maxHeight (acc + (Maybe.withDefault rowHeight <| Dict.get (tableRowId tableId rowIndex) model.rowHeights)) (rowIndex + 1) tableId
+
+                maybeFirstVisible =
+                    Maybe.map (\tableId -> findRowIndex (round scrollPos.scrollTop) 0 0 tableId) maybeTableId
+
+                maybeLastVisible =
+                    Maybe.map2 (\tableId firstVisible -> findRowIndex (round scrollPos.scrollTop + scrollPos.containerHeight) (round scrollPos.scrollTop) firstVisible tableId) maybeTableId maybeFirstVisible
             in
-            ( { model | scrollPos = scrollPos, firstVisible = Just firstVisible, lastVisible = Just lastVisible }, cmd )
+            ( { model | scrollPos = scrollPos, firstVisible = maybeFirstVisible, lastVisible = maybeLastVisible }, cmd )
+
+        CalculatedRowHeight rowHeight rowIndex tableId ->
+            ( { model | rowHeights = Dict.insert (tableRowId tableId rowIndex) rowHeight model.rowHeights }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
+
+
+{-| Use this to inform the table that the height of a row has changed -}
+calculateRowHeight : Int -> String -> Cmd (Message item msg)
+calculateRowHeight rowIndex tableId =
+    getElement (tableRowId tableId rowIndex)
+        |> Task.attempt
+            (\result ->
+                case result of
+                    Ok info ->
+                        CalculatedRowHeight (round info.element.height) rowIndex tableId
+
+                    Err _ ->
+                        NoOp
+            )
+
+
+tableRowId : String -> Int -> String
+tableRowId tableId rowIndex =
+    tableId ++ String.fromInt rowIndex
 
 
 scrolledToTop : Int -> ScrollPos -> Bool
@@ -335,6 +371,9 @@ view { theme, lift } attributes data =
     let
         elementAttributes =
             toElement attributes
+
+        maybeTableId =
+            toId attributes
 
         defaultConfig =
             { dataTableType = Plain
@@ -592,35 +631,48 @@ view { theme, lift } attributes data =
         rowsTolerance =
             50
 
+        maybeTableRowId rowIndex =
+            Maybe.withDefault [] <| Maybe.map (\tableId -> [ htmlAttribute <| id (tableRowId tableId rowIndex) ]) maybeTableId
+
         itemDisplay : State item -> Int -> item -> Element msg
         itemDisplay state rowIndex it =
-            if rowIndex + rowsTolerance >= Maybe.withDefault 0 state.firstVisible && rowIndex - rowsTolerance <= Maybe.withDefault (List.length items) state.lastVisible then
-                case internalConfig.expansion of
-                    Nothing ->
-                        rowDisplay rowIndex it
+            Element.el ([ width fill ] ++ maybeTableRowId rowIndex) <|
+                if rowIndex + rowsTolerance >= Maybe.withDefault 0 state.firstVisible && rowIndex - rowsTolerance <= Maybe.withDefault (List.length items) state.lastVisible then
+                    case internalConfig.expansion of
+                        Nothing ->
+                            rowDisplay rowIndex it
 
-                    Just ( expanded, onExpansion, expansionContent ) ->
-                        if expanded it then
-                            Element.column [ width fill ]
-                                [ rowDisplay rowIndex it
-                                , Element.row [ paddingEach theme.sizes.table.expansionPadding, width fill ]
-                                    [ Element.el [ width expansionWidth ] none
-                                    , expansionContent it
+                        Just ( expanded, onExpansion, expansionContent ) ->
+                            if expanded it then
+                                Element.column [ width fill ]
+                                    [ rowDisplay rowIndex it
+                                    , Element.row [ paddingEach theme.sizes.table.expansionPadding, width fill ]
+                                        [ Element.el [ width expansionWidth ] none
+                                        , expansionContent it
+                                        ]
                                     ]
-                                ]
 
-                        else
-                            Element.column [ width fill ]
-                                [ rowDisplay rowIndex it ]
+                            else
+                                Element.column [ width fill ]
+                                    [ rowDisplay rowIndex it ]
 
-            else
-                Element.el
-                    [ Element.height (Element.px theme.sizes.table.rowHeight)
-                    , width fill
-                    , Border.widthEach { bottom = 0, top = 1, left = 0, right = 0 }
-                    , Border.color theme.colors.gray.lighter
-                    ]
-                    Element.none
+                else
+                    let
+                        rowHeight =
+                            case maybeTableId of
+                                Just tableId ->
+                                    Maybe.withDefault theme.sizes.table.rowHeight <| Dict.get (tableRowId tableId rowIndex) state.rowHeights
+
+                                Nothing ->
+                                    theme.sizes.table.rowHeight
+                    in
+                    Element.el
+                        [ Element.height (Element.px rowHeight)
+                        , width fill
+                        , Border.widthEach { bottom = 0, top = 1, left = 0, right = 0 }
+                        , Border.color theme.colors.gray.lighter
+                        ]
+                        Element.none
     in
     Element.column
         (tableAttributes ++ elementAttributes)
@@ -630,7 +682,7 @@ view { theme, lift } attributes data =
                 ++ List.indexedMap (\columnIndex headerColumn -> createHeader headerColumn columnIndex) data.columns
             )
         , Element.el
-            [ Html.Events.on "scroll" (Decode.map (lift << TableScroll (lift NoOp) theme.sizes.table.rowHeight elementId internalConfig.dataTableType) decodeScrollPos) |> htmlAttribute
+            [ Html.Events.on "scroll" (Decode.map (lift << TableScroll (lift NoOp) theme.sizes.table.rowHeight maybeTableId elementId internalConfig.dataTableType) decodeScrollPos) |> htmlAttribute
             , scrollbarY
             , height fill
             , width fill
