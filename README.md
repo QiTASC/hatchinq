@@ -9,6 +9,7 @@ Next UI elements are available so far:
  - Button
  - Card
  - Checkbox
+ - Chip
  - DataTable
  - DropDown
  - IconButton
@@ -28,6 +29,7 @@ import Hatchinq.AppBar as AppBar
 import Hatchinq.Attribute exposing (Attribute, height, width, withAttributes)
 import Hatchinq.Button as Button exposing (..)
 import Hatchinq.Checkbox as Checkbox exposing (..)
+import Hatchinq.Chip as Checkbox exposing (..)
 import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.DropDown as DropDown exposing (..)
 import Hatchinq.IconButton as IconButton (..)

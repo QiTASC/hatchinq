@@ -18,6 +18,7 @@ import Hatchinq.Attribute as Html exposing (Attribute, height, id, width, withAt
 import Hatchinq.Button as Button exposing (..)
 import Hatchinq.Card as Card exposing (Layout(..), Thumbnail(..))
 import Hatchinq.Checkbox as Checkbox exposing (..)
+import Hatchinq.Chip as Chip exposing (coloring, maxWidth)
 import Hatchinq.DataTable as DataTable exposing (..)
 import Hatchinq.Divider as Divider exposing (withColor)
 import Hatchinq.DropDown as DropDown exposing (..)
@@ -143,6 +144,7 @@ type Msg
     | TabBarLift (TabBar.Message Msg)
     | TabBarSelect TabType
     | CardLift (Card.Message Msg)
+    | CloseChip String
     | NoOp
 
 
@@ -281,6 +283,10 @@ card =
 
 divider =
     Divider.configure { theme = theme }
+
+
+chip =
+    Chip.configure { theme = theme }
 
 
 type alias Model =
@@ -679,6 +685,9 @@ update msg model =
             in
             ( { model | cardState = state }, cmd )
 
+        CloseChip text ->
+            ( model, Snackbar.alert SnackbarLift (Plain <| "Clolse " ++ text) )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -821,7 +830,7 @@ filesContent model _ =
         , Element.spacing 8
         ]
         [ Element.el [ Element.width fill, Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
-            (tree [Tree.expandableCollapsibleOnNodeClick]
+            (tree [ Tree.expandableCollapsibleOnNodeClick ]
                 { state = model.filesTreeState
                 , data = data
                 }
@@ -1315,6 +1324,76 @@ mainContent model =
                     , state = model.cardState
                     }
                 )
+            ]
+        , Element.row
+            [ Element.spacing 8 ]
+            [ chip
+                []
+                { item = "Chip"
+                , toString = identity
+                , onClick = Nothing
+                , onClose = Nothing
+                }
+            , chip
+                [ coloring (\_ -> Element.rgb255 223 255 224)
+                , Chip.withError False
+                , maxWidth 300
+                ]
+                { item = "Colored chip"
+                , toString = identity
+                , onClick = Nothing
+                , onClose = Nothing
+                }
+            , chip
+                []
+                { item = "Closable chip"
+                , toString = identity
+                , onClick = Nothing
+                , onClose = Just CloseChip
+                }
+            , chip
+                [ Chip.icon "done" ]
+                { item = "Chip with icon"
+                , toString = identity
+                , onClick = Nothing
+                , onClose = Just CloseChip
+                }
+            , chip
+                [ Chip.label "Label"
+                , Chip.icon "done"
+                ]
+                { item = "Chip with label"
+                , toString = identity
+                , onClick = Nothing
+                , onClose = Just CloseChip
+                }
+            , chip
+                [ Chip.label "Label"
+                , Chip.icon "done"
+                , Chip.maxWidth 200
+                ]
+                { item = "I am a chip with a very long text"
+                , toString = identity
+                , onClick = Nothing
+                , onClose = Just CloseChip
+                }
+            , chip
+                [ Chip.label "Label"
+                , Chip.icon "done"
+                , Chip.withError True
+                ]
+                { item = "Chip with error 1"
+                , toString = identity
+                , onClick = Nothing
+                , onClose = Just CloseChip
+                }
+            , chip
+                [ Chip.withError True ]
+                { item = "Chip with error 2"
+                , toString = identity
+                , onClick = Nothing
+                , onClose = Nothing
+                }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ progressIndicator [ visibility model.progressIndicatorVisiblity1, circular ] { progress = model.progressIndicator1 }
