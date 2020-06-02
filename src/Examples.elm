@@ -686,7 +686,7 @@ update msg model =
             ( { model | cardState = state }, cmd )
 
         CloseChip text ->
-            ( model, Snackbar.alert SnackbarLift (Plain <| "Clolse " ++ text) )
+            ( model, Snackbar.alert SnackbarLift (Plain <| "Close " ++ text) )
 
         NoOp ->
             ( model, Cmd.none )
