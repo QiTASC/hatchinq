@@ -1,4 +1,4 @@
-module Hatchinq.Chip exposing (coloring, configure, icon, maxWidth, view, withError)
+module Hatchinq.Chip exposing (coloring, configure, icon, maxWidth, withError)
 
 {-|
 
