@@ -1352,24 +1352,14 @@ mainContent model =
                 , onClose = Just CloseChip
                 }
             , chip
-                [ Chip.icon "done" ]
+                [ Chip.icon { name = "code", tooltip = "" } ]
                 { item = "Chip with icon"
                 , toString = identity
                 , onClick = Nothing
                 , onClose = Just CloseChip
                 }
             , chip
-                [ Chip.label "Label"
-                , Chip.icon "done"
-                ]
-                { item = "Chip with label"
-                , toString = identity
-                , onClick = Nothing
-                , onClose = Just CloseChip
-                }
-            , chip
-                [ Chip.label "Label"
-                , Chip.icon "done"
+                [ Chip.icon { name = "notes", tooltip = "text" }
                 , Chip.maxWidth 200
                 ]
                 { item = "I am a chip with a very long text"
@@ -1378,8 +1368,7 @@ mainContent model =
                 , onClose = Just CloseChip
                 }
             , chip
-                [ Chip.label "Label"
-                , Chip.icon "done"
+                [ Chip.icon { name = "construction", tooltip = "settings" }
                 , Chip.withError True
                 ]
                 { item = "Chip with error 1"

@@ -1,12 +1,13 @@
-module Hatchinq.Chip exposing (coloring, configure, icon, label, maxWidth, view, withError)
+module Hatchinq.Chip exposing (coloring, configure, icon, maxWidth, view, withError)
 
-import Element exposing (Color, Element, alignBottom, centerY, column, el, fill, maximum, moveDown, none, padding, pointer, rgb255, row, shrink, spacing, width)
+import Element exposing (Color, Element, alignBottom, centerY, column, el, fill, htmlAttribute, maximum, none, paddingEach, pointer, rgb255, row, shrink, spacing, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events
-import Element.Font as Font exposing (size)
+import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toInternalConfig)
 import Hatchinq.Theme exposing (Theme, textWithEllipsis)
+import Html.Attributes exposing (title)
 
 
 
@@ -19,18 +20,11 @@ type alias Config =
 
 
 type alias InternalConfig item =
-    { label : Maybe String
-    , error : Bool
+    { error : Bool
     , coloring : Maybe (item -> Color)
-    , icon : Maybe String
+    , icon : Maybe { name: String, tooltip: String }
     , maxWidth : Maybe Int
     }
-
-
-{-| -}
-label : String -> Attribute (InternalConfig item)
-label text =
-    custom (\v -> { v | label = Just text })
 
 
 {-| -}
@@ -46,9 +40,9 @@ coloring coloring_ =
 
 
 {-| -}
-icon : String -> Attribute (InternalConfig item)
-icon name =
-    custom (\v -> { v | icon = Just name })
+icon : { name: String, tooltip: String } -> Attribute (InternalConfig item)
+icon data =
+    custom (\v -> { v | icon = Just data })
 
 
 {-| -}
@@ -79,8 +73,7 @@ view : Config -> List (Attribute (InternalConfig item)) -> View item msg -> Elem
 view { theme } attributes { item, toString, onClick, onClose } =
     let
         defaultConfig =
-            { label = Nothing
-            , error = False
+            { error = False
             , coloring = Nothing
             , icon = Nothing
             , maxWidth = Nothing
@@ -107,12 +100,17 @@ view { theme } attributes { item, toString, onClick, onClose } =
                     width shrink
     in
     column
-        ([ Border.rounded 24, Background.color backgroundColor, padding 8, spacing 4, alignBottom ] ++ (Maybe.withDefault [] <| Maybe.map (\click -> [ Element.Events.onClick (click item) ]) onClick))
-        [ Maybe.withDefault none <| Maybe.map (\content -> el [ Font.color theme.colors.gray.dark, size 12 ] <| textWithEllipsis content) internalConfig.label
-        , row
+        ([ Border.rounded 24
+         , Background.color backgroundColor
+         , paddingEach {top = 8, bottom = 8, left = if internalConfig.icon == Nothing then 16 else 8, right = if onClose == Nothing then 16 else 8}
+         , spacing 4
+         , alignBottom
+         ]
+         ++ (Maybe.withDefault [] <| Maybe.map (\click -> [ Element.Events.onClick (click item) ]) onClick))
+        [ row
             [ spacing 8, centerY ]
-            [ Maybe.withDefault none <| Maybe.map (\ic -> el [ Font.color iconColor ] <| Hatchinq.Theme.icon ic) internalConfig.icon
-            , el [ textWidth, moveDown 2 ] <| textWithEllipsis (toString item)
+            [ Maybe.withDefault none <| Maybe.map (\ic -> el [ Font.color iconColor, htmlAttribute <| title ic.tooltip ] <| Hatchinq.Theme.icon ic.name) internalConfig.icon
+            , el [ textWidth ] <| textWithEllipsis (toString item)
             , case onClose of
                 Just onCloseClick ->
                     el [ pointer, Element.Events.onClick (onCloseClick item), Font.color iconColor ] <| Hatchinq.Theme.icon "cancel"
