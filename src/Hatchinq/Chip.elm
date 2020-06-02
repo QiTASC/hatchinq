@@ -1,5 +1,14 @@
 module Hatchinq.Chip exposing (coloring, configure, icon, maxWidth, view, withError)
 
+{-|
+
+
+# Exposed
+
+@docs Config, configure, withError, coloring, icon, maxWidth
+
+-}
+
 import Element exposing (Color, Element, alignBottom, centerY, column, el, fill, htmlAttribute, maximum, none, paddingEach, pointer, rgb255, row, shrink, spacing, width)
 import Element.Background as Background
 import Element.Border as Border

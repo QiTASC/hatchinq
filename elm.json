@@ -11,6 +11,7 @@
         "Hatchinq.Button",
         "Hatchinq.Card",
         "Hatchinq.Checkbox",
+        "Hatchinq.Chip",
         "Hatchinq.Color",
         "Hatchinq.DataTable",
         "Hatchinq.Divider",
