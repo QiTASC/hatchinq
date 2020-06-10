@@ -1,6 +1,6 @@
 module Hatchinq.Theme exposing
     ( ColorTheme, ColorType, FontTheme, Theme
-    , arrowTransition, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, transition, transparent, white, withColors
+    , arrowTransition, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, textWithEllipsisCustomTooltip, transition, transparent, white, withColors
     , IconsResource(..), withIcons)
 
 {-|
@@ -751,6 +751,12 @@ arrowTransition =
 {-| -}
 textWithEllipsis : String -> Element msg
 textWithEllipsis text =
+    textWithEllipsisCustomTooltip text text
+
+
+{-| -}
+textWithEllipsisCustomTooltip : String -> String -> Element msg
+textWithEllipsisCustomTooltip text tooltip =
     el
         [ paddingXY 0 2
         , width fill
@@ -758,7 +764,7 @@ textWithEllipsis text =
         , htmlAttribute <| Attr.style "display" "inline-block"
         , htmlAttribute <| Attr.style "overflow" "hidden"
         , htmlAttribute <| Attr.style "text-overflow" "ellipsis"
-        , htmlAttribute <| Attr.title text
+        , htmlAttribute <| Attr.title tooltip
         ]
         (html <| Html.text text)
 

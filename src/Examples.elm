@@ -1103,7 +1103,7 @@ mainContent model =
                         ]
                         { columns =
                             [ DataTable.column (Element.text "First name") (px 100) (\_ person -> Element.text person.firstName)
-                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> textWithEllipsis person.lastName) (List.sortBy (\p -> p.lastName))
+                            , DataTable.sortableColumn (Element.text "Last name") (px 100) (\_ person -> textWithEllipsisCustomTooltip person.lastName "Last name") (List.sortBy (\p -> p.lastName))
                             , DataTable.sortableColumn (Element.text "Age") (px 100) (\_ person -> Element.text (String.fromInt person.age)) (List.sortBy (\p -> p.age))
                             ]
                         , items =
