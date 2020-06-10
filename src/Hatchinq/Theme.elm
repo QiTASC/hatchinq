@@ -9,7 +9,7 @@ module Hatchinq.Theme exposing
 # Exposed
 
 @docs ColorTheme, ColorType, FontTheme, IconsResource, Theme
-@docs arrowTransition, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, transition, transparent, white, withColors, withIcons
+@docs arrowTransition, textWithEllipsisCustomTooltip, black, default, dense, font, icon, lightenOrDarken, stylesheet, textWithEllipsis, transition, transparent, white, withColors, withIcons
 
 -}
 
