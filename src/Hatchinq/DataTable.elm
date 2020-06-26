@@ -365,6 +365,11 @@ lightenOrDarkenOnHover : Float -> Attribute (InternalConfig item msg)
 lightenOrDarkenOnHover amount =
     custom (\v -> { v | lighterOrDarkerAmountOnHover = amount })
 
+reversedSort : (List item -> List item) -> List item -> List item
+reversedSort sorter items =
+    items
+      |> sorter
+      |> List.reverse
 
 view : Config item msg -> List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg
 view { theme, lift } attributes data =
@@ -448,7 +453,7 @@ view { theme, lift } attributes data =
                     Maybe.withDefault identity sorter
 
                 Decreasing _ sorter ->
-                    Maybe.withDefault identity sorter
+                    Maybe.withDefault identity (Maybe.map (\sort -> reversedSort sort) sorter)
 
         items =
             sorterFunc data.items
