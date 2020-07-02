@@ -47,6 +47,7 @@ coloring coloring_ =
     custom (\v -> { v | coloring = Just coloring_ })
 
 
+{-| -}
 icon : Element msg -> Attribute (InternalConfig item msg)
 icon data =
     custom (\v -> { v | icon = Just data })
