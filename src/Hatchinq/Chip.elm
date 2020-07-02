@@ -9,14 +9,13 @@ module Hatchinq.Chip exposing (Config, coloring, configure, icon, maxWidth, with
 
 -}
 
-import Element exposing (Color, Element, alignBottom, centerY, column, el, fill, htmlAttribute, maximum, none, paddingEach, pointer, rgb255, row, shrink, spacing, width)
+import Element exposing (Color, Element, alignBottom, centerY, column, el, fill, maximum, none, paddingEach, pointer, rgb255, row, shrink, spacing, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events
 import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toInternalConfig)
 import Hatchinq.Theme exposing (Theme, textWithEllipsis)
-import Html.Attributes exposing (title)
 
 
 
@@ -28,34 +27,33 @@ type alias Config =
     { theme : Theme }
 
 
-type alias InternalConfig item =
+type alias InternalConfig item msg =
     { error : Bool
     , coloring : Maybe (item -> Color)
-    , icon : Maybe { name: String, tooltip: String }
+    , icon : Maybe (Element msg)
     , maxWidth : Maybe Int
     }
 
 
 {-| -}
-withError : Bool -> Attribute (InternalConfig item)
+withError : Bool -> Attribute (InternalConfig item msg)
 withError error =
     custom (\v -> { v | error = error })
 
 
 {-| -}
-coloring : (item -> Element.Color) -> Attribute (InternalConfig item)
+coloring : (item -> Element.Color) -> Attribute (InternalConfig item msg)
 coloring coloring_ =
     custom (\v -> { v | coloring = Just coloring_ })
 
 
-{-| -}
-icon : { name: String, tooltip: String } -> Attribute (InternalConfig item)
+icon : Element msg -> Attribute (InternalConfig item msg)
 icon data =
     custom (\v -> { v | icon = Just data })
 
 
 {-| -}
-maxWidth : Int -> Attribute (InternalConfig item)
+maxWidth : Int -> Attribute (InternalConfig item msg)
 maxWidth width =
     custom (\v -> { v | maxWidth = Just width })
 
@@ -73,12 +71,12 @@ type alias View item msg =
 
 
 {-| -}
-configure : Config -> (List (Attribute (InternalConfig item)) -> View item msg -> Element msg)
+configure : Config -> (List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg)
 configure config =
     view config
 
 
-view : Config -> List (Attribute (InternalConfig item)) -> View item msg -> Element msg
+view : Config -> List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg
 view { theme } attributes { item, toString, onClick, onClose } =
     let
         defaultConfig =
@@ -111,14 +109,30 @@ view { theme } attributes { item, toString, onClick, onClose } =
     column
         ([ Border.rounded 24
          , Background.color backgroundColor
-         , paddingEach {top = 8, bottom = 8, left = if internalConfig.icon == Nothing then 16 else 8, right = if onClose == Nothing then 16 else 8}
+         , paddingEach
+            { top = 8
+            , bottom = 8
+            , left =
+                if internalConfig.icon == Nothing then
+                    16
+
+                else
+                    8
+            , right =
+                if onClose == Nothing then
+                    16
+
+                else
+                    8
+            }
          , spacing 4
          , alignBottom
          ]
-         ++ (Maybe.withDefault [] <| Maybe.map (\click -> [ Element.Events.onClick (click item) ]) onClick))
+            ++ (Maybe.withDefault [] <| Maybe.map (\click -> [ Element.Events.onClick (click item) ]) onClick)
+        )
         [ row
             [ spacing 8, centerY ]
-            [ Maybe.withDefault none <| Maybe.map (\ic -> el [ Font.color iconColor, htmlAttribute <| title ic.tooltip ] <| Hatchinq.Theme.icon ic.name) internalConfig.icon
+            [ Maybe.withDefault none internalConfig.icon
             , el [ textWidth ] <| textWithEllipsis (toString item)
             , case onClose of
                 Just onCloseClick ->

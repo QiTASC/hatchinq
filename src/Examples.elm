@@ -1352,14 +1352,14 @@ mainContent model =
                 , onClose = Just CloseChip
                 }
             , chip
-                [ Chip.icon { name = "code", tooltip = "" } ]
+                [ Chip.icon <| icon "code" ]
                 { item = "Chip with icon"
                 , toString = identity
                 , onClick = Nothing
                 , onClose = Just CloseChip
                 }
             , chip
-                [ Chip.icon { name = "notes", tooltip = "text" }
+                [ Chip.icon <| icon "notes"
                 , Chip.maxWidth 200
                 ]
                 { item = "I am a chip with a very long text"
@@ -1368,7 +1368,7 @@ mainContent model =
                 , onClose = Just CloseChip
                 }
             , chip
-                [ Chip.icon { name = "construction", tooltip = "settings" }
+                [ Chip.icon <| icon "construction"
                 , Chip.withError True
                 ]
                 { item = "Chip with error 1"
