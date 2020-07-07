@@ -117,7 +117,7 @@ type Msg
     | PressPlus
     | MenuLift (Menu.Message Msg)
     | InputChange InputField String
-    | InputStateChange (TextField.Message InputField)
+    | InputStateChange (TextField.Message Msg InputField)
     | InputKeyDown String
     | DataTableChange (DataTable.Message Person Msg)
     | DataTableSortChange Int (Maybe Bool)
@@ -145,6 +145,8 @@ type Msg
     | TabBarSelect TabType
     | CardLift (Card.Message Msg)
     | CloseChip String
+    | OnFocus
+    | OnLoseFocus
     | NoOp
 
 
@@ -434,10 +436,10 @@ update msg model =
 
         InputStateChange inputMessage ->
             let
-                newInputField =
+                (newInputField, cmd) =
                     TextField.update inputMessage model.inputField
             in
-            ( { model | inputField = newInputField }, Cmd.none )
+            ( { model | inputField = newInputField }, cmd )
 
         InputKeyDown key ->
             ( model
@@ -687,6 +689,12 @@ update msg model =
 
         CloseChip text ->
             ( model, Snackbar.alert SnackbarLift (Plain <| "Close " ++ text) )
+
+        OnFocus ->
+            (model, Snackbar.alert SnackbarLift (Plain <| "Focus"))
+
+        OnLoseFocus ->
+            (model, Snackbar.alert SnackbarLift (Plain <| "Lose focus"))
 
         NoOp ->
             ( model, Cmd.none )
@@ -962,7 +970,7 @@ mainContent model =
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ Element.el [ alignTop ] <|
-                textField []
+                textField [onFocus OnFocus]
                     { id = FirstInputField
                     , label = "My input field"
                     , value = model.inputValue
@@ -1013,7 +1021,7 @@ mainContent model =
                 }
             ]
         , Element.row [ Element.width fill, spacing 16 ]
-            [ textField [ multiline, height (px 100) ]
+            [ textField [ multiline, height (px 100), onLoseFocus OnLoseFocus ]
                 { id = FirstMultiline
                 , label = "My input field"
                 , value = model.multilineValue
@@ -1219,7 +1227,7 @@ mainContent model =
                 (Element.el [ Element.Border.width 1, Element.Border.color theme.colors.gray.light ]
                     (list WithImagesAndSelectable
                         [ imageSrc (\person -> person.imageSrc)
-                        , control (\person -> iconButton [ withTextColor (theme.colors.gray.withAlpha 0.46), IconButton.stopPropagation ] { icon = "delete", onPress = Just PressMinus })
+                        , control (\_ -> iconButton [ withTextColor (theme.colors.gray.withAlpha 0.46), IconButton.stopPropagation ] { icon = "delete", onPress = Just PressMinus })
                         , secondaryText (\person -> Maybe.withDefault "" person.additionalInfo)
                         ]
                         { items = persons

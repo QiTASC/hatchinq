@@ -1,15 +1,15 @@
-module Hatchinq.TextField exposing (Config, Message, State, View, configure, init, multiline, password, update, withError)
+module Hatchinq.TextField exposing (Config, Message, State, View, configure, init, multiline, password, update, withError, onFocus, onLoseFocus)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Message, State, View, configure, init, multiline, password, update, withError
+@docs Config, Message, State, View, configure, init, multiline, onFocus, onLoseFocus, password, update, withError
 
 -}
 
-import Element exposing (Element, fill, focused, height, htmlAttribute, inFront, mouseOver, paddingEach, paddingXY, px, shrink, width)
+import Element exposing (Element, fill, height, htmlAttribute, inFront, mouseOver, paddingEach, paddingXY, px, shrink, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
@@ -18,8 +18,9 @@ import Element.Input as Input
 import Hatchinq.Attribute exposing (Attribute, custom, toHeight, toInternalConfig, toWidth)
 import Hatchinq.Theme as Theme exposing (Theme, textWithEllipsis, transparent)
 import Html.Attributes as Attr
-import Html.Events exposing (keyCode)
+import Html.Events
 import Json.Decode as Json
+import Task
 
 
 
@@ -29,7 +30,7 @@ import Json.Decode as Json
 {-| -}
 type alias Config id msg =
     { theme : Theme
-    , lift : Message id -> msg
+    , lift : Message msg id -> msg
     }
 
 
@@ -38,10 +39,12 @@ type State id
     = InternalState (Maybe id)
 
 
-type alias InternalConfig =
+type alias InternalConfig msg=
     { multiline : Bool
     , password : Bool
     , errorFunction : Maybe { default : String, error : Maybe String }
+    , onFocus : Maybe msg
+    , onLoseFocus: Maybe msg
     }
 
 
@@ -51,28 +54,37 @@ type TextFieldType
 
 
 {-| -}
-configure : Config id msg -> (List (Attribute InternalConfig) -> View id msg -> Element msg)
+configure : Config id msg -> (List (Attribute (InternalConfig msg)) -> View id msg -> Element msg)
 configure config =
     view config
 
 
 {-| -}
-multiline : Attribute InternalConfig
+multiline : Attribute (InternalConfig msg)
 multiline =
     custom (\v -> { v | multiline = True })
 
 
 {-| -}
-password : Attribute InternalConfig
+password : Attribute (InternalConfig msg)
 password =
     custom (\v -> { v | password = True })
 
 
 {-| -}
-withError : { default : String, error : Maybe String } -> Attribute InternalConfig
+withError : { default : String, error : Maybe String } -> Attribute (InternalConfig msg)
 withError errorFunction =
     custom (\v -> { v | errorFunction = Just errorFunction })
 
+{-| -}
+onFocus : msg -> Attribute (InternalConfig msg)
+onFocus msg =
+    custom (\v -> { v | onFocus = Just msg })
+
+{-| -}
+onLoseFocus : msg -> Attribute (InternalConfig msg)
+onLoseFocus msg =
+    custom (\v -> { v | onLoseFocus = Just msg })
 
 {-| -}
 init : State id
@@ -85,9 +97,9 @@ init =
 
 
 {-| -}
-type Message id
-    = Focus id
-    | Blur id
+type Message msg id
+    = Focus id (Maybe msg)
+    | Blur id (Maybe msg)
     | Impossible String
 
 
@@ -96,22 +108,29 @@ type Message id
 
 
 {-| -}
-update : Message id -> State id -> State id
+update : Message msg id -> State id -> (State id, Cmd msg)
 update message (InternalState state) =
-    InternalState
-        (case message of
-            Focus id ->
-                Just id
 
-            Blur id ->
+        (case message of
+            Focus id Nothing ->
+                (InternalState <| Just id, Cmd.none)
+
+            Focus id (Just focusMsg) ->
+                (InternalState <| Just id, Task.succeed focusMsg |> Task.perform identity)
+
+            Blur id maybeLoseFocusMsg ->
+                let
+                    cmd =
+                        Maybe.withDefault Cmd.none <| Maybe.map (\loseFocusMsg -> Task.succeed loseFocusMsg |> Task.perform identity) maybeLoseFocusMsg
+                in
                 if state == Just id then
-                    Nothing
+                    (InternalState Nothing, cmd)
 
                 else
-                    state
+                    (InternalState state, cmd)
 
             _ ->
-                state
+                (InternalState state, Cmd.none)
         )
 
 
@@ -130,13 +149,15 @@ type alias View id msg =
     }
 
 
-view : Config id msg -> List (Attribute InternalConfig) -> View id msg -> Element msg
+view : Config id msg -> List (Attribute (InternalConfig msg)) -> View id msg -> Element msg
 view { theme, lift } attributes { id, label, value, state, onChange, onKeyDown } =
     let
         defaultInternalConfig =
             { multiline = False
             , password = False
             , errorFunction = Nothing
+            , onFocus = Nothing
+            , onLoseFocus = Nothing
             }
 
         internalConfig =
@@ -218,8 +239,8 @@ view { theme, lift } attributes { id, label, value, state, onChange, onKeyDown }
                 []
 
         inputAttributes =
-            [ Events.onFocus <| lift <| Focus id
-            , Events.onLoseFocus <| lift <| Blur id
+            [ Events.onFocus <| lift <| Focus id internalConfig.onFocus
+            , Events.onLoseFocus <| lift <| Blur id internalConfig.onLoseFocus
             , Background.color transparent
             , Element.scrollbarY
             , Border.width 0
