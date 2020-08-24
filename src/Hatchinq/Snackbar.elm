@@ -1,4 +1,7 @@
-module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, alert, configure, dismissible, maximumWidth, init, update)
+module Hatchinq.Snackbar exposing
+    ( Config, Content(..), Message, State, View, alert, configure, dismissible, maximumWidth, init, update
+    , backgroundColor, fontColor, icon
+    )
 
 {-|
 
@@ -9,8 +12,9 @@ module Hatchinq.Snackbar exposing (Config, Content(..), Message, State, View, al
 
 -}
 
+import Color
 import Delay exposing (TimeUnit(..))
-import Element exposing (Element, alignBottom, alignRight, centerX, column, el, fill, html, htmlAttribute, maximum, minimum, padding, paddingEach, paddingXY, px, row, shrink, text)
+import Element exposing (Color, Element, alignBottom, alignRight, centerX, column, el, fill, html, htmlAttribute, maximum, minimum, padding, paddingEach, paddingXY, px, row, shrink, text)
 import Element.Background
 import Element.Border
 import Element.Font
@@ -44,7 +48,28 @@ type Content msg
 type alias InternalConfig =
     { dismissible : Bool
     , maximumWidth : Int
+    , backgroundColor : Maybe Color
+    , fontColor : Maybe Color
+    , icon : Maybe String
     }
+
+
+{-| -}
+backgroundColor : Color -> Attribute InternalConfig
+backgroundColor bc =
+    custom (\v -> { v | backgroundColor = Just bc })
+
+
+{-| -}
+fontColor : Color -> Attribute InternalConfig
+fontColor c =
+    custom (\v -> { v | fontColor = Just c })
+
+
+{-| -}
+icon : String -> Attribute InternalConfig
+icon i =
+    custom (\v -> { v | icon = Just i })
 
 
 {-| -}
@@ -180,6 +205,9 @@ view { theme, lift } attributes { state } =
         defaultInternalConfig =
             { dismissible = False
             , maximumWidth = 344
+            , backgroundColor = Nothing
+            , fontColor = Nothing
+            , icon = Nothing
             }
 
         internalConfig =
@@ -190,13 +218,6 @@ view { theme, lift } attributes { state } =
 
         iconButton =
             IconButton.configure { theme = theme }
-
-        dismissibleButton =
-            if internalConfig.dismissible then
-                iconButton [ IconButton.white, Attribute.width (px 36), Attribute.height (px 36) ] { icon = "close", onPress = Just (Close state.id Nothing) }
-
-            else
-                Element.none
 
         getButton =
             \maybeValue ->
@@ -226,6 +247,54 @@ view { theme, lift } attributes { state } =
                                 [ dismissibleButton ]
                             )
 
+        bgColor =
+            case internalConfig.backgroundColor of
+                Just configColor ->
+                    configColor
+
+                _ ->
+                    theme.colors.gray.dark
+
+        ( textColor, iconElement ) =
+            let
+                iconPadding =
+                    paddingEach { left = 16, top = 8, right = 0, bottom = 8 }
+
+                iconHtmlAttributes =
+                    [ Html.Attributes.class "material-icons", Html.Attributes.style "user-select" "none" ]
+            in
+            case internalConfig.fontColor of
+                Just specifiedFontColor ->
+                    case internalConfig.icon of
+                        Just iconString ->
+                            ( specifiedFontColor
+                            , Element.el
+                                [ iconPadding ]
+                                (Html.i
+                                    (iconHtmlAttributes ++ [ Html.Attributes.style "color" (Color.toCssString (Color.fromRgba (Element.toRgb specifiedFontColor))) ])
+                                    [ Html.text iconString ]
+                                    |> html
+                                )
+                            )
+
+                        _ ->
+                            ( specifiedFontColor, Element.none )
+
+                _ ->
+                    case internalConfig.icon of
+                        Just iconString ->
+                            ( white, Element.el [ iconPadding ] (Html.i iconHtmlAttributes [ Html.text iconString ] |> html) )
+
+                        _ ->
+                            ( white, Element.none )
+
+        dismissibleButton =
+            if internalConfig.dismissible then
+                iconButton [ IconButton.withTextColor textColor, Attribute.width (px 36), Attribute.height (px 36) ] { icon = "close", onPress = Just (Close state.id Nothing) }
+
+            else
+                Element.none
+
         htmlAttributes =
             if state.isOpen then
                 [ htmlAttribute <| Html.Attributes.style "opacity" "1"
@@ -254,17 +323,18 @@ view { theme, lift } attributes { state } =
              , Element.width (shrink |> minimum 344 |> maximum internalConfig.maximumWidth)
              , alignBottom
              , centerX
-             , Element.Background.color theme.colors.gray.dark
+             , Element.Background.color bgColor
              , Element.Border.rounded 4
              , Element.Border.shadow { offset = ( 0, 3 ), size = 0, blur = 3, color = Element.rgba255 140 140 140 0.74 }
-             , Element.Font.color white
+             , Element.Font.color textColor
              , Element.Font.family [ theme.font.main ]
              , Element.Font.size theme.font.smallSize
              , htmlAttribute <| Html.Attributes.style "pointer-events" "all"
              ]
                 ++ htmlAttributes
             )
-            [ el
+            [ iconElement
+            , el
                 [ Element.width fill
                 , htmlAttribute <| Html.Attributes.style "display" "inline-block"
                 , htmlAttribute <| Html.Attributes.style "overflow" "hidden"

@@ -436,7 +436,7 @@ update msg model =
 
         InputStateChange inputMessage ->
             let
-                (newInputField, cmd) =
+                ( newInputField, cmd ) =
                     TextField.update inputMessage model.inputField
             in
             ( { model | inputField = newInputField }, cmd )
@@ -691,10 +691,10 @@ update msg model =
             ( model, Snackbar.alert SnackbarLift (Plain <| "Close " ++ text) )
 
         OnFocus ->
-            (model, Snackbar.alert SnackbarLift (Plain <| "Focus"))
+            ( model, Snackbar.alert SnackbarLift (Plain <| "Focus") )
 
         OnLoseFocus ->
-            (model, Snackbar.alert SnackbarLift (Plain <| "Lose focus"))
+            ( model, Snackbar.alert SnackbarLift (Plain <| "Lose focus") )
 
         NoOp ->
             ( model, Cmd.none )
@@ -970,7 +970,7 @@ mainContent model =
             ]
         , Element.row [ Element.width fill, spacing 16 ]
             [ Element.el [ alignTop ] <|
-                textField [onFocus OnFocus]
+                textField [ onFocus OnFocus ]
                     { id = FirstInputField
                     , label = "My input field"
                     , value = model.inputValue
@@ -1405,9 +1405,13 @@ mainContent model =
             , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Alert Again" (SnackbarAlert (Plain "Tried again but failed")))) }
             ]
         , Element.el [ Element.height fill, Element.width fill, Element.centerX ]
-            (snackbar [ Snackbar.dismissible ]
-                { state = model.snackbarState
-                }
+            (snackbar
+                [ Snackbar.dismissible
+                , Snackbar.backgroundColor (Element.rgb255 50 21 87)
+                , Snackbar.fontColor (Element.rgb255 145 225 225)
+                , Snackbar.icon "warning"
+                ]
+                { state = model.snackbarState }
             )
         , divider [ withColor theme.colors.primary.color ]
         , divider []
