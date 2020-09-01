@@ -147,6 +147,9 @@ type Msg
     | CloseChip String
     | OnFocus
     | OnLoseFocus
+    | OnClick Person
+    | OnMouseEnter Person
+    | OnMouseExit Person
     | NoOp
 
 
@@ -696,6 +699,15 @@ update msg model =
         OnLoseFocus ->
             ( model, Snackbar.alert SnackbarLift (Plain <| "Lose focus") )
 
+        OnClick person ->
+            ( model, Snackbar.alert SnackbarLift (Plain <| person.firstName) )
+
+        OnMouseEnter person ->
+            ( model, Cmd.none )
+
+        OnMouseExit person ->
+            ( model, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -1144,6 +1156,10 @@ mainContent model =
                         , width fill
                         , infinite { loadingBottom = model.loadingBottom, loadingTop = model.loadingTop, loadExtraItems = \direction -> Just { loadCount = List.length persons, excessCount = 0, loadMsg = LoadPeople direction } }
                         , id "infinite-data-table"
+                        , DataTable.onClick OnClick
+                        , DataTable.onMouseEnter OnMouseEnter
+                        , DataTable.onMouseExit OnMouseExit
+                        , DataTable.selectable
                         , DataTable.rowColor
                             (\p ->
                                 if p.age > 30 then
@@ -1157,7 +1173,20 @@ mainContent model =
                             )
                         ]
                         { columns =
-                            [ DataTable.column (Element.text "First name") (fill |> Element.minimum 100) (\_ person -> Element.text person.firstName)
+                            [ DataTable.column (Element.text "First name")
+                                (fill |> Element.minimum 120)
+                                (\_ person ->
+                                    case model.dataTable.hoveredItem of
+                                        Just hoveredPerson ->
+                                            if person == hoveredPerson then
+                                                Element.text (person.firstName ++ " (hovered)")
+
+                                            else
+                                                Element.text person.firstName
+
+                                        _ ->
+                                            Element.text person.firstName
+                                )
                             , DataTable.column (Element.text "Last name") (fill |> Element.minimum 100) (\_ person -> textWithEllipsis person.lastName)
                             , DataTable.externalSortableColumn (Element.text "Age") (fill |> Element.minimum 100) (\_ person -> Element.text (String.fromInt person.age)) DataTableSortChange
                             ]

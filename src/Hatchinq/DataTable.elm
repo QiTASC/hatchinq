@@ -1,7 +1,6 @@
 module Hatchinq.DataTable exposing
     ( Config, InfiniteView, LoadingDirection(..), Message, State, View
-    , column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update
-    , calculateRowHeight
+    , column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight, onClick, selectable, onMouseEnter, onMouseExit
     )
 
 {-|
@@ -10,7 +9,7 @@ module Hatchinq.DataTable exposing
 # Exposed
 
 @docs Config, InfiniteView, LoadingDirection, Message, State, View
-@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight
+@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight, onClick, selectable, onMouseEnter, onMouseExit
 
 -}
 
@@ -46,6 +45,10 @@ type alias InternalConfig item msg =
     , expansion : Maybe ( item -> Bool, item -> Bool -> msg, item -> Element msg )
     , rowColoring : Maybe (item -> Maybe Color)
     , lighterOrDarkerAmountOnHover : Float -- for colored rows
+    , onClick : Maybe (item -> msg)
+    , selectable : Bool
+    , onMouseEnter : Maybe (item -> msg)
+    , onMouseExit : Maybe (item -> msg)
     }
 
 
@@ -75,6 +78,8 @@ type alias State item =
     , firstVisible : Maybe Int
     , lastVisible : Maybe Int
     , rowHeights : Dict String Int
+    , selectedItem : Maybe item
+    , hoveredItem : Maybe item
     }
 
 
@@ -101,6 +106,8 @@ init =
     , firstVisible = Nothing
     , lastVisible = Nothing
     , rowHeights = Dict.empty
+    , selectedItem = Nothing
+    , hoveredItem = Nothing
     }
 
 
@@ -158,6 +165,9 @@ type Message item msg
     = Sort Int (SortMethod item msg)
     | TableScroll msg Int (Maybe String) String (DataTableType msg) ScrollPos
     | CalculatedRowHeight Int Int String
+    | OnClick item (Maybe (item -> msg)) Bool
+    | OnMouseEnter item (Maybe (item -> msg))
+    | OnMouseExit item (Maybe (item -> msg))
     | NoOp
 
 
@@ -278,11 +288,44 @@ update msg model =
         CalculatedRowHeight rowHeight rowIndex tableId ->
             ( { model | rowHeights = Dict.insert (tableRowId tableId rowIndex) rowHeight model.rowHeights }, Cmd.none )
 
+        OnClick item maybeOnClick isSelectable ->
+            let
+                m =
+                    if isSelectable then
+                        { model | selectedItem = Just item }
+
+                    else
+                        model
+            in
+            case maybeOnClick of
+                Just onClickMessage ->
+                    ( m, Task.perform identity <| Task.succeed (onClickMessage item) )
+
+                _ ->
+                    ( m, Cmd.none )
+
+        OnMouseEnter item maybeOnMouseEnter ->
+            case maybeOnMouseEnter of
+                Just onMouseEnterMessage ->
+                    ( { model | hoveredItem = Just item }, Task.perform identity <| Task.succeed (onMouseEnterMessage item) )
+
+                _ ->
+                    ( { model | hoveredItem = Just item }, Cmd.none )
+
+        OnMouseExit item maybeOnMouseExit ->
+            case maybeOnMouseExit of
+                Just onMouseExitMessage ->
+                    ( { model | hoveredItem = Nothing }, Task.perform identity <| Task.succeed (onMouseExitMessage item) )
+
+                _ ->
+                    ( { model | hoveredItem = Nothing }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
 
-{-| Use this to inform the table that the height of a row has changed -}
+{-| Use this to inform the table that the height of a row has changed
+-}
 calculateRowHeight : Int -> String -> Cmd (Message item msg)
 calculateRowHeight rowIndex tableId =
     getElement (tableRowId tableId rowIndex)
@@ -344,8 +387,8 @@ infinite infiniteView =
 
 {-| -}
 selection : (item -> Bool) -> (item -> Bool -> msg) -> (Bool -> msg) -> Attribute (InternalConfig item msg)
-selection selectable select selectAll =
-    custom (\v -> { v | selection = Just ( selectable, select, selectAll ) })
+selection isSelectable select selectAll =
+    custom (\v -> { v | selection = Just ( isSelectable, select, selectAll ) })
 
 
 {-| -}
@@ -365,11 +408,37 @@ lightenOrDarkenOnHover : Float -> Attribute (InternalConfig item msg)
 lightenOrDarkenOnHover amount =
     custom (\v -> { v | lighterOrDarkerAmountOnHover = amount })
 
+
 reversedSort : (List item -> List item) -> List item -> List item
 reversedSort sorter items =
     items
-      |> sorter
-      |> List.reverse
+        |> sorter
+        |> List.reverse
+
+
+{-| -}
+onClick : (item -> msg) -> Attribute (InternalConfig item msg)
+onClick action =
+    custom (\v -> { v | onClick = Just action })
+
+
+{-| -}
+selectable : Attribute (InternalConfig item msg)
+selectable =
+    custom (\v -> { v | selectable = True })
+
+
+{-| -}
+onMouseEnter : (item -> msg) -> Attribute (InternalConfig item msg)
+onMouseEnter action =
+    custom (\v -> { v | onMouseEnter = Just action })
+
+
+{-| -}
+onMouseExit : (item -> msg) -> Attribute (InternalConfig item msg)
+onMouseExit action =
+    custom (\v -> { v | onMouseExit = Just action })
+
 
 view : Config item msg -> List (Attribute (InternalConfig item msg)) -> View item msg -> Element msg
 view { theme, lift } attributes data =
@@ -386,6 +455,10 @@ view { theme, lift } attributes data =
             , expansion = Nothing
             , rowColoring = Nothing
             , lighterOrDarkerAmountOnHover = -0.05
+            , onClick = Nothing
+            , selectable = False
+            , onMouseEnter = Nothing
+            , onMouseExit = Nothing
             }
 
         internalConfig =
@@ -561,17 +634,36 @@ view { theme, lift } attributes data =
                             ]
 
                 ( rowColorAttr, mouseOverColor ) =
-                    case internalConfig.rowColoring of
-                        Just rowColoring ->
-                            case rowColoring it of
-                                Just color ->
-                                    ( [ Background.color color ], lightenOrDarken color internalConfig.lighterOrDarkerAmountOnHover )
+                    case data.state.selectedItem of
+                        Just item ->
+                            if it == item then
+                                ( [ Background.color (Element.rgb255 215 215 215) ], theme.colors.gray.lightest )
+
+                            else
+                                case internalConfig.rowColoring of
+                                    Just rowColoring ->
+                                        case rowColoring it of
+                                            Just color ->
+                                                ( [ Background.color color ], lightenOrDarken color internalConfig.lighterOrDarkerAmountOnHover )
+
+                                            _ ->
+                                                ( [], theme.colors.gray.lightest )
+
+                                    _ ->
+                                        ( [], theme.colors.gray.lightest )
+
+                        _ ->
+                            case internalConfig.rowColoring of
+                                Just rowColoring ->
+                                    case rowColoring it of
+                                        Just color ->
+                                            ( [ Background.color color ], lightenOrDarken color internalConfig.lighterOrDarkerAmountOnHover )
+
+                                        _ ->
+                                            ( [], theme.colors.gray.lightest )
 
                                 _ ->
                                     ( [], theme.colors.gray.lightest )
-
-                        _ ->
-                            ( [], theme.colors.gray.lightest )
             in
             expansionAttr
                 ++ rowColorAttr
@@ -625,9 +717,22 @@ view { theme, lift } attributes data =
                         [ Border.widthEach { bottom = 0, top = 1, left = 0, right = 0 }
                         , Border.color theme.colors.gray.lighter
                         ]
+
+                onClickAttribute =
+                    if internalConfig.onClick /= Nothing || internalConfig.selectable then
+                        [ Events.onClick (lift <| OnClick it internalConfig.onClick internalConfig.selectable) ]
+
+                    else
+                        []
+
+                onMouseEnterAttribute =
+                    [ Events.onMouseEnter (lift <| OnMouseEnter it internalConfig.onMouseEnter) ]
+
+                onMouseExitAttribute =
+                    [ Events.onMouseLeave (lift <| OnMouseExit it internalConfig.onMouseExit) ]
             in
             Element.row
-                (width fill :: itemAttributes it ++ borderAttributes)
+                (width fill :: itemAttributes it ++ borderAttributes ++ onClickAttribute ++ onMouseEnterAttribute ++ onMouseExitAttribute)
                 (expansionColumn it
                     ++ selectionColumn it
                     ++ List.indexedMap (\columnIndex (Column { header, width, viewFunc, sorter }) -> Element.el ([ Element.width width ] ++ cellAttributes) (viewFunc rowIndex it)) data.columns
