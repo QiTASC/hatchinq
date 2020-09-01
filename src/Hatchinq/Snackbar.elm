@@ -8,7 +8,7 @@ module Hatchinq.Snackbar exposing
 
 # Exposed
 
-@docs Config, Content, Message, State, View, alert, configure, dismissible, maximumWidth, init, update
+@docs Config, Content, Message, State, View, alert, configure, dismissible, maximumWidth, init, update, icon
 
 -}
 
