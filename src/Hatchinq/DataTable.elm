@@ -1,7 +1,6 @@
 module Hatchinq.DataTable exposing
     ( Config, InfiniteView, LoadingDirection(..), Message, State, View
-    , column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight
-    , onClick, onMouseEnter, onMouseExit, selectable
+    , column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight, onClick, selectable, onMouseEnter, onMouseExit
     )
 
 {-|
@@ -10,7 +9,7 @@ module Hatchinq.DataTable exposing
 # Exposed
 
 @docs Config, InfiniteView, LoadingDirection, Message, State, View
-@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight
+@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight, onClick, selectable, onMouseEnter, onMouseExit
 
 -}
 
