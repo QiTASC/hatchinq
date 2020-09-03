@@ -637,7 +637,7 @@ view { theme, lift } attributes data =
                     case data.state.selectedItem of
                         Just item ->
                             if it == item then
-                                ( [ Background.color (Element.rgb255 215 215 215) ], theme.colors.gray.lightest )
+                                ( [ Background.color (Element.rgb255 215 215 215) ], Element.rgb255 218 218 218 )
 
                             else
                                 case internalConfig.rowColoring of
