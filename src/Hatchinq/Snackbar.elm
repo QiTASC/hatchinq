@@ -1,14 +1,14 @@
 module Hatchinq.Snackbar exposing
     ( Config, Content(..), Message, State, View, alert, configure, dismissible, maximumWidth, init, update
     , backgroundColor, fontColor, icon
-    )
+    , maximumActionButtonWidth)
 
 {-|
 
 
 # Exposed
 
-@docs Config, Content, Message, State, View, alert, configure, dismissible, maximumWidth, init, update, icon, fontColor, backgroundColor
+@docs Config, Content, Message, State, View, alert, configure, dismissible, maximumWidth, maximumActionButtonWidth, init, update, icon, fontColor, backgroundColor
 
 -}
 
@@ -48,6 +48,7 @@ type Content msg
 type alias InternalConfig =
     { dismissible : Bool
     , maximumWidth : Int
+    , maximumActionButtonWidth: Int
     , backgroundColor : Maybe Color
     , fontColor : Maybe Color
     , icon : Maybe String
@@ -82,6 +83,11 @@ dismissible =
 maximumWidth : Int -> Attribute InternalConfig
 maximumWidth max =
     custom (\v -> { v | maximumWidth = max })
+
+{-| -}
+maximumActionButtonWidth : Int -> Attribute InternalConfig
+maximumActionButtonWidth max =
+    custom (\v -> { v | maximumActionButtonWidth = max })
 
 
 {-| -}
@@ -205,6 +211,7 @@ view { theme, lift } attributes { state } =
         defaultInternalConfig =
             { dismissible = False
             , maximumWidth = 344
+            , maximumActionButtonWidth = 120
             , backgroundColor = Nothing
             , fontColor = Nothing
             , icon = Nothing
@@ -233,7 +240,9 @@ view { theme, lift } attributes { state } =
                                         Element.none
 
                                     WithAction _ buttonText buttonMsg ->
-                                        button [ Button.text, width (shrink |> maximum 120) ] { label = buttonText, onPress = Just (Close state.id (Just buttonMsg)) }
+                                        button
+                                            [ Button.text, width (shrink |> maximum internalConfig.maximumActionButtonWidth) ]
+                                            { label = buttonText, onPress = Just (Close state.id (Just buttonMsg)) }
                                 , dismissibleButton
                                 ]
                             )

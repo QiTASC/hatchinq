@@ -1431,7 +1431,7 @@ mainContent model =
             ]
         , Element.row [ spacing 16 ]
             [ button [] { label = "Snackbar", onPress = Just (SnackbarAlert (Plain "Snackbar message")) }
-            , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Alert Again" (SnackbarAlert (Plain "Tried again but failed")))) }
+            , button [] { label = "Snackbar With Action", onPress = Just (SnackbarAlert (WithAction "Snackbar message with action" "Click to Alert Again " (SnackbarAlert (Plain "Tried again but failed")))) }
             ]
         , Element.el [ Element.height fill, Element.width fill, Element.centerX ]
             (snackbar
@@ -1439,6 +1439,8 @@ mainContent model =
                 , Snackbar.backgroundColor (Element.rgb255 50 21 87)
                 , Snackbar.fontColor (Element.rgb255 145 225 225)
                 , Snackbar.icon "warning"
+                , Snackbar.maximumWidth 500
+                , Snackbar.maximumActionButtonWidth 200
                 ]
                 { state = model.snackbarState }
             )
