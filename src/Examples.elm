@@ -108,7 +108,7 @@ persons =
     [ Person 0 "Bob" "Sponge" 20 (Just "Awesome guy") "https://vignette.wikia.nocookie.net/lostmedia/images/6/60/Spongebill.png"
     , Person 1 "Morty" "Smith with a loooong name" 29 (Just "Cool guy") "https://qph.fs.quoracdn.net/main-qimg-9a1a3120354b2b345c5e5c6a1647fb6a"
     , Person 2 "Rick" "Sanchez" 40 (Just "Loves Elm") "https://pbs.twimg.com/profile_images/686425525032632320/D6_xAbDK_400x400.jpg"
-    , Person 3 "Thanos" "Mad Titan" 35 Nothing "https://www.sideshowtoy.com/wp-content/uploads/2018/04/marvel-avengers-infinity-war-thanos-sixth-scale-figure-hot-toys-feature-903429-1.jpg"
+    , Person 3 "Thanos" "Mad Titan" 35 Nothing "https://upload.wikimedia.org/wikipedia/en/c/cd/Thanos_Infinity_4.png"
     ]
 
 
