@@ -181,7 +181,7 @@ view { theme, lift } attributes { id, label, value, state, onChange, onKeyDown }
         standardLabelAttributes =
             [ width fill
             , height shrink
-            , Font.family [ Font.typeface "Avenir" ]
+            , Font.family [ theme.font.main ]
             , Font.size 16
             , htmlAttribute (Attr.style "transition" "all .2s ease")
             , htmlAttribute (Attr.style "transform-origin" "top left")

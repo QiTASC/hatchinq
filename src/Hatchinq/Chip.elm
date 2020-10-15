@@ -108,7 +108,8 @@ view { theme } attributes { item, toString, onClick, onClose } =
                     width shrink
     in
     column
-        ([ Border.rounded 24
+        ([ Font.family [ theme.font.main ]
+         , Border.rounded 24
          , Background.color backgroundColor
          , paddingEach
             { top = 8
