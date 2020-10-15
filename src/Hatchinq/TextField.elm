@@ -15,7 +15,7 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
-import Hatchinq.Attribute exposing (Attribute, custom, toHeight, toInternalConfig, toWidth)
+import Hatchinq.Attribute exposing (Attribute, custom, toHeight, toId, toInternalConfig, toWidth)
 import Hatchinq.Theme as Theme exposing (Theme, textWithEllipsis, transparent)
 import Html.Attributes as Attr
 import Html.Events
@@ -238,6 +238,13 @@ view { theme, lift } attributes { id, label, value, state, onChange, onKeyDown }
             else
                 []
 
+        idAttribute =
+            case toId attributes of
+                Just stringId ->
+                    [ htmlAttribute <| Attr.id stringId ]
+                Nothing ->
+                    []
+
         inputAttributes =
             [ Events.onFocus <| lift <| Focus id internalConfig.onFocus
             , Events.onLoseFocus <| lift <| Blur id internalConfig.onLoseFocus
@@ -257,6 +264,7 @@ view { theme, lift } attributes { id, label, value, state, onChange, onKeyDown }
                 , bottom = 4
                 }
             ]
+                ++ idAttribute
                 ++ passwordAttribute
                 ++ Maybe.withDefault [] (Maybe.map (\decoder -> [ Element.htmlAttribute <| Html.Events.on "keydown" decoder ]) onKeyDown)
     in
