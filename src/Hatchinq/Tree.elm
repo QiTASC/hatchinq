@@ -13,6 +13,7 @@ import Dict exposing (Dict)
 import Element exposing (Element, Length, centerX, centerY, fill, height, htmlAttribute, mouseOver, pointer, px, width)
 import Element.Background as Background
 import Element.Events exposing (onClick)
+import Element.Font as Font
 import Hatchinq.Attribute exposing (Attribute, custom, toElement, toInternalConfig)
 import Hatchinq.IconButton as IconButton
 import Hatchinq.Theme exposing (Theme, arrowTransition)
@@ -158,9 +159,7 @@ view config attributes { state, data } =
             state.rootExpandedNode
     in
     Element.column
-        (width fill
-            :: elementAttributes
-        )
+        ([ width fill, Font.family [ config.theme.font.main ] ] ++ elementAttributes)
         (List.indexedMap (\index treeNode -> renderTreeNode internalConfig config [ index ] (Dict.get index expandedNodes) treeNode) data)
 
 
