@@ -130,7 +130,7 @@ view { theme } source data =
     in
     Element.el
         (Background.color theme.colors.primary.color
-            :: Font.family [ theme.font.main]
+            :: Font.family [ theme.font.main ]
             :: Font.size 20
             :: Font.bold
             :: Font.color Theme.white
