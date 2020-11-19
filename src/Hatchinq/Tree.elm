@@ -247,7 +247,7 @@ renderTreeNode internalConfig config path maybeExpandedNode (TreeNode { element,
     Element.column
         [ width fill ]
         [ Element.row
-            ([ height (px itemRowHeight), width fill] ++ rowAttributes)
+            ([ height fill, width fill] ++ rowAttributes)
             [ toggleButton
             , Element.el
                 ([ Element.paddingEach { top = 0, right = 4, bottom = 0, left = 0 }, width fill] ++ elementAttributes)
