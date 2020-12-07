@@ -1,7 +1,7 @@
 module Hatchinq.DataTable exposing
     ( Config, InfiniteView, LoadingDirection(..), Message, State, View
     , column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight, onClick, selectable, onMouseEnter, onMouseExit
-    )
+    , nonScrollable)
 
 {-|
 
@@ -9,7 +9,7 @@ module Hatchinq.DataTable exposing
 # Exposed
 
 @docs Config, InfiniteView, LoadingDirection, Message, State, View
-@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight, onClick, selectable, onMouseEnter, onMouseExit
+@docs column, configure, expansion, infinite, init, lightenOrDarkenOnHover, nonScrollable, plain, rowColor, selection, sortableColumn, externalSortableColumn, update, calculateRowHeight, onClick, selectable, onMouseEnter, onMouseExit
 
 -}
 
@@ -49,6 +49,7 @@ type alias InternalConfig item msg =
     , selectable : Bool
     , onMouseEnter : Maybe (item -> msg)
     , onMouseExit : Maybe (item -> msg)
+    , scrollable : Bool
     }
 
 
@@ -408,6 +409,10 @@ lightenOrDarkenOnHover : Float -> Attribute (InternalConfig item msg)
 lightenOrDarkenOnHover amount =
     custom (\v -> { v | lighterOrDarkerAmountOnHover = amount })
 
+{-| -}
+nonScrollable : Attribute (InternalConfig item msg)
+nonScrollable =
+    custom (\v -> { v | scrollable = False })
 
 reversedSort : (List item -> List item) -> List item -> List item
 reversedSort sorter items =
@@ -459,6 +464,7 @@ view { theme, lift } attributes data =
             , selectable = False
             , onMouseEnter = Nothing
             , onMouseExit = Nothing
+            , scrollable = True
             }
 
         internalConfig =
@@ -783,6 +789,14 @@ view { theme, lift } attributes data =
                         , Border.color theme.colors.gray.lighter
                         ]
                         Element.none
+
+        scrollingAttributes =
+            if internalConfig.scrollable then
+                [ Html.Events.on "scroll" (Decode.map (lift << TableScroll (lift NoOp) theme.sizes.table.rowHeight maybeTableId elementId internalConfig.dataTableType) decodeScrollPos) |> htmlAttribute
+                , scrollbarY
+                ]
+            else
+                []
     in
     Element.column
         (tableAttributes ++ elementAttributes)
@@ -792,12 +806,7 @@ view { theme, lift } attributes data =
                 ++ List.indexedMap (\columnIndex headerColumn -> createHeader headerColumn columnIndex) data.columns
             )
         , Element.el
-            [ Html.Events.on "scroll" (Decode.map (lift << TableScroll (lift NoOp) theme.sizes.table.rowHeight maybeTableId elementId internalConfig.dataTableType) decodeScrollPos) |> htmlAttribute
-            , scrollbarY
-            , height fill
-            , width fill
-            , Html.Attributes.id elementId |> htmlAttribute
-            ]
+            (scrollingAttributes ++ [ height fill, width fill, Html.Attributes.id elementId |> htmlAttribute ])
             (Element.column [ height fill, width fill ]
                 (extraItemsTop
                     ++ List.indexedMap
