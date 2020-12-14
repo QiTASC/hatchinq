@@ -153,7 +153,7 @@ menuBody config attributes { id, items, state } =
     in
     el
         (bodyAttributes ++ attributes)
-        (column [] (List.map (\value -> menuItem config value) items))
+        (column [ width fill ] (List.map (\value -> menuItem config value) items))
 
 
 menuItem : Config msg -> MenuItem msg -> Element msg
