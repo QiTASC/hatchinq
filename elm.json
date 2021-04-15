@@ -5,7 +5,7 @@
     "license": "Apache-2.0",
     "version": "28.2.1",
     "exposed-modules": [
-        "Examples",
+        "Hatchinq.Examples",
         "Hatchinq.AppBar",
         "Hatchinq.Attribute",
         "Hatchinq.Button",
