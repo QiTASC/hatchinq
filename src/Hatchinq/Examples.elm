@@ -1,4 +1,4 @@
-module Examples exposing (main)
+module Hatchinq.Examples exposing (main)
 
 {-| Exposed
 

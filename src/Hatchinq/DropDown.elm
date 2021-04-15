@@ -245,25 +245,22 @@ view config attributes data =
             else
                 theme.colors.gray.dark
 
-        ( ( query, text ), placeholder, labelAttributes ) =
+        placeholder =
+             Maybe.map
+                (\t ->
+                    Input.placeholder [] (el [ width fill, height fill ] (textWithEllipsis <| converter t))
+                )
+                data.value
+
+        ( ( query, text ), labelAttributes ) =
             case state.uiState of
                 Open (Query q) ->
                     ( ( Query q, q )
-                    , if q == "" then
-                        Maybe.map
-                            (\t ->
-                                Input.placeholder [] (el [ width fill, height fill ] (textWithEllipsis <| converter t))
-                            )
-                            data.value
-
-                      else
-                        Nothing
                     , paddingXY 12 8 :: Font.size theme.font.smallerSize :: Font.color theme.colors.secondary.color :: standardLabelAttributes
                     )
 
                 Closed ->
                     ( ( Query "", Maybe.withDefault "" <| Maybe.map converter data.value )
-                    , Nothing
                     , case data.value of
                         Just _ ->
                             pointer :: paddingXY 12 8 :: Font.size theme.font.smallerSize :: Font.color labelColor :: standardLabelAttributes
